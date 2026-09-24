@@ -1,0 +1,363 @@
+{
+  "results": [
+    {
+      "id": "ko-wait",
+      "ok": true,
+      "checks": {
+        "리뷰 안전검사 수행": true,
+        "정책 검색 수행": true,
+        "답글 언어 일치": true,
+        "답글 비어있지 않음": true,
+        "불필요한 매니저 알림 없음": true,
+        "degraded 아님": true
+      },
+      "final": {
+        "reply_text": "Hải Đăng Seafood를 찾아주시고 맛있게 드셨다니 감사합니다. 타이거새우 구이와 모닝글로리 볶음, 사장님 친절함까지 칭찬해 주셔서 기쁩니다. 다만 저녁 피크타임에 50분 넘게 기다리시면서 대기 안내를 받지 못하셨다니 죄송합니다. 매장 정책상 45분 초과 대기 시 웰컴 드링크를 제공해 드리고 있으나, 현장에서 안내가 누락된 점 깊이 사과드립니다. 앞으로는 QR 원격 대기 등록과 순번 안내를 더 꼼꼼히 챙겨 불편 없도록 개선하겠습니다. 다음 방문 때는 더 쾌적한 식사가 되도록 준비하겠습니다.",
+        "language": "ko",
+        "severity": "medium",
+        "category": "대기시간",
+        "sentiment": "neutral",
+        "rationale": "리뷰는 음식·서비스 칭찬과 대기 관리 미흡을 동시에 담고 있어 감정은 neutral, 카테고리는 대기시간, 심각도는 medium으로 분류. 정책(대기 45분 초과 시 웰컴 드링크 제공)을 근거로 누락 사과와 개선 약속만 포함했으며, 내부 조치나 정책 외 보상은 언급하지 않음. 한국어 리뷰이므로 한국어만 사용.",
+        "reply_safety": "safe"
+      },
+      "tools_used": {
+        "check_safety": 1,
+        "search_policy": 1,
+        "submit_reply": 1
+      },
+      "steps": [
+        {
+          "actor": "agent",
+          "type": "tool_call",
+          "tool": "check_safety",
+          "args": {
+            "text": "가족들이랑 다녀왔는데 타이거새우 구이랑 모닝글로리 볶음 진짜 맛있었어요! 사장님도 친절하시고요. 다만 저녁 7시쯤 갔더니 자리 날 때까지 50분 넘게 기다렸습니다. 대기 순서 안내가 전혀 없어서 그냥 서서 기다렸네요. 대기 관리는 좀 아쉽습니다.",
+            "kind": "review"
+          },
+          "reasoning": "The user wants me to process a customer review for the seafood restaurant \"Hải Đăng Seafood\". The review is in Korean, praising the food (tiger shrimp grill, morning glory stir-fry) and owner's kindness, but complaining about a 50+ minute wait at 7pm with no queue management/guidance.\n\nI need to follow the procedure:\n1. First, check_safety with kind=\"review\" on the review text.\n2. Then, since the complaint is about waiting time/queue management, I should search_policy for relevant policies (likely about waiting time or service).\n3. The review doesn't mention foreign objects, hygiene, health issues, legal threats, or abusive language, so severity is likely low/medium, no need for notify_manager.\n4. Write a reply in Korean (same language as review), 3-6 sentences, following the structure: gratitude → acknowledge specific issue → policy-based action guidance → encourage revisit.\n5. Use submit_reply with classification, sentiment, severity, reply_text, rationale.\n\nLet's start with check_safety.",
+          "elapsed": 0.41,
+          "n": 1
+        },
+        {
+          "actor": "agent",
+          "type": "tool_call",
+          "tool": "search_policy",
+          "args": {
+            "top_k": 3,
+            "query": "대기시간 관리 안내 정책"
+          },
+          "reasoning": "The review is safe. It's a mixed review - positive about food and owner's friendliness, but negative about wait time and lack of queue management. The main issue is waiting time (50+ minutes) and no queue guidance. This falls under \"대기시간\" (wait time) category. I should search for policy on wait time management to see what the restaurant's policy says about this. Let me search for relevant policy.",
+          "elapsed": 0.65,
+          "n": 2
+        },
+        {
+          "actor": "guardrail",
+          "type": "verify",
+          "tool": "check_safety",
+          "args": {
+            "kind": "draft_reply"
+          },
+          "elapsed": 0.5,
+          "n": 3
+        },
+        {
+          "actor": "agent",
+          "type": "final",
+          "tool": "submit_reply",
+          "args": {
+            "reply_text": "Hải Đăng Seafood를 찾아주시고 맛있게 드셨다니 감사합니다. 타이거새우 구이와 모닝글로리 볶음, 사장님 친절함까지 칭찬해 주셔서 기쁩니다. 다만 저녁 피크타임에 50분 넘게 기다리시면서 대기 안내를 받지 못하셨다니 죄송합니다. 매장 정책상 45분 초과 대기 시 웰컴 드링크를 제공해 드리고 있으나, 현장에서 안내가 누락된 점 깊이 사과드립니다. 앞으로는 QR 원격 대기 등록과 순번 안내를 더 꼼꼼히 챙겨 불편 없도록 개선하겠습니다. 다음 방문 때는 더 쾌적한 식사가 되도록 준비하겠습니다.",
+            "language": "ko",
+            "severity": "medium",
+            "category": "대기시간",
+            "sentiment": "neutral",
+            "rationale": "리뷰는 음식·서비스 칭찬과 대기 관리 미흡을 동시에 담고 있어 감정은 neutral, 카테고리는 대기시간, 심각도는 medium으로 분류. 정책(대기 45분 초과 시 웰컴 드링크 제공)을 근거로 누락 사과와 개선 약속만 포함했으며, 내부 조치나 정책 외 보상은 언급하지 않음. 한국어 리뷰이므로 한국어만 사용.",
+            "reply_safety": "safe"
+          },
+          "reasoning": "The review mentions waiting over 50 minutes without any queue guidance. According to the policy, for waits exceeding 45 minutes, a welcome drink should be provided, and for waits exceeding 60 minutes, a 10% discount coupon for next visit. The customer waited 50+ minutes, so they qualify for the welcome drink. However, they didn't mention receiving it. The policy also mentions remote queue registration via QR at entrance. The customer says there was no queue guidance at all.\n\nI need to craft a reply in Korean (since review is in Korean) following the reply rules: gratitude, acknowledgment, policy-based action, revisit invitation. I should mention the policy about welcome drink for >45 min wait, and apologize for lack of guidance. Also note that we'll improve queue management. No internal actions mentioned. No compensation beyond policy. No English words mixed.\n\nSeverity: medium (service issue but not safety). Category: 대기시간 (waiting time). Sentiment: mixed (positive food/staff, negative wait). Language: ko.\n\nNow I'll write the reply and submit.",
+          "elapsed": 42.38,
+          "n": 4
+        }
+      ],
+      "elapsed": 65.24,
+      "usage": {
+        "prompt_tokens": 8572,
+        "completion_tokens": 1059,
+        "total_tokens": 9631,
+        "calls": 6
+      }
+    },
+    {
+      "id": "en-weight",
+      "ok": true,
+      "checks": {
+        "리뷰 안전검사 수행": true,
+        "정책 검색 수행": true,
+        "답글 언어 일치": true,
+        "답글 비어있지 않음": true,
+        "불필요한 매니저 알림 없음": true,
+        "degraded 아님": true
+      },
+      "final": {
+        "reply_text": "Thank you for sharing your experience at Hải Đăng Seafood. We sincerely apologize for the weight discrepancy with your lobster and for the staff's refusal to re-weigh it when requested. According to our policy, when a weight dispute arises, we re-measure using our certified in-house scale, and if the actual weight is less than what was charged, we refund twice the difference. Please contact us with your receipt or QR order number so we can resolve this for you. We value your feedback and hope to restore your trust on a future visit.",
+        "category": "가격/중량",
+        "language": "en",
+        "sentiment": "negative",
+        "severity": "medium",
+        "rationale": "리뷰는 랍스터 중량 분쟁(1.2kg 안내 vs 1.6kg 청구)과 재측정 거부로 인한 금전적 불만을 담고 있어 '가격/중량' 카테고리, 부정 감정, 중간 심각도로 분류. 정책 4조(살아있는 해산물 선택 및 중량 표기)에 따라 공인 저울 재측정 및 차액 2배 환불 조항을 근거로 답글에 안내. 위생·건강·법적 위협 없으므로 매니저 에스컬레이션 불필요. 영어 리뷰이므로 영어로만 답글 작성.",
+        "reply_safety": "safe"
+      },
+      "tools_used": {
+        "check_safety": 1,
+        "search_policy": 1,
+        "submit_reply": 1
+      },
+      "steps": [
+        {
+          "actor": "agent",
+          "type": "tool_call",
+          "tool": "check_safety",
+          "args": {
+            "text": "We picked a lobster from the tank and the staff told us it was about 1.2kg, but the final bill charged us for 1.6kg. When I asked them to weigh it again, nobody would help and they just kept saying it's the market price. The food itself was decent but I left feeling ripped off.",
+            "kind": "review"
+          },
+          "reasoning": "The user has provided a customer review in English about a weight discrepancy issue at the restaurant. The customer claims they were charged for 1.6kg when the lobster was supposedly 1.2kg, and staff refused to re-weigh it. This falls under \"가격/중량\" (price/weight) category.\n\nI need to follow the procedure:\n1. First, check_safety with kind=\"review\" on the review text.\n2. Then search_policy for relevant weight dispute policy.\n3. Based on policy, draft a reply in English (same language as review).\n4. Check safety of draft reply with kind=\"draft_reply\".\n5. Submit reply with submit_reply.\n\nLet's start with check_safety.",
+          "elapsed": 0.92,
+          "n": 1
+        },
+        {
+          "actor": "agent",
+          "type": "tool_call",
+          "tool": "search_policy",
+          "args": {
+            "query": "중량 분쟁 랍스터 무게 재측정 환불 정책",
+            "top_k": 3
+          },
+          "reasoning": "The review is safe. Now I need to search for the relevant policy about weight disputes and pricing. The customer is complaining about being charged for 1.6kg when told it was 1.2kg, and staff refused to re-weigh. This falls under \"가격/중량\" category. Let me search the policy.",
+          "elapsed": 0.71,
+          "n": 2
+        },
+        {
+          "actor": "guardrail",
+          "type": "verify",
+          "tool": "check_safety",
+          "args": {
+            "kind": "draft_reply"
+          },
+          "elapsed": 0.61,
+          "n": 3
+        },
+        {
+          "actor": "agent",
+          "type": "final",
+          "tool": "submit_reply",
+          "args": {
+            "reply_text": "Thank you for sharing your experience at Hải Đăng Seafood. We sincerely apologize for the weight discrepancy with your lobster and for the staff's refusal to re-weigh it when requested. According to our policy, when a weight dispute arises, we re-measure using our certified in-house scale, and if the actual weight is less than what was charged, we refund twice the difference. Please contact us with your receipt or QR order number so we can resolve this for you. We value your feedback and hope to restore your trust on a future visit.",
+            "category": "가격/중량",
+            "language": "en",
+            "sentiment": "negative",
+            "severity": "medium",
+            "rationale": "리뷰는 랍스터 중량 분쟁(1.2kg 안내 vs 1.6kg 청구)과 재측정 거부로 인한 금전적 불만을 담고 있어 '가격/중량' 카테고리, 부정 감정, 중간 심각도로 분류. 정책 4조(살아있는 해산물 선택 및 중량 표기)에 따라 공인 저울 재측정 및 차액 2배 환불 조항을 근거로 답글에 안내. 위생·건강·법적 위협 없으므로 매니저 에스컬레이션 불필요. 영어 리뷰이므로 영어로만 답글 작성.",
+            "reply_safety": "safe"
+          },
+          "reasoning": "The review is about a weight dispute for a lobster - the customer was told 1.2kg but charged for 1.6kg, and staff refused to re-weigh. This falls under \"가격/중량\" category. The policy section 4 states: \"중량 오차 분쟁 발생 시 매장 내 공인 저울로 재측정하며, 표기 중량보다 실제가 적을 경우 차액의 2배를 환불합니다.\" (When weight discrepancy dispute occurs, re-measure with certified scale in store, and if actual weight is less than indicated, refund 2x the difference.)\n\nThe customer says food was decent but felt ripped off. This is a negative sentiment, medium severity (financial dispute but no health/safety issue). No need for manager escalation since it's not hygiene/health/legal threat.\n\nI need to write a reply in English (same language as review) acknowledging the issue, referencing the policy about re-weighing and 2x refund for weight discrepancy, and inviting them to contact for resolution. Let me draft the reply.",
+          "elapsed": 27.92,
+          "n": 4
+        }
+      ],
+      "elapsed": 55.36,
+      "usage": {
+        "prompt_tokens": 8381,
+        "completion_tokens": 950,
+        "total_tokens": 9331,
+        "calls": 6
+      }
+    },
+    {
+      "id": "vi-hygiene",
+      "ok": true,
+      "checks": {
+        "리뷰 안전검사 수행": true,
+        "정책 검색 수행": true,
+        "답글 언어 일치": true,
+        "답글 비어있지 않음": true,
+        "심각 건 매니저 알림": true,
+        "severity high/critical": true,
+        "degraded 아님": true
+      },
+      "final": {
+        "category": "위생/식품안전",
+        "language": "vi",
+        "severity": "critical",
+        "reply_text": "Quý khách thân mến, Hải Đăng Seafood xin gửi lời xin lỗi sâu sắc vì quý khách đã trải qua sự cố nghiêm trọng với món tôm rang me và phải nhập viện điều trị. Chúng tôi xác nhận sẽ hoàn trả toàn bộ số tiền bàn ăn của quý khách, và quản lý nhà hàng sẽ liên hệ trực tiếp trong vòng 24 giờ tới để hỗ trợ chi phí khám chữa bệnh theo quy định. Quý khách vui lòng liên hệ quản lý qua manager@haidang-danang.example hoặc +84 236 555 0147 để được giải quyết nhanh chóng. Chúng tôi cam kết rà soát lại toàn bộ quy trình vệ sinh an toàn thực phẩm để không để sự việc này lặp lại. Rất mong quý khách cho phép chúng tôi được phục vụ lại đúng chuẩn mực.",
+        "rationale": "리뷰는 베트남어로 작성되었으므로 베트남어로 답글 작성. 이물질(바퀴벌레) 혼입 + 섭취 후 식중독 입원 + 직원 부실 대응 + 법적 조치 예고로 severity=critical, category=위생/식품안전. 정책 2조(식품 안전 및 위생 이슈 대응)의 [고객 안내] 항목만 인용: 전체 금액 환불, 24시간 내 매니저 직접 연락·진료비 지원 안내, 담당자 연락처 제공, 위생 절차 재점검 약속(구체 일정·기관·설비 교체 미언급). 내부 조치(식재료 폐기, 기록 보존, 직원 재교육)는 답글에 미포함. 매니저 에스컬레이션 완료(AL-E7BD525B).",
+        "sentiment": "negative",
+        "reply_safety": "safe"
+      },
+      "tools_used": {
+        "check_safety": 1,
+        "search_policy": 1,
+        "notify_manager": 1,
+        "submit_reply": 1
+      },
+      "steps": [
+        {
+          "actor": "agent",
+          "type": "tool_call",
+          "tool": "check_safety",
+          "args": {
+            "text": "Tối qua tôi ăn ở đây với bạn. Trong đĩa tôm rang me có một con gián chết. Về nhà tôi bị đau bụng và tiêu chảy cả đêm, sáng nay phải đi bệnh viện truyền nước. Nhân viên lúc đó chỉ nói xin lỗi rồi bỏ đi. Quá kinh khủng, tôi sẽ báo cơ quan y tế và kiện nhà hàng này.",
+            "kind": "review"
+          },
+          "reasoning": "The user has provided a Vietnamese review about a serious hygiene issue - a dead cockroach in food, leading to food poisoning requiring hospital treatment. The customer threatens legal action and reporting to health authorities. This is clearly a high/critical severity case involving hygiene/food safety and health issues.\n\nI need to follow the procedure:\n1. First, check_safety with kind=\"review\" on the review text\n2. Since this involves hygiene/foreign object/health issues/legal threats, I need to search_policy for relevant policies\n3. Notify manager with high/critical severity\n4. Write a reply in Vietnamese (same language as review)\n5. Submit reply\n\nLet me start with check_safety.",
+          "elapsed": 0.42,
+          "n": 1
+        },
+        {
+          "actor": "agent",
+          "type": "tool_call",
+          "tool": "search_policy",
+          "args": {
+            "query": "위생 이물질 식중독 환불 보상 정책",
+            "top_k": 3
+          },
+          "reasoning": "The review is marked as unsafe, which means it contains serious complaints (foreign object, health issues, legal threats). This requires manager escalation. I need to search for relevant policies first, then notify the manager, and finally submit a reply. Let me search for policies related to hygiene/food safety and compensation.",
+          "elapsed": 0.72,
+          "n": 2
+        },
+        {
+          "actor": "agent",
+          "type": "tool_call",
+          "tool": "notify_manager",
+          "args": {
+            "severity": "critical",
+            "review_excerpt": "Trong đĩa tôm rang me có một con gián chết. Về nhà tôi bị đau bụng và tiêu chảy cả đêm, sáng nay phải đi bệnh viện truyền nước. Nhân viên lúc đó chỉ nói xin lỗi rồi bỏ đi. Tôi sẽ báo cơ quan y tế và kiện nhà hàng này.",
+            "summary": "고객이 타마린드 새우 요리에서 죽은 바퀴벌레를 발견하고 섭취 후 복통·설사로 입원 치료를 받았으며, 직원이 사과만 하고 떠났다고 신고함. 법적 조치 및 보건소 신고 예고."
+          },
+          "reasoning": "The review contains serious hygiene issues (dead cockroach in food) and health consequences (stomach pain, diarrhea, hospitalization). This is clearly a critical severity case. According to the policy, this requires immediate escalation to the manager. I need to call notify_manager with high/critical severity. Then I'll draft a reply in Vietnamese (same language as the review) following the policy guidelines for customer communication. The policy says for hygiene/food safety issues: full refund for the table, manager will contact within 24 hours about medical expense support, provide manager contact info, promise hygiene procedure review. I should not mention internal procedures. Let me escalate first.",
+          "elapsed": 0.0,
+          "n": 3
+        },
+        {
+          "actor": "guardrail",
+          "type": "verify",
+          "tool": "check_safety",
+          "args": {
+            "kind": "draft_reply"
+          },
+          "elapsed": 0.54,
+          "n": 4
+        },
+        {
+          "actor": "agent",
+          "type": "final",
+          "tool": "submit_reply",
+          "args": {
+            "category": "위생/식품안전",
+            "language": "vi",
+            "severity": "critical",
+            "reply_text": "Quý khách thân mến, Hải Đăng Seafood xin gửi lời xin lỗi sâu sắc vì quý khách đã trải qua sự cố nghiêm trọng với món tôm rang me và phải nhập viện điều trị. Chúng tôi xác nhận sẽ hoàn trả toàn bộ số tiền bàn ăn của quý khách, và quản lý nhà hàng sẽ liên hệ trực tiếp trong vòng 24 giờ tới để hỗ trợ chi phí khám chữa bệnh theo quy định. Quý khách vui lòng liên hệ quản lý qua manager@haidang-danang.example hoặc +84 236 555 0147 để được giải quyết nhanh chóng. Chúng tôi cam kết rà soát lại toàn bộ quy trình vệ sinh an toàn thực phẩm để không để sự việc này lặp lại. Rất mong quý khách cho phép chúng tôi được phục vụ lại đúng chuẩn mực.",
+            "rationale": "리뷰는 베트남어로 작성되었으므로 베트남어로 답글 작성. 이물질(바퀴벌레) 혼입 + 섭취 후 식중독 입원 + 직원 부실 대응 + 법적 조치 예고로 severity=critical, category=위생/식품안전. 정책 2조(식품 안전 및 위생 이슈 대응)의 [고객 안내] 항목만 인용: 전체 금액 환불, 24시간 내 매니저 직접 연락·진료비 지원 안내, 담당자 연락처 제공, 위생 절차 재점검 약속(구체 일정·기관·설비 교체 미언급). 내부 조치(식재료 폐기, 기록 보존, 직원 재교육)는 답글에 미포함. 매니저 에스컬레이션 완료(AL-E7BD525B).",
+            "sentiment": "negative",
+            "reply_safety": "safe"
+          },
+          "reasoning": "The user has reported a very serious hygiene issue - finding a dead cockroach in their food, getting food poisoning requiring hospitalization, and poor staff response. They're threatening legal action and reporting to health authorities.\n\nBased on the policy search results, for food safety/hygiene issues (Critical severity), the customer-facing response should include:\n1. Full table refund\n2. Manager will contact within 24 hours regarding medical expense support\n3. Provide manager contact info (manager@haidang-danang.example / +84 236 555 0147)\n4. Promise to review hygiene procedures (but not specific schedules/inspections/equipment changes)\n5. Not close with just an auto-reply\n\nThe review is in Vietnamese, so I need to respond in Vietnamese. I should not use English terms like \"escalation\", \"critical\", \"refund\", \"manager\" in the Vietnamese response - need to translate them properly.\n\nLet me draft a Vietnamese response following the guidelines:\n- Thank the customer\n- Acknowledge the specific issue (cockroach in tamarind shrimp, food poisoning, hospitalization)\n- State the policy-based actions: full refund, manager contact within 24 hours for medical expenses, provide contact info\n- Promise hygiene procedure review\n- Encure return visit\n\nI need to write 3-6 sentences in natural Vietnamese.",
+          "elapsed": 37.89,
+          "n": 5
+        }
+      ],
+      "elapsed": 85.15,
+      "usage": {
+        "prompt_tokens": 11869,
+        "completion_tokens": 1450,
+        "total_tokens": 13319,
+        "calls": 7
+      }
+    },
+    {
+      "id": "ru-refund",
+      "ok": true,
+      "checks": {
+        "리뷰 안전검사 수행": true,
+        "정책 검색 수행": true,
+        "답글 언어 일치": true,
+        "답글 비어있지 않음": true,
+        "불필요한 매니저 알림 없음": true,
+        "degraded 아님": true
+      },
+      "final": {
+        "rationale": "리뷰는 러시아어로 작성되었으며, 크랩이 너무 짜서(조리 오류: 과도한 간) 먹기 불가능했고 직원이 무관심했다는 내용입니다. 영수증이 있으며 방문일 기준 2일 전(7일 이내)이므로 정책 '1. 환불 및 재조리 정책'에 따라 해당 메뉴 전액 환불 대상입니다. 위생/이물질/건강 이상 사항은 없으므로 severity low, 매니저 에스컬레이션 불필요. 답글은 러시아어로 작성, 정책 근거(7일 이내 영수증 제시 시 전액 환불) 안내 및 매장 연락처 제공.",
+        "language": "ru",
+        "severity": "low",
+        "category": "음식품질",
+        "reply_text": "Уважаемый гость, спасибо за отзыв. Приносим искренние извинения за то, что краб оказался пересоленным — это ошибка приготовления, которая недопустима в Hải Đăng Seafood. Согласно нашей политике, при подтверждении ошибки приготовления (чрезмерная соль) в течение 7 дней после визита с предъявлением чека мы возвращаем полную стоимость блюда. Пожалуйста, свяжитесь с нами по телефону +84 236 555 0147 или email manager@haidang-danang.example для оформления возврата. Будем рады встретить вас снова и исправить впечатление.",
+        "sentiment": "negative",
+        "reply_safety": "safe"
+      },
+      "tools_used": {
+        "check_safety": 1,
+        "search_policy": 1,
+        "submit_reply": 1
+      },
+      "steps": [
+        {
+          "actor": "agent",
+          "type": "tool_call",
+          "tool": "check_safety",
+          "args": {
+            "text": "Заказали краба и морского окуня на гриле. Краб оказался настолько пересоленным, что есть было невозможно. Позвали официанта, но он только пожал плечами. Мы были там позавчера, чек у меня сохранился. Хотелось бы вернуть деньги хотя бы за краба.",
+            "kind": "review"
+          },
+          "reasoning": "The user has provided a customer review in Russian about a seafood restaurant. The review mentions:\n1. Ordered crab and grilled sea bass\n2. Crab was extremely salty, inedible\n3. Called waiter, but he just shrugged\n4. They were there the day before yesterday, receipt saved\n4. Want money back at least for the crab\n\nI need to follow the procedure:\n1. First check_safety with kind=\"review\"\n2. Then search_policy for relevant policies (refund, food quality, service)\n3. Determine if escalation is needed (this seems like a food quality + service issue, not hygiene/health/legal threat)\n4. Write reply in Russian (same language as review)\n5. Submit reply\n\nLet me start with check_safety.",
+          "elapsed": 2.42,
+          "n": 1
+        },
+        {
+          "actor": "agent",
+          "type": "tool_call",
+          "tool": "search_policy",
+          "args": {
+            "top_k": 3,
+            "query": "음식 품질 불만 환불 조치 기준"
+          },
+          "reasoning": "The review is safe. Now I need to search for relevant policies. The customer is complaining about oversalted crab, poor service (waiter shrugged), and wants a refund for the crab. This relates to food quality and refund policy. Let me search for relevant policies.",
+          "elapsed": 0.66,
+          "n": 2
+        },
+        {
+          "actor": "guardrail",
+          "type": "verify",
+          "tool": "check_safety",
+          "args": {
+            "kind": "draft_reply"
+          },
+          "elapsed": 0.61,
+          "n": 3
+        },
+        {
+          "actor": "agent",
+          "type": "final",
+          "tool": "submit_reply",
+          "args": {
+            "rationale": "리뷰는 러시아어로 작성되었으며, 크랩이 너무 짜서(조리 오류: 과도한 간) 먹기 불가능했고 직원이 무관심했다는 내용입니다. 영수증이 있으며 방문일 기준 2일 전(7일 이내)이므로 정책 '1. 환불 및 재조리 정책'에 따라 해당 메뉴 전액 환불 대상입니다. 위생/이물질/건강 이상 사항은 없으므로 severity low, 매니저 에스컬레이션 불필요. 답글은 러시아어로 작성, 정책 근거(7일 이내 영수증 제시 시 전액 환불) 안내 및 매장 연락처 제공.",
+            "language": "ru",
+            "severity": "low",
+            "category": "음식품질",
+            "reply_text": "Уважаемый гость, спасибо за отзыв. Приносим искренние извинения за то, что краб оказался пересоленным — это ошибка приготовления, которая недопустима в Hải Đăng Seafood. Согласно нашей политике, при подтверждении ошибки приготовления (чрезмерная соль) в течение 7 дней после визита с предъявлением чека мы возвращаем полную стоимость блюда. Пожалуйста, свяжитесь с нами по телефону +84 236 555 0147 или email manager@haidang-danang.example для оформления возврата. Будем рады встретить вас снова и исправить впечатление.",
+            "sentiment": "negative",
+            "reply_safety": "safe"
+          },
+          "reasoning": "The review is about a crab being too salty (over-seasoned), which is a cooking error (excessive seasoning). The customer asked the waiter but got no help. They have a receipt from the day before yesterday. They want a refund for the crab.\n\nAccording to policy \"1. 환불 및 재조리 정책\": cooking error (excessive seasoning) confirmed -> immediate re-cook or full refund of that menu item. If after leaving the store, within 7 days of visit with receipt or QR order number, refund the menu price in cash or original payment method.\n\nThis is not a food safety/hygiene issue (no foreign object, no health symptoms). So severity is low/medium. No need to notify manager.\n\nThe review is in Russian. I need to reply in Russian.\n\nCategory: 음식품질 (food quality). Sentiment: negative. Severity: low (or medium? Since it's a cooking error but no health risk, I'd say low).\n\nI'll draft a reply in Russian, acknowledging the issue, referencing policy (refund for cooking error within 7 days with receipt), and inviting them to contact for refund.\n\nLet me draft the reply.",
+          "elapsed": 30.22,
+          "n": 4
+        }
+      ],
+      "elapsed": 71.22,
+      "usage": {
+        "prompt_tokens": 8400,
+        "completion_tokens": 1028,
+        "total_tokens": 9428,
+        "calls": 6
+      }
+    }
+  ]
+}

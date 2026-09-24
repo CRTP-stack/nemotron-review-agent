@@ -1,0 +1,16 @@
+# secrets
+.env
+.env.local
+*.key
+
+# python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# runtime artifacts
+logs/*.jsonl
+data/policy_index.json
+.DS_Store
