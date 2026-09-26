@@ -35,14 +35,39 @@ NVIDIA Korea Agentic AI Hackathon 예선 제출용 데모.
             └──────────────────────────────────────────────────────────────┘
 ```
 
-### 에이전트가 고를 수 있는 툴 4종 (`agent/tools.py`)
+### 에이전트가 고를 수 있는 툴 6종 (`agent/tools.py`)
 
 | 툴 | 하는 일 |
 |---|---|
 | `check_safety(text, kind)` | content-safety 모델 호출. `kind="review"` 면 리뷰 원문, `kind="draft_reply"` 면 **우리 답글 초안**을 판정 |
 | `search_policy(query, top_k)` | `data/policy.md` 를 `##` 섹션 단위로 쪼개 passage 임베딩 → 질의 임베딩과 코사인 유사도 검색 |
-| `notify_manager(summary, severity, review_excerpt)` | 심각 건을 `logs/alerts.jsonl` 에 에스컬레이션 기록 |
-| `submit_reply(...)` | 종료 툴. 언어/분류/감성/심각도/답글/판단근거를 구조화해서 제출 |
+| `find_order_candidates(review_date, mentioned_items, language)` | **가상 주문 데이터(`data/orders.json`, 20건)** 와 리뷰를 대조해 후보 주문을 찾는다. **확정 매칭을 하지 않고** 확신도와 근거만 돌려준다 |
+| `notify_manager(summary, severity, ..., order_id, issue_type)` | 심각 건을 `logs/alerts.jsonl` 에 에스컬레이션. `order_id`+`issue_type` 이 오면 정책 §9 보상 규칙으로 **제안 금액**을 계산해 알림에만 기록 |
+| `submit_reply(...)` | 종료 툴 ①. 심각도 low/medium 건을 **자동 게시** |
+| `hold_for_approval(...)` | 종료 툴 ②. 심각도 high/critical 건을 게시하지 않고 `logs/pending_approvals.jsonl` 에 **승인 대기**로 적재 |
+
+#### 주문 후보 확신도 기준 (고정 규칙)
+
+| verdict | 조건 | 에이전트 동작 |
+|---|---|---|
+| `high` | 날짜 일치 + 언급 메뉴 1개 이상 일치 + 언어 일치 | 주문 데이터를 **판단 근거로 사용** |
+| `medium` | 날짜 일치 + 언급 메뉴 1개 이상 일치 (언어 불일치/미상) | 주문 데이터를 **판단 근거로 사용** |
+| `low` | 날짜 일치 + 언어 일치, 메뉴 언급 없음/불일치 | 근거로 쓰지 않음 → **방문 확인 불가 경로** |
+| `no_match` | 날짜만 일치 · 아무것도 일치 안 함 · **low 후보 3건 이상** | 근거로 쓰지 않음 → **방문 확인 불가 경로** |
+
+**날짜만 맞는 건 근거가 아니다.** 매일 주문이 있으므로 방문 증거가 되지 못한다.
+같은 날·같은 언어 후보가 3건 이상이면 특정 불가로 보고 `no_match` 로 떨어뜨린다.
+
+**방문 확인 불가 경로**: 짧고 중립적인 답글(3문장 이내) + 매니저 에스컬레이션 + 승인 대기.
+사실관계를 인정하지도 반박하지도 않고, "기록이 없다" 같은 말도 쓰지 않으며,
+개인 연락 채널로만 확인을 요청한다.
+
+주문번호·테이블·시각·금액은 어느 경우에도 **공개 답글에 나가지 않는다** (G4 가 강제).
+
+#### 보상안 산정
+`agent/orders.py` 의 `COMPENSATION_RULES` 는 `data/policy.md` §9 를 코드로 옮긴 것이다.
+예: 중량 이견 → 해당 품목 금액의 30% 를 다음 방문 바우처로 **제안**.
+계산 결과는 매니저 알림(한국어)에만 들어가고, **실제 환불·결제 실행 기능은 없다**.
 
 ### 답글 작성 제약 (프롬프트 + policy.md 양쪽에 명시)
 
@@ -53,14 +78,35 @@ NVIDIA Korea Agentic AI Hackathon 예선 제출용 데모.
 - **언어 순수성** — 답글은 리뷰어의 언어 하나로만 쓴다. `escalation`, `critical` 같은 영어 단어를
   베트남어/러시아어 답글에 섞지 않는다. 매장명·이메일·전화번호만 원형 유지.
 
-### 코드 레벨 가드레일 3종
+### 코드 레벨 가드레일 7종
 
 프롬프트로만 시키지 않고, 모델이 잊어버려도 **시스템이 강제로 반려**한다.
 반려 사유는 tool 결과로 모델에게 되돌아가 스스로 고치게 한다.
+G4~G6 은 `agent/guardrails.py` 의 순수 함수라 API 호출 없이 단위 테스트할 수 있다.
 
-- **G1** — 리뷰 원문 `check_safety` 없이 `submit_reply` 하면 반려
-- **G2** — `severity` 가 `high`/`critical` 인데 `notify_manager` 를 안 불렀으면 반려
-- **G3** — 제출된 답글 초안을 content-safety 로 **자동 재검증**. `unsafe` 면 1회 재작성 요구
+| | 내용 | 정책 근거 |
+|---|---|---|
+| **G1** | 리뷰 원문 `check_safety` 없이 종료 금지 | — |
+| **G2** | `high`/`critical` 인데 `notify_manager` 미호출 시 반려 | §10 |
+| **G3** | 확정 직전 답글 초안을 content-safety 로 자동 재검증 | — |
+| **G4** | 공개 답글에 주문번호·테이블번호·주문시각·"주문 내역 확인" 표현 금지 | §11 |
+| **G5** | 중량 분쟁: 고객 탓 금지 + 테이블 계량 절차 안내 필수 + 보상 금액 금지 | §4, §9 |
+| **G6** | 위생 클레임: 사실 인정·반박·보상 약속 금지 + 개인 연락 채널 필수 | §2 |
+| **G7** | 심각도별 게시 경로 강제 (critical/high → 승인 대기, low → 자동 게시) | §10 |
+
+**fail-safe**: 가드레일 반려가 3회를 넘으면 자동 게시하지 않고 `hold_for_approval` 로
+강제 전환해 사람에게 넘긴다. 애매하면 게시하지 않는 쪽으로 기운다.
+
+### 승인 대기 (human-in-the-loop)
+
+| 심각도 | 예시 | 경로 |
+|---|---|---|
+| `critical` | 위생·이물질·식중독, **청구 금액/중량 분쟁**, 법적 대응·언론 제보 예고 | ⏸️ 승인 대기 |
+| `high` | 반복 클레임, 직원의 부적절한 언행 | ⏸️ 승인 대기 |
+| `medium` / `low` | 대기 시간, 맛·간 기호 차이, 일반 칭찬 | ✅ 자동 게시 |
+
+"금액 분쟁"은 **청구 금액·중량·단가가 틀렸다는 주장**만 뜻한다.
+단순 환불 요청(조리 오류)은 금액 분쟁이 아니며 자동 게시 대상이다.
 
 ### 운영 안정화
 
@@ -84,8 +130,9 @@ cp .env.example .env        # 그리고 NVIDIA_API_KEY 채우기
 샘플 4건 자동 테스트:
 
 ```bash
-.venv/bin/python tests/run_samples.py            # 4건 전부
-.venv/bin/python tests/run_samples.py --only vi-hygiene
+.venv/bin/python tests/run_samples.py              # 9건 전부 (약 10분)
+.venv/bin/python tests/run_samples.py --stage 2    # 2단계 5건만
+.venv/bin/python tests/run_samples.py --only ko-praise
 ```
 
 결과 리포트는 `logs/test_report.json` 에 저장된다.
@@ -95,16 +142,42 @@ G1/G2/G3 가 실제로 반려·재작성을 유도하는지 검증):
 
 ```bash
 .venv/bin/python tests/test_guardrails.py
+.venv/bin/python tests/test_orders.py
 ```
 
-### 샘플 리뷰 4건
+#### 공개 답글에서 환불 약속이 허용되는 경우
+가드레일은 카테고리별로 다르게 적용된다. 정책 §1은 조리 오류 환불을 고객에게
+**직접 안내하도록 허용**하므로 `음식품질`·`예약/환불` 답글의 환불 언급은 통과한다.
+반면 `가격/중량`(§9)·`위생/식품안전`(§2)은 공개 답글에서 보상 언급을 금지한다.
+같은 문장이라도 카테고리에 따라 통과/반려가 갈린다 —
+`tests/test_guardrails.py::test_refund_promise_by_category` 가 이를 고정한다.
 
-| id | 언어 | 내용 | 기대 동작 |
+### 샘플 리뷰 9건
+
+**1단계 세트 — 다국어 응대·안전 필터·정책 검색**
+
+| id | 언어 | 내용 | 기대 |
 |---|---|---|---|
-| `ko-wait` | 한국어 | 음식 칭찬 + 50분 대기 불만 | 정책 §3 대기시간 검색, 알림 없음 |
-| `en-weight` | English | 랍스터 중량 1.2kg→1.6kg 청구 분쟁 | 정책 §4 중량 표기 검색 |
-| `vi-hygiene` | Tiếng Việt | **이물질(바퀴벌레) + 섭취 후 병원행 + 법적 위협** | severity critical, **매니저 알림 필수**, 베트남어 답글 |
-| `ru-refund` | Русский | 과도하게 짠 게 요리, 영수증 보유, 환불 요청 | 정책 §1 환불 검색, 러시아어 답글 |
+| `ko-wait` | 한국어 | 칭찬 + 50분 대기 불만 | 자동 게시 |
+| `en-weight` | English | 랍스터 1.2kg→1.6kg 청구 분쟁 | ⏸️ 승인 대기 + 알림 |
+| `vi-hygiene` | Tiếng Việt | 이물질 + 병원행 + 법적 위협 | ⏸️ 승인 대기 + 알림 |
+| `ru-refund` | Русский | 짠 게 요리, 환불 요청 | 자동 게시 |
+
+**2단계 세트 — 주문 데이터 대조·보상안·승인 대기**
+
+| id | 언어 | 내용 | 겨냥한 주문 | 기대 |
+|---|---|---|---|---|
+| `ru-weight-order` | Русский | 9/22 랍스터 1.2kg 계량 확인했는데 청구액 불일치 | `HD-20260922-05` | 주문 대조 → 보상안 30% → ⏸️ 승인 대기 |
+| `en-wait-order` | English | 9/21 주문→서빙 50분 | `HD-20260921-03` (실제 48분) | 주문 대조 → 자동 게시 |
+| `vi-hygiene-order` | Tiếng Việt | 9/23 새우 요리에서 플라스틱 조각 + 복통 | `HD-20260923-02` | 주문 대조 → ⏸️ 승인 대기 |
+| `en-unverified` | English | 9/14 방문 주장, 식중독 + 2천만동 요구 | **없음** (`no_match`) | 방문 확인 불가 → 반박 없이 ⏸️ 승인 대기 |
+| `ko-praise` | 한국어 | 9/22 5점 칭찬 | `HD-20260922-12` | **주문 툴·정책 검색 없이** 자동 게시 |
+
+### 가상 주문 데이터 (`data/orders.json`)
+
+20건, 전부 이 데모를 위해 생성한 합성 데이터다(실제 거래 아님).
+해산물은 `kg 단가 × 중량` 구조이고 금액은 VND, 서비스 요금 5% + VAT 8% 가 붙는다.
+`weighed_at_table` 로 테이블 계량 여부를 기록한다.
 
 ---
 
@@ -160,9 +233,14 @@ nemotron-review-agent/
 │   ├── tools.py            # 툴 4종 구현 + OpenAI 함수 스키마
 │   ├── loop.py             # 에이전트 루프 + 가드레일 G1/G2/G3
 │   └── samples.py          # 샘플 리뷰 4건
-├── data/policy.md          # 가상 매장 운영 정책 8개 섹션
-├── logs/alerts.jsonl       # 매니저 에스컬레이션 기록 (gitignored)
+├── agent/guardrails.py     # G4~G6 텍스트 가드레일 (순수 함수)
+├── agent/orders.py         # 주문 조회·후보 매칭·보상안 산정
+├── data/policy.md          # 가상 매장 운영 정책 11개 섹션
+├── data/orders.json        # 가상 주문 데이터 20건 (합성)
+├── logs/alerts.jsonl       # 매니저 에스컬레이션 + 보상 제안 (gitignored)
+├── logs/pending_approvals.jsonl  # 승인 대기 큐 (gitignored)
 └── tests/
-    ├── run_samples.py      # 샘플 4건 통합 테스트 (실제 API 호출)
-    └── test_guardrails.py  # G1/G2/G3 가드레일 단위 테스트 (스텁, API 무호출)
+    ├── run_samples.py      # 샘플 9건 통합 테스트 (실제 API 호출)
+    ├── test_guardrails.py  # G1~G7 + fail-safe 가드레일 단위 테스트 (API 무호출)
+    └── test_orders.py      # 주문 매칭 확신도 규칙 단위 테스트 (API 무호출)
 ```

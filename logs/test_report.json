@@ -2,22 +2,26 @@
   "results": [
     {
       "id": "ko-wait",
+      "stage": 1,
       "ok": true,
       "checks": {
         "리뷰 안전검사 수행": true,
         "정책 검색 수행": true,
         "답글 언어 일치": true,
         "답글 비어있지 않음": true,
+        "게시 상태 = 자동 게시": true,
         "불필요한 매니저 알림 없음": true,
+        "답글에 내부 데이터 없음": true,
         "degraded 아님": true
       },
       "final": {
-        "reply_text": "Hải Đăng Seafood를 찾아주시고 맛있게 드셨다니 감사합니다. 타이거새우 구이와 모닝글로리 볶음, 사장님 친절함까지 칭찬해 주셔서 기쁩니다. 다만 저녁 피크타임에 50분 넘게 기다리시면서 대기 안내를 받지 못하셨다니 죄송합니다. 매장 정책상 45분 초과 대기 시 웰컴 드링크를 제공해 드리고 있으나, 현장에서 안내가 누락된 점 깊이 사과드립니다. 앞으로는 QR 원격 대기 등록과 순번 안내를 더 꼼꼼히 챙겨 불편 없도록 개선하겠습니다. 다음 방문 때는 더 쾌적한 식사가 되도록 준비하겠습니다.",
-        "language": "ko",
+        "rationale": "리뷰는 음식 맛과 사장님 친절함에 대한 칭찬(긍정)과 50분 대기 중 안내 부족 불만(부정)이 혼재된 중립적 감정. 대기 시간 50분은 정책 §3의 45분 초과 구간에 해당하므로 웰컴 드링크 제공 안내를 답글에 포함. 심각도는 medium(대기 시간 불만)으로 submit_reply로 즉시 게시. 주문 조회 불필요(단순 대기 불만). 답글은 한국어로 작성.",
         "severity": "medium",
+        "language": "ko",
         "category": "대기시간",
         "sentiment": "neutral",
-        "rationale": "리뷰는 음식·서비스 칭찬과 대기 관리 미흡을 동시에 담고 있어 감정은 neutral, 카테고리는 대기시간, 심각도는 medium으로 분류. 정책(대기 45분 초과 시 웰컴 드링크 제공)을 근거로 누락 사과와 개선 약속만 포함했으며, 내부 조치나 정책 외 보상은 언급하지 않음. 한국어 리뷰이므로 한국어만 사용.",
+        "reply_text": "소중한 후기 감사드립니다. 타이거새우 구이와 모닝글로리 볶음을 맛있게 드셨다니 기쁩니다. 다만 저녁 피크 타임에 50분 넘게 대기하시면서 순서 안내가 부족했던 점, 진심으로 사과드립니다. 저희 매장은 대기 45분 초과 시 웰컴 드링크(비아 사이공 또는 코코넛 주스) 한 잔을 제공해 드리고 있습니다. 다음 방문 시 말씀해 주시면 바로 준비해 드리겠습니다. 더 나은 대기 관리로 다시 찾아주실 때 편안하게 모시겠습니다. Hải Đăng Seafood를 찾아주셔서 고맙습니다.",
+        "status": "자동 게시",
         "reply_safety": "safe"
       },
       "tools_used": {
@@ -25,6 +29,11 @@
         "search_policy": 1,
         "submit_reply": 1
       },
+      "tool_order": [
+        "check_safety",
+        "search_policy",
+        "submit_reply"
+      ],
       "steps": [
         {
           "actor": "agent",
@@ -34,8 +43,8 @@
             "text": "가족들이랑 다녀왔는데 타이거새우 구이랑 모닝글로리 볶음 진짜 맛있었어요! 사장님도 친절하시고요. 다만 저녁 7시쯤 갔더니 자리 날 때까지 50분 넘게 기다렸습니다. 대기 순서 안내가 전혀 없어서 그냥 서서 기다렸네요. 대기 관리는 좀 아쉽습니다.",
             "kind": "review"
           },
-          "reasoning": "The user wants me to process a customer review for the seafood restaurant \"Hải Đăng Seafood\". The review is in Korean, praising the food (tiger shrimp grill, morning glory stir-fry) and owner's kindness, but complaining about a 50+ minute wait at 7pm with no queue management/guidance.\n\nI need to follow the procedure:\n1. First, check_safety with kind=\"review\" on the review text.\n2. Then, since the complaint is about waiting time/queue management, I should search_policy for relevant policies (likely about waiting time or service).\n3. The review doesn't mention foreign objects, hygiene, health issues, legal threats, or abusive language, so severity is likely low/medium, no need for notify_manager.\n4. Write a reply in Korean (same language as review), 3-6 sentences, following the structure: gratitude → acknowledge specific issue → policy-based action guidance → encourage revisit.\n5. Use submit_reply with classification, sentiment, severity, reply_text, rationale.\n\nLet's start with check_safety.",
-          "elapsed": 0.41,
+          "reasoning": "The user has provided a customer review in Korean. I need to process this review according to the established procedure. Let me start by checking the safety of the review text.",
+          "elapsed": 0.35,
           "n": 1
         },
         {
@@ -43,96 +52,10 @@
           "type": "tool_call",
           "tool": "search_policy",
           "args": {
-            "top_k": 3,
-            "query": "대기시간 관리 안내 정책"
+            "top_k": 2,
+            "query": "대기 시간 불만 정책 안내 보상"
           },
-          "reasoning": "The review is safe. It's a mixed review - positive about food and owner's friendliness, but negative about wait time and lack of queue management. The main issue is waiting time (50+ minutes) and no queue guidance. This falls under \"대기시간\" (wait time) category. I should search for policy on wait time management to see what the restaurant's policy says about this. Let me search for relevant policy.",
-          "elapsed": 0.65,
-          "n": 2
-        },
-        {
-          "actor": "guardrail",
-          "type": "verify",
-          "tool": "check_safety",
-          "args": {
-            "kind": "draft_reply"
-          },
-          "elapsed": 0.5,
-          "n": 3
-        },
-        {
-          "actor": "agent",
-          "type": "final",
-          "tool": "submit_reply",
-          "args": {
-            "reply_text": "Hải Đăng Seafood를 찾아주시고 맛있게 드셨다니 감사합니다. 타이거새우 구이와 모닝글로리 볶음, 사장님 친절함까지 칭찬해 주셔서 기쁩니다. 다만 저녁 피크타임에 50분 넘게 기다리시면서 대기 안내를 받지 못하셨다니 죄송합니다. 매장 정책상 45분 초과 대기 시 웰컴 드링크를 제공해 드리고 있으나, 현장에서 안내가 누락된 점 깊이 사과드립니다. 앞으로는 QR 원격 대기 등록과 순번 안내를 더 꼼꼼히 챙겨 불편 없도록 개선하겠습니다. 다음 방문 때는 더 쾌적한 식사가 되도록 준비하겠습니다.",
-            "language": "ko",
-            "severity": "medium",
-            "category": "대기시간",
-            "sentiment": "neutral",
-            "rationale": "리뷰는 음식·서비스 칭찬과 대기 관리 미흡을 동시에 담고 있어 감정은 neutral, 카테고리는 대기시간, 심각도는 medium으로 분류. 정책(대기 45분 초과 시 웰컴 드링크 제공)을 근거로 누락 사과와 개선 약속만 포함했으며, 내부 조치나 정책 외 보상은 언급하지 않음. 한국어 리뷰이므로 한국어만 사용.",
-            "reply_safety": "safe"
-          },
-          "reasoning": "The review mentions waiting over 50 minutes without any queue guidance. According to the policy, for waits exceeding 45 minutes, a welcome drink should be provided, and for waits exceeding 60 minutes, a 10% discount coupon for next visit. The customer waited 50+ minutes, so they qualify for the welcome drink. However, they didn't mention receiving it. The policy also mentions remote queue registration via QR at entrance. The customer says there was no queue guidance at all.\n\nI need to craft a reply in Korean (since review is in Korean) following the reply rules: gratitude, acknowledgment, policy-based action, revisit invitation. I should mention the policy about welcome drink for >45 min wait, and apologize for lack of guidance. Also note that we'll improve queue management. No internal actions mentioned. No compensation beyond policy. No English words mixed.\n\nSeverity: medium (service issue but not safety). Category: 대기시간 (waiting time). Sentiment: mixed (positive food/staff, negative wait). Language: ko.\n\nNow I'll write the reply and submit.",
-          "elapsed": 42.38,
-          "n": 4
-        }
-      ],
-      "elapsed": 65.24,
-      "usage": {
-        "prompt_tokens": 8572,
-        "completion_tokens": 1059,
-        "total_tokens": 9631,
-        "calls": 6
-      }
-    },
-    {
-      "id": "en-weight",
-      "ok": true,
-      "checks": {
-        "리뷰 안전검사 수행": true,
-        "정책 검색 수행": true,
-        "답글 언어 일치": true,
-        "답글 비어있지 않음": true,
-        "불필요한 매니저 알림 없음": true,
-        "degraded 아님": true
-      },
-      "final": {
-        "reply_text": "Thank you for sharing your experience at Hải Đăng Seafood. We sincerely apologize for the weight discrepancy with your lobster and for the staff's refusal to re-weigh it when requested. According to our policy, when a weight dispute arises, we re-measure using our certified in-house scale, and if the actual weight is less than what was charged, we refund twice the difference. Please contact us with your receipt or QR order number so we can resolve this for you. We value your feedback and hope to restore your trust on a future visit.",
-        "category": "가격/중량",
-        "language": "en",
-        "sentiment": "negative",
-        "severity": "medium",
-        "rationale": "리뷰는 랍스터 중량 분쟁(1.2kg 안내 vs 1.6kg 청구)과 재측정 거부로 인한 금전적 불만을 담고 있어 '가격/중량' 카테고리, 부정 감정, 중간 심각도로 분류. 정책 4조(살아있는 해산물 선택 및 중량 표기)에 따라 공인 저울 재측정 및 차액 2배 환불 조항을 근거로 답글에 안내. 위생·건강·법적 위협 없으므로 매니저 에스컬레이션 불필요. 영어 리뷰이므로 영어로만 답글 작성.",
-        "reply_safety": "safe"
-      },
-      "tools_used": {
-        "check_safety": 1,
-        "search_policy": 1,
-        "submit_reply": 1
-      },
-      "steps": [
-        {
-          "actor": "agent",
-          "type": "tool_call",
-          "tool": "check_safety",
-          "args": {
-            "text": "We picked a lobster from the tank and the staff told us it was about 1.2kg, but the final bill charged us for 1.6kg. When I asked them to weigh it again, nobody would help and they just kept saying it's the market price. The food itself was decent but I left feeling ripped off.",
-            "kind": "review"
-          },
-          "reasoning": "The user has provided a customer review in English about a weight discrepancy issue at the restaurant. The customer claims they were charged for 1.6kg when the lobster was supposedly 1.2kg, and staff refused to re-weigh it. This falls under \"가격/중량\" (price/weight) category.\n\nI need to follow the procedure:\n1. First, check_safety with kind=\"review\" on the review text.\n2. Then search_policy for relevant weight dispute policy.\n3. Based on policy, draft a reply in English (same language as review).\n4. Check safety of draft reply with kind=\"draft_reply\".\n5. Submit reply with submit_reply.\n\nLet's start with check_safety.",
-          "elapsed": 0.92,
-          "n": 1
-        },
-        {
-          "actor": "agent",
-          "type": "tool_call",
-          "tool": "search_policy",
-          "args": {
-            "query": "중량 분쟁 랍스터 무게 재측정 환불 정책",
-            "top_k": 3
-          },
-          "reasoning": "The review is safe. Now I need to search for the relevant policy about weight disputes and pricing. The customer is complaining about being charged for 1.6kg when told it was 1.2kg, and staff refused to re-weigh. This falls under \"가격/중량\" category. Let me search the policy.",
+          "reasoning": "The review is safe. It's a mixed review - positive about food and owner, negative about wait time (50+ minutes at 7pm) and lack of queue management. This is a wait time complaint, which falls under \"대기시간\" category. According to the procedure, wait time complaints are medium severity and should use submit_reply after checking policy. I need to search policy for wait time handling. Let me search for relevant policy.",
           "elapsed": 0.71,
           "n": 2
         },
@@ -151,54 +74,217 @@
           "type": "final",
           "tool": "submit_reply",
           "args": {
-            "reply_text": "Thank you for sharing your experience at Hải Đăng Seafood. We sincerely apologize for the weight discrepancy with your lobster and for the staff's refusal to re-weigh it when requested. According to our policy, when a weight dispute arises, we re-measure using our certified in-house scale, and if the actual weight is less than what was charged, we refund twice the difference. Please contact us with your receipt or QR order number so we can resolve this for you. We value your feedback and hope to restore your trust on a future visit.",
-            "category": "가격/중량",
-            "language": "en",
-            "sentiment": "negative",
+            "rationale": "리뷰는 음식 맛과 사장님 친절함에 대한 칭찬(긍정)과 50분 대기 중 안내 부족 불만(부정)이 혼재된 중립적 감정. 대기 시간 50분은 정책 §3의 45분 초과 구간에 해당하므로 웰컴 드링크 제공 안내를 답글에 포함. 심각도는 medium(대기 시간 불만)으로 submit_reply로 즉시 게시. 주문 조회 불필요(단순 대기 불만). 답글은 한국어로 작성.",
             "severity": "medium",
-            "rationale": "리뷰는 랍스터 중량 분쟁(1.2kg 안내 vs 1.6kg 청구)과 재측정 거부로 인한 금전적 불만을 담고 있어 '가격/중량' 카테고리, 부정 감정, 중간 심각도로 분류. 정책 4조(살아있는 해산물 선택 및 중량 표기)에 따라 공인 저울 재측정 및 차액 2배 환불 조항을 근거로 답글에 안내. 위생·건강·법적 위협 없으므로 매니저 에스컬레이션 불필요. 영어 리뷰이므로 영어로만 답글 작성.",
-            "reply_safety": "safe"
+            "language": "ko",
+            "category": "대기시간",
+            "sentiment": "neutral",
+            "reply_text": "소중한 후기 감사드립니다. 타이거새우 구이와 모닝글로리 볶음을 맛있게 드셨다니 기쁩니다. 다만 저녁 피크 타임에 50분 넘게 대기하시면서 순서 안내가 부족했던 점, 진심으로 사과드립니다. 저희 매장은 대기 45분 초과 시 웰컴 드링크(비아 사이공 또는 코코넛 주스) 한 잔을 제공해 드리고 있습니다. 다음 방문 시 말씀해 주시면 바로 준비해 드리겠습니다. 더 나은 대기 관리로 다시 찾아주실 때 편안하게 모시겠습니다. Hải Đăng Seafood를 찾아주셔서 고맙습니다."
           },
-          "reasoning": "The review is about a weight dispute for a lobster - the customer was told 1.2kg but charged for 1.6kg, and staff refused to re-weigh. This falls under \"가격/중량\" category. The policy section 4 states: \"중량 오차 분쟁 발생 시 매장 내 공인 저울로 재측정하며, 표기 중량보다 실제가 적을 경우 차액의 2배를 환불합니다.\" (When weight discrepancy dispute occurs, re-measure with certified scale in store, and if actual weight is less than indicated, refund 2x the difference.)\n\nThe customer says food was decent but felt ripped off. This is a negative sentiment, medium severity (financial dispute but no health/safety issue). No need for manager escalation since it's not hygiene/health/legal threat.\n\nI need to write a reply in English (same language as review) acknowledging the issue, referencing the policy about re-weighing and 2x refund for weight discrepancy, and inviting them to contact for resolution. Let me draft the reply.",
-          "elapsed": 27.92,
+          "reasoning": "The review is safe. It's a mixed review - positive about food and owner, negative about 50+ minute wait without queue management. This is a wait time complaint (50 minutes > 45 minutes threshold). According to policy §3, wait over 45 minutes gets a welcome drink. This is a medium severity issue (wait time complaint). I should not escalate to manager since it's not critical/high. I'll write a reply in Korean acknowledging the wait, mentioning the policy about welcome drink for 45+ min wait, and inviting them back. No need for find_order_candidates since it's a general wait time complaint, not a specific order dispute. I'll use submit_reply.",
+          "elapsed": 21.85,
           "n": 4
         }
       ],
-      "elapsed": 55.36,
+      "elapsed": 33.27,
       "usage": {
-        "prompt_tokens": 8381,
-        "completion_tokens": 950,
-        "total_tokens": 9331,
+        "prompt_tokens": 13645,
+        "completion_tokens": 802,
+        "total_tokens": 14447,
         "calls": 6
-      }
+      },
+      "retries": 0
     },
     {
-      "id": "vi-hygiene",
+      "id": "en-weight",
+      "stage": 1,
       "ok": true,
       "checks": {
         "리뷰 안전검사 수행": true,
         "정책 검색 수행": true,
         "답글 언어 일치": true,
         "답글 비어있지 않음": true,
+        "게시 상태 = 승인 대기": true,
         "심각 건 매니저 알림": true,
-        "severity high/critical": true,
+        "답글에 내부 데이터 없음": true,
         "degraded 아님": true
       },
       "final": {
-        "category": "위생/식품안전",
-        "language": "vi",
+        "draft_reply": "Thank you for sharing your experience at Hải Đăng Seafood. We are sorry to hear about the confusion regarding the lobster weight and the difficulty you faced when requesting a re‑weigh. Our standard practice is to weigh each live seafood item at your table so you can confirm the weight before cooking, and we take it seriously when that process is not followed. Please contact us directly at manager@haidang-danang.example or +84 236 555 0147 so we can look into the details and make it right. We hope to welcome you back for a better experience.",
+        "alert_id": "AL-280BDA46",
+        "language": "en",
+        "manager_note": "주문 특정 불가(no_match). 고객 연락 시 방문일·시간·테이블 확인 후 전산에서 weighed_at_table 기록 여부 조회 필요. §9-1 중량 이견 바우처(해당 품목 30%) 또는 §9-2 중량 부족 시 차액 2배 환불 검토.",
         "severity": "critical",
-        "reply_text": "Quý khách thân mến, Hải Đăng Seafood xin gửi lời xin lỗi sâu sắc vì quý khách đã trải qua sự cố nghiêm trọng với món tôm rang me và phải nhập viện điều trị. Chúng tôi xác nhận sẽ hoàn trả toàn bộ số tiền bàn ăn của quý khách, và quản lý nhà hàng sẽ liên hệ trực tiếp trong vòng 24 giờ tới để hỗ trợ chi phí khám chữa bệnh theo quy định. Quý khách vui lòng liên hệ quản lý qua manager@haidang-danang.example hoặc +84 236 555 0147 để được giải quyết nhanh chóng. Chúng tôi cam kết rà soát lại toàn bộ quy trình vệ sinh an toàn thực phẩm để không để sự việc này lặp lại. Rất mong quý khách cho phép chúng tôi được phục vụ lại đúng chuẩn mực.",
-        "rationale": "리뷰는 베트남어로 작성되었으므로 베트남어로 답글 작성. 이물질(바퀴벌레) 혼입 + 섭취 후 식중독 입원 + 직원 부실 대응 + 법적 조치 예고로 severity=critical, category=위생/식품안전. 정책 2조(식품 안전 및 위생 이슈 대응)의 [고객 안내] 항목만 인용: 전체 금액 환불, 24시간 내 매니저 직접 연락·진료비 지원 안내, 담당자 연락처 제공, 위생 절차 재점검 약속(구체 일정·기관·설비 교체 미언급). 내부 조치(식재료 폐기, 기록 보존, 직원 재교육)는 답글에 미포함. 매니저 에스컬레이션 완료(AL-E7BD525B).",
+        "category": "가격/중량",
+        "rationale": "리뷰는 랍스터 중량 분쟁(1.2kg 안내 vs 1.6kg 청구, 재측정 거부)을 제기하며 critical 등급에 해당. 방문일이 없어 주문 특정 불가(no_match). 정책 §4 테이블 계량 절차와 §9-1 중량 이견 보상 근거를 참고해 답글 작성. 보상 금액·바우처 언급 금지, 내부 조회 사실 비공개, 개인 연락 채널만 안내. 매니저 승인 대기 필요.",
         "sentiment": "negative",
+        "reply_text": "Thank you for sharing your experience at Hải Đăng Seafood. We are sorry to hear about the confusion regarding the lobster weight and the difficulty you faced when requesting a re‑weigh. Our standard practice is to weigh each live seafood item at your table so you can confirm the weight before cooking, and we take it seriously when that process is not followed. Please contact us directly at manager@haidang-danang.example or +84 236 555 0147 so we can look into the details and make it right. We hope to welcome you back for a better experience.",
+        "status": "승인 대기",
+        "approval_id": "AP-28B6DB08",
         "reply_safety": "safe"
       },
       "tools_used": {
         "check_safety": 1,
+        "find_order_candidates": 1,
         "search_policy": 1,
         "notify_manager": 1,
-        "submit_reply": 1
+        "hold_for_approval": 1
       },
+      "tool_order": [
+        "check_safety",
+        "find_order_candidates",
+        "search_policy",
+        "notify_manager",
+        "hold_for_approval"
+      ],
+      "steps": [
+        {
+          "actor": "agent",
+          "type": "tool_call",
+          "tool": "check_safety",
+          "args": {
+            "text": "We picked a lobster from the tank and the staff told us it was about 1.2kg, but the final bill charged us for 1.6kg. When I asked them to weigh it again, nobody would help and they just kept saying it's the market price. The food itself was decent but I left feeling ripped off.",
+            "kind": "review"
+          },
+          "reasoning": "The user has provided a customer review in English about a lobster weight dispute at the restaurant. The customer claims they picked a lobster from the tank, staff said it was about 1.2kg, but the bill charged for 1.6kg. When asked to re-weigh, staff refused and said it's market price. This is a weight/price dispute which falls under \"가격/중량\" category and likely high severity since it's a billing dispute.\n\nI need to follow the procedure:\n1. First, check_safety with kind=\"review\"\n2. Since this is a weight/price dispute (fact-checking needed), I should use find_order_candidates to look for matching orders\n3. Then search_policy for relevant policies on weight disputes\n4. Then notify_manager since this is likely high severity (billing dispute)\n5. Then hold_for_approval since severity is high/critical\n\nLet me start with check_safety.",
+          "elapsed": 0.34,
+          "n": 1
+        },
+        {
+          "actor": "agent",
+          "type": "tool_call",
+          "tool": "find_order_candidates",
+          "args": {
+            "language": "en",
+            "review_date": "",
+            "mentioned_items": [
+              "lobster"
+            ]
+          },
+          "reasoning": "The review is safe. Now I need to check if this is a weight/price dispute that requires order verification. The customer mentions:\n- Picked a lobster from tank\n- Staff said ~1.2kg\n- Bill charged for 1.6kg\n- Asked to weigh again, staff refused\n- Food was decent but felt ripped off\n\nThis is a weight/price dispute (가격/중량 category). According to the procedure, I need to use find_order_candidates to verify the order. However, the review doesn't mention a specific date. I need to extract the date from the review... but there's no date mentioned. The review doesn't have a visit date. Let me check the current date: 2026-09-25. The review doesn't specify when they visited.\n\nSince there's no visit date in the review, I cannot use find_order_candidates effectively. However, this is a weight dispute claim. According to the rules: \"방문일이 리뷰에 적혀 있는데 no_match/low 라면 '방문 확인 불가' 경로로 간다\". But here, there's no visit date at all. The review doesn't mention a date.\n\nIn this case, I should still try to find order candidates? The tool requires review_date. I could try with empty string? Let me check the tool description: \"review_date: 리뷰에 적힌 방문 날짜(YYYY-MM-DD). 없으면 빈 문자열.\" So I can pass empty string.\n\nBut the review mentions \"lobster\" - I should include that in mentioned_items. Language is English (en).\n\nLet me try find_order_candidates with empty review_date and mentioned_items [\"lobster\"].",
+          "elapsed": 0.01,
+          "n": 2
+        },
+        {
+          "actor": "agent",
+          "type": "tool_call",
+          "tool": "search_policy",
+          "args": {
+            "top_k": 3,
+            "query": "중량 분쟁 처리 정책 랍스터 저울 확인 절차"
+          },
+          "reasoning": "The review mentions a weight dispute (1.2kg vs 1.6kg for lobster) and staff refusing to re-weigh. This is a weight/price dispute. According to the procedure, for weight disputes, I need to check policy first. Also, since find_order_candidates returned no_match (no visit date provided), I cannot use order data as evidence. The verdict is no_match, so I should not use order data as basis. However, this is a weight dispute claim, which falls under \"가격/중량\" category. The severity: weight dispute is considered critical/high? Let's check: \"청구 금액/중량/단가 분쟁\" is listed under critical severity. Yes, \"청구 금액/중량/단가 분쟁\" is critical. So severity is critical. For critical, I must use hold_for_approval after notify_manager. But notify_manager requires order_id for compensation calculation. However, verdict is no_match, so I cannot provide order_id. I can still call notify_manager without order_id? The tool says order_id is optional (not required). I'll call notify_manager with severity critical, issue_type \"weight_dispute\", item_hint \"lobster\". Then hold_for_approval.\n\nBut first, I need to search policy for weight dispute handling to know what to mention in reply. Let's search policy.",
+          "elapsed": 0.66,
+          "n": 3
+        },
+        {
+          "actor": "agent",
+          "type": "tool_call",
+          "tool": "notify_manager",
+          "args": {
+            "summary": "고객이 랍스터 중량 분쟁 제기: 수족관에서 1.2kg 안내받았으나 1.6kg로 청구됨, 재측정 요청 거부됨",
+            "severity": "critical",
+            "issue_type": "weight_dispute",
+            "item_hint": "lobster",
+            "review_excerpt": "We picked a lobster from the tank and the staff told us it was about 1.2kg, but the final bill charged us for 1.6kg. When I asked them to weigh it again, nobody would help and they just kept saying it's the market price."
+          },
+          "reasoning": "The review is about a weight dispute for lobster - customer says they were told 1.2kg but charged for 1.6kg, and staff refused to re-weigh. This is a \"weight dispute\" which according to policy §10 is classified as \"critical\" severity (청구 금액/중량 분쟁). \n\nSince it's critical severity, I need to:\n1. notify_manager first (with issue_type \"weight_dispute\" and item_hint \"lobster\")\n2. Then hold_for_approval (not submit_reply)\n\nThe find_order_candidates returned no_match because no visit date was provided. Since this is a weight dispute (critical), I should still escalate to manager even without order match. The policy says for critical severity, must use hold_for_approval after notify_manager.\n\nI need to write a draft reply in English (same language as review). The reply should:\n- Thank the customer\n- Acknowledge the weight concern\n- Mention the table weighing procedure exists (from policy §4)\n- Ask them to contact privately for verification\n- Not mention any compensation amounts\n- Not mention internal order lookup\n\nLet me call notify_manager first.",
+          "elapsed": 0.0,
+          "n": 4
+        },
+        {
+          "actor": "guardrail",
+          "type": "verify",
+          "tool": "check_safety",
+          "args": {
+            "kind": "draft_reply"
+          },
+          "elapsed": 0.46,
+          "n": 5
+        },
+        {
+          "actor": "agent",
+          "type": "final",
+          "tool": "hold_for_approval",
+          "args": {
+            "draft_reply": "Thank you for sharing your experience at Hải Đăng Seafood. We are sorry to hear about the confusion regarding the lobster weight and the difficulty you faced when requesting a re‑weigh. Our standard practice is to weigh each live seafood item at your table so you can confirm the weight before cooking, and we take it seriously when that process is not followed. Please contact us directly at manager@haidang-danang.example or +84 236 555 0147 so we can look into the details and make it right. We hope to welcome you back for a better experience.",
+            "alert_id": "AL-280BDA46",
+            "language": "en",
+            "manager_note": "주문 특정 불가(no_match). 고객 연락 시 방문일·시간·테이블 확인 후 전산에서 weighed_at_table 기록 여부 조회 필요. §9-1 중량 이견 바우처(해당 품목 30%) 또는 §9-2 중량 부족 시 차액 2배 환불 검토.",
+            "severity": "critical",
+            "category": "가격/중량",
+            "rationale": "리뷰는 랍스터 중량 분쟁(1.2kg 안내 vs 1.6kg 청구, 재측정 거부)을 제기하며 critical 등급에 해당. 방문일이 없어 주문 특정 불가(no_match). 정책 §4 테이블 계량 절차와 §9-1 중량 이견 보상 근거를 참고해 답글 작성. 보상 금액·바우처 언급 금지, 내부 조회 사실 비공개, 개인 연락 채널만 안내. 매니저 승인 대기 필요.",
+            "sentiment": "negative"
+          },
+          "reasoning": "The review is in English, so I need to write the reply in English. The severity is critical (weight dispute), so I must use hold_for_approval. I have the alert_id from notify_manager. Now I need to craft a draft reply in English that follows the guidelines: thank the customer, acknowledge the specific concern about lobster weight discrepancy, mention the table weighing procedure exists, invite them to contact privately for verification, and encourage return visit. No compensation amounts, no internal details. Must be 3-6 sentences, natural English. Let me write it.",
+          "elapsed": 11.38,
+          "n": 6
+        }
+      ],
+      "elapsed": 41.39,
+      "usage": {
+        "prompt_tokens": 23880,
+        "completion_tokens": 2019,
+        "total_tokens": 25899,
+        "calls": 8
+      },
+      "retries": 0
+    },
+    {
+      "id": "vi-hygiene",
+      "stage": 1,
+      "ok": true,
+      "checks": {
+        "리뷰 안전검사 수행": true,
+        "정책 검색 수행": true,
+        "답글 언어 일치": true,
+        "답글 비어있지 않음": true,
+        "게시 상태 = 승인 대기": true,
+        "심각 건 매니저 알림": true,
+        "답글에 내부 데이터 없음": true,
+        "보상 금액이 답글에 없음": true,
+        "degraded 아님": true
+      },
+      "final": {
+        "severity": "critical",
+        "alert_id": "AL-E2FDD227",
+        "manager_note": "고객이 타마린드 새우(tôm sú rang me)에서 바퀴벌레 발견 주장, 식중독 증상으로 병원 치료 받음, 직원 대응 미흡 지적, 보건소 신고 및 소송 예고. 주문 후보 HD-20260924-14(2026-09-24, 총액 1,483,000₫)와 방문일·메뉴 일치도 medium. 정책 §2 위생 사고로 테이블 전액 환불(1,483,000₫) 제안 산출됨. 매니저가 사실관계 확인 후 보상·법적 대응 여부 결정 필요. 당일 조리·입고 기록 보존, 담당 직원 면담, 동일 로트 식재료 사용 중단 검토 요망.",
+        "language": "vi",
+        "sentiment": "negative",
+        "draft_reply": "Kính gửi Quý khách, Hải Đăng Seafood xin chân thành cảm ơn Quý khách đã chia sẻ phản hồi. Chúng tôi rất tiếc và lo lắng nghe Quý khách gặp sự cố dị vật trong món ăn và bị đau bụng, tiêu chảy phải nhập viện. Về vấn đề nghiêm trọng này, chúng tôi xin đề nghị Quý khách liên hệ trực tiếp với quản lý qua email manager@haidang-danang.example hoặc số điện thoại +84 236 555 0147 để được hỗ trợ kiểm tra, xác minh và xử lý kịp thời. Chúng tôi cam kết sẽ rà soát lại quy trình vệ sinh an toàn thực phẩm để ngăn ngừa tái diễn. Rất mong Quý khách sớm hồi phục sức khỏe.",
+        "category": "위생/식품안전",
+        "rationale": "리뷰가 베트남어로 작성되어 베트남어로 답글 작성. 위생/이물질/식중독 클레임으로 critical 등급. 정책 §2에 따라 공개 답글에는 사과·유감 표명, 개별 연락 채널 안내, 위생 절차 재점검 약속만 포함. 사실 인정/반박/보상 약속 금지. 주문 후보 HD-20260924-14(medium confidence)는 내부 판단·매니저 알림에만 활용, 답글에 노출하지 않음. notify_manager 완료(alert_id AL-E2FDD227). 매니저 승인 전까지 게시 보류.",
+        "reply_text": "Kính gửi Quý khách, Hải Đăng Seafood xin chân thành cảm ơn Quý khách đã chia sẻ phản hồi. Chúng tôi rất tiếc và lo lắng nghe Quý khách gặp sự cố dị vật trong món ăn và bị đau bụng, tiêu chảy phải nhập viện. Về vấn đề nghiêm trọng này, chúng tôi xin đề nghị Quý khách liên hệ trực tiếp với quản lý qua email manager@haidang-danang.example hoặc số điện thoại +84 236 555 0147 để được hỗ trợ kiểm tra, xác minh và xử lý kịp thời. Chúng tôi cam kết sẽ rà soát lại quy trình vệ sinh an toàn thực phẩm để ngăn ngừa tái diễn. Rất mong Quý khách sớm hồi phục sức khỏe.",
+        "status": "승인 대기",
+        "approval_id": "AP-B0FBC744",
+        "reply_safety": "safe",
+        "compensation": {
+          "applicable": true,
+          "issue_type": "hygiene",
+          "policy_basis": "§2 위생 사고",
+          "form": "테이블 전액 환불(매니저 개별 안내)",
+          "base_label": "테이블 총액",
+          "base_vnd": 1483000,
+          "rate": 1.0,
+          "proposed_amount_vnd": 1483000,
+          "display": "1,483,000₫ (테이블 전액 환불(매니저 개별 안내), 기준 테이블 총액 1,483,000₫ × 100%)",
+          "disclaimer": "제안 금액이며 실제 환불·결제는 실행되지 않았다. 매니저 승인 후 수기 처리."
+        }
+      },
+      "tools_used": {
+        "check_safety": 1,
+        "find_order_candidates": 1,
+        "search_policy": 1,
+        "notify_manager": 1,
+        "hold_for_approval": 1
+      },
+      "tool_order": [
+        "check_safety",
+        "find_order_candidates",
+        "search_policy",
+        "notify_manager",
+        "hold_for_approval"
+      ],
       "steps": [
         {
           "actor": "agent",
@@ -208,21 +294,37 @@
             "text": "Tối qua tôi ăn ở đây với bạn. Trong đĩa tôm rang me có một con gián chết. Về nhà tôi bị đau bụng và tiêu chảy cả đêm, sáng nay phải đi bệnh viện truyền nước. Nhân viên lúc đó chỉ nói xin lỗi rồi bỏ đi. Quá kinh khủng, tôi sẽ báo cơ quan y tế và kiện nhà hàng này.",
             "kind": "review"
           },
-          "reasoning": "The user has provided a Vietnamese review about a serious hygiene issue - a dead cockroach in food, leading to food poisoning requiring hospital treatment. The customer threatens legal action and reporting to health authorities. This is clearly a high/critical severity case involving hygiene/food safety and health issues.\n\nI need to follow the procedure:\n1. First, check_safety with kind=\"review\" on the review text\n2. Since this involves hygiene/foreign object/health issues/legal threats, I need to search_policy for relevant policies\n3. Notify manager with high/critical severity\n4. Write a reply in Vietnamese (same language as review)\n5. Submit reply\n\nLet me start with check_safety.",
-          "elapsed": 0.42,
+          "reasoning": "The user has provided a Vietnamese review about a serious hygiene issue - a dead cockroach in shrimp dish, food poisoning symptoms, and threat to report to health authorities and sue. This is clearly a critical severity issue. Let me follow the procedure:\n\n1. First, check_safety with kind=\"review\"\n2. This is a hygiene/food safety claim with legal threat - needs fact verification via find_order_candidates\n3. Search policy for hygiene procedures\n4. Notify manager (critical severity)\n5. Hold for approval (not submit_reply)\n\nLet me start with safety check.",
+          "elapsed": 0.41,
           "n": 1
+        },
+        {
+          "actor": "agent",
+          "type": "tool_call",
+          "tool": "find_order_candidates",
+          "args": {
+            "review_date": "2026-09-24",
+            "mentioned_items": [
+              "tôm rang me",
+              "gián"
+            ],
+            "language": "vi"
+          },
+          "reasoning": "The review is marked as \"unsafe\" which means it requires human intervention. This is a serious hygiene/food safety complaint with health consequences and legal threats. I need to follow the procedure for critical severity cases.\n\nFirst, I should check if there's a visit date mentioned. The review says \"Tối qua\" which means \"last night\" in Vietnamese. Since today is 2026-09-25, \"last night\" would be 2026-09-24. The review mentions \"tôm rang me\" (shrimp with tamarind) and \"gián\" (cockroach). I should use find_order_candidates to check for matching orders.\n\nBut wait, the review is in Vietnamese, so language is \"vi\". The mentioned items would be \"tôm rang me\" and possibly \"gián\" (though that's not a menu item). Let me call find_order_candidates.",
+          "elapsed": 0.0,
+          "n": 2
         },
         {
           "actor": "agent",
           "type": "tool_call",
           "tool": "search_policy",
           "args": {
-            "query": "위생 이물질 식중독 환불 보상 정책",
+            "query": "위생 클레임 이물질 식중독 대응 절차",
             "top_k": 3
           },
-          "reasoning": "The review is marked as unsafe, which means it contains serious complaints (foreign object, health issues, legal threats). This requires manager escalation. I need to search for relevant policies first, then notify the manager, and finally submit a reply. Let me search for policies related to hygiene/food safety and compensation.",
-          "elapsed": 0.72,
-          "n": 2
+          "reasoning": "The review mentions a serious hygiene issue - a dead cockroach in the tamarind fried shrimp dish, leading to food poisoning symptoms (stomach pain, diarrhea, hospitalization). The customer also mentions poor staff response and threatens to report to health authorities and sue. This is clearly a critical severity issue (hygiene/food safety, health impact, legal threat).\n\nThe find_order_candidates returned a medium confidence match for order HD-20260924-14 which includes \"Tôm sú rang me (Tiger prawn with tamarind)\" - this matches \"tôm rang me\" mentioned in the review. The verdict is medium, so I can use this as evidence for manager notification.\n\nI need to:\n1. Search policy for hygiene/food safety procedures\n2. Notify manager with critical severity, issue_type \"hygiene\", and the order_id\n3. Then hold_for_approval since severity is critical\n\nLet me first search policy for hygiene procedures.",
+          "elapsed": 0.39,
+          "n": 3
         },
         {
           "actor": "agent",
@@ -230,12 +332,15 @@
           "tool": "notify_manager",
           "args": {
             "severity": "critical",
+            "item_hint": "tôm sú rang me",
             "review_excerpt": "Trong đĩa tôm rang me có một con gián chết. Về nhà tôi bị đau bụng và tiêu chảy cả đêm, sáng nay phải đi bệnh viện truyền nước. Nhân viên lúc đó chỉ nói xin lỗi rồi bỏ đi. Tôi sẽ báo cơ quan y tế và kiện nhà hàng này.",
-            "summary": "고객이 타마린드 새우 요리에서 죽은 바퀴벌레를 발견하고 섭취 후 복통·설사로 입원 치료를 받았으며, 직원이 사과만 하고 떠났다고 신고함. 법적 조치 및 보건소 신고 예고."
+            "summary": "고객이 타마린드 새우 요리에서 바퀴벌레 발견 후 식중독 증상(복통, 설사, 병원 입원) 호소, 직원 대응 미흡 지적, 보건소 신고 및 소송 예고",
+            "order_id": "HD-20260924-14",
+            "issue_type": "hygiene"
           },
-          "reasoning": "The review contains serious hygiene issues (dead cockroach in food) and health consequences (stomach pain, diarrhea, hospitalization). This is clearly a critical severity case. According to the policy, this requires immediate escalation to the manager. I need to call notify_manager with high/critical severity. Then I'll draft a reply in Vietnamese (same language as the review) following the policy guidelines for customer communication. The policy says for hygiene/food safety issues: full refund for the table, manager will contact within 24 hours about medical expense support, provide manager contact info, promise hygiene procedure review. I should not mention internal procedures. Let me escalate first.",
+          "reasoning": "The review is a critical hygiene/food safety issue with a cockroach found in food and subsequent food poisoning symptoms requiring hospital treatment. The customer also threatens to report to health authorities and sue. This is clearly a \"critical\" severity case.\n\nAccording to the policy:\n1. This is a critical case (hygiene/foreign object/food poisoning, legal threat)\n2. Must escalate to manager via notify_manager\n3. Must use hold_for_approval (not submit_reply)\n4. Public reply must only contain: apology/regret, request for private contact, contact info, promise to review hygiene procedures\n5. No fact admission, no rebuttal, no compensation promises\n6. Reply in Vietnamese (same language as review)\n\nI need to call notify_manager first with the appropriate parameters, then hold_for_approval with the draft reply.\n\nLet me call notify_manager with:\n- summary: Korean summary for manager\n- severity: \"critical\"\n- review_excerpt: key excerpt from review\n- order_id: the medium confidence candidate HD-20260924-14\n- issue_type: \"hygiene\"\n- item_hint: \"tôm rang me\" or \"tôm sú rang me\"\n\nThen hold_for_approval with the Vietnamese draft reply.",
           "elapsed": 0.0,
-          "n": 3
+          "n": 4
         },
         {
           "actor": "guardrail",
@@ -244,60 +349,73 @@
           "args": {
             "kind": "draft_reply"
           },
-          "elapsed": 0.54,
-          "n": 4
+          "elapsed": 0.43,
+          "n": 5
         },
         {
           "actor": "agent",
           "type": "final",
-          "tool": "submit_reply",
+          "tool": "hold_for_approval",
           "args": {
-            "category": "위생/식품안전",
-            "language": "vi",
             "severity": "critical",
-            "reply_text": "Quý khách thân mến, Hải Đăng Seafood xin gửi lời xin lỗi sâu sắc vì quý khách đã trải qua sự cố nghiêm trọng với món tôm rang me và phải nhập viện điều trị. Chúng tôi xác nhận sẽ hoàn trả toàn bộ số tiền bàn ăn của quý khách, và quản lý nhà hàng sẽ liên hệ trực tiếp trong vòng 24 giờ tới để hỗ trợ chi phí khám chữa bệnh theo quy định. Quý khách vui lòng liên hệ quản lý qua manager@haidang-danang.example hoặc +84 236 555 0147 để được giải quyết nhanh chóng. Chúng tôi cam kết rà soát lại toàn bộ quy trình vệ sinh an toàn thực phẩm để không để sự việc này lặp lại. Rất mong quý khách cho phép chúng tôi được phục vụ lại đúng chuẩn mực.",
-            "rationale": "리뷰는 베트남어로 작성되었으므로 베트남어로 답글 작성. 이물질(바퀴벌레) 혼입 + 섭취 후 식중독 입원 + 직원 부실 대응 + 법적 조치 예고로 severity=critical, category=위생/식품안전. 정책 2조(식품 안전 및 위생 이슈 대응)의 [고객 안내] 항목만 인용: 전체 금액 환불, 24시간 내 매니저 직접 연락·진료비 지원 안내, 담당자 연락처 제공, 위생 절차 재점검 약속(구체 일정·기관·설비 교체 미언급). 내부 조치(식재료 폐기, 기록 보존, 직원 재교육)는 답글에 미포함. 매니저 에스컬레이션 완료(AL-E7BD525B).",
+            "alert_id": "AL-E2FDD227",
+            "manager_note": "고객이 타마린드 새우(tôm sú rang me)에서 바퀴벌레 발견 주장, 식중독 증상으로 병원 치료 받음, 직원 대응 미흡 지적, 보건소 신고 및 소송 예고. 주문 후보 HD-20260924-14(2026-09-24, 총액 1,483,000₫)와 방문일·메뉴 일치도 medium. 정책 §2 위생 사고로 테이블 전액 환불(1,483,000₫) 제안 산출됨. 매니저가 사실관계 확인 후 보상·법적 대응 여부 결정 필요. 당일 조리·입고 기록 보존, 담당 직원 면담, 동일 로트 식재료 사용 중단 검토 요망.",
+            "language": "vi",
             "sentiment": "negative",
-            "reply_safety": "safe"
+            "draft_reply": "Kính gửi Quý khách, Hải Đăng Seafood xin chân thành cảm ơn Quý khách đã chia sẻ phản hồi. Chúng tôi rất tiếc và lo lắng nghe Quý khách gặp sự cố dị vật trong món ăn và bị đau bụng, tiêu chảy phải nhập viện. Về vấn đề nghiêm trọng này, chúng tôi xin đề nghị Quý khách liên hệ trực tiếp với quản lý qua email manager@haidang-danang.example hoặc số điện thoại +84 236 555 0147 để được hỗ trợ kiểm tra, xác minh và xử lý kịp thời. Chúng tôi cam kết sẽ rà soát lại quy trình vệ sinh an toàn thực phẩm để ngăn ngừa tái diễn. Rất mong Quý khách sớm hồi phục sức khỏe.",
+            "category": "위생/식품안전",
+            "rationale": "리뷰가 베트남어로 작성되어 베트남어로 답글 작성. 위생/이물질/식중독 클레임으로 critical 등급. 정책 §2에 따라 공개 답글에는 사과·유감 표명, 개별 연락 채널 안내, 위생 절차 재점검 약속만 포함. 사실 인정/반박/보상 약속 금지. 주문 후보 HD-20260924-14(medium confidence)는 내부 판단·매니저 알림에만 활용, 답글에 노출하지 않음. notify_manager 완료(alert_id AL-E2FDD227). 매니저 승인 전까지 게시 보류."
           },
-          "reasoning": "The user has reported a very serious hygiene issue - finding a dead cockroach in their food, getting food poisoning requiring hospitalization, and poor staff response. They're threatening legal action and reporting to health authorities.\n\nBased on the policy search results, for food safety/hygiene issues (Critical severity), the customer-facing response should include:\n1. Full table refund\n2. Manager will contact within 24 hours regarding medical expense support\n3. Provide manager contact info (manager@haidang-danang.example / +84 236 555 0147)\n4. Promise to review hygiene procedures (but not specific schedules/inspections/equipment changes)\n5. Not close with just an auto-reply\n\nThe review is in Vietnamese, so I need to respond in Vietnamese. I should not use English terms like \"escalation\", \"critical\", \"refund\", \"manager\" in the Vietnamese response - need to translate them properly.\n\nLet me draft a Vietnamese response following the guidelines:\n- Thank the customer\n- Acknowledge the specific issue (cockroach in tamarind shrimp, food poisoning, hospitalization)\n- State the policy-based actions: full refund, manager contact within 24 hours for medical expenses, provide contact info\n- Promise hygiene procedure review\n- Encure return visit\n\nI need to write 3-6 sentences in natural Vietnamese.",
-          "elapsed": 37.89,
-          "n": 5
+          "reasoning": "The user has reported a serious hygiene issue - finding a dead cockroach in their tamarind shrimp dish, experiencing food poisoning symptoms (stomach pain, diarrhea all night, had to go to hospital for IV fluids), poor staff response (just apologized and left), and threatening to report to health authorities and sue the restaurant.\n\nThis is clearly a critical severity issue based on the policy:\n- Hygiene/foreign object/food poisoning = critical\n- Legal threat = critical\n\nI've already:\n1. Checked safety - marked as unsafe (requires human intervention)\n2. Found order candidates - medium confidence match with order HD-20260924-14 (tôm sú rang me)\n3. Searched policy - confirmed critical handling procedure for hygiene issues\n4. Notified manager - got alert_id AL-E2FDD227 with compensation proposal (full table refund 1,483,000₫)\n\nNow I need to:\n1. Draft a reply in Vietnamese (same language as review)\n2. Use hold_for_approval since this is critical severity\n3. The reply should follow the policy for hygiene claims: apology, regret, direct to private contact, no admission/denial/compensation promise\n\nLet me draft the Vietnamese reply following the policy guidelines:\n- 3-6 sentences\n- Vietnamese only (no English words mixed in)\n- Thank them for the review\n- Acknowledge the specific issue (cockroach in food, illness)\n- Direct to private contact channels (manager@haidang-danang.example / +84 236 555 0147)\n- Promise hygiene procedure review (general, no specifics)\n- No compensation mention, no admission of fault, no denial\n\nThen call hold_for_approval with the draft reply.",
+          "elapsed": 33.21,
+          "n": 6
         }
       ],
-      "elapsed": 85.15,
+      "elapsed": 98.53,
       "usage": {
-        "prompt_tokens": 11869,
-        "completion_tokens": 1450,
-        "total_tokens": 13319,
-        "calls": 7
-      }
+        "prompt_tokens": 25946,
+        "completion_tokens": 2260,
+        "total_tokens": 28206,
+        "calls": 8
+      },
+      "retries": 0
     },
     {
       "id": "ru-refund",
+      "stage": 1,
       "ok": true,
       "checks": {
         "리뷰 안전검사 수행": true,
         "정책 검색 수행": true,
         "답글 언어 일치": true,
         "답글 비어있지 않음": true,
+        "게시 상태 = 자동 게시": true,
         "불필요한 매니저 알림 없음": true,
+        "답글에 내부 데이터 없음": true,
         "degraded 아님": true
       },
       "final": {
-        "rationale": "리뷰는 러시아어로 작성되었으며, 크랩이 너무 짜서(조리 오류: 과도한 간) 먹기 불가능했고 직원이 무관심했다는 내용입니다. 영수증이 있으며 방문일 기준 2일 전(7일 이내)이므로 정책 '1. 환불 및 재조리 정책'에 따라 해당 메뉴 전액 환불 대상입니다. 위생/이물질/건강 이상 사항은 없으므로 severity low, 매니저 에스컬레이션 불필요. 답글은 러시아어로 작성, 정책 근거(7일 이내 영수증 제시 시 전액 환불) 안내 및 매장 연락처 제공.",
-        "language": "ru",
-        "severity": "low",
-        "category": "음식품질",
-        "reply_text": "Уважаемый гость, спасибо за отзыв. Приносим искренние извинения за то, что краб оказался пересоленным — это ошибка приготовления, которая недопустима в Hải Đăng Seafood. Согласно нашей политике, при подтверждении ошибки приготовления (чрезмерная соль) в течение 7 дней после визита с предъявлением чека мы возвращаем полную стоимость блюда. Пожалуйста, свяжитесь с нами по телефону +84 236 555 0147 или email manager@haidang-danang.example для оформления возврата. Будем рады встретить вас снова и исправить впечатление.",
         "sentiment": "negative",
+        "rationale": "리뷰는 조리 오류(크랩 과도한 간)와 서비스 미흡(직원 무대응)을 지적하며 크랩 환불을 요청. find_order_candidates로 2026-09-23 방문, 크랩 주문 내역 고신뢰도(high) 매칭 확인. 정책 §1(조리 오류 시 해당 메뉴 전액 환불) 및 §9-5(조리 오류 전액 환불) 적용. 심각도 medium(위생/법적 위협 없음, 단순 조리 오류+서비스). 공개 답글에 금액·주문번호 미기재, 정책 근거 안내 후 개별 연락 유도. 러시아어 원문 언어로 답글 작성.",
+        "language": "ru",
+        "category": "음식품질",
+        "severity": "medium",
+        "reply_text": "Уважаемый гость, спасибо за отзыв. Нам очень жаль, что краб оказался пересоленным, а реакция официанта не помогла решить проблему на месте. Согласно нашей политике, при подтверждённой ошибке приготовления (чрезмерная соль) мы возвращаем полную стоимость этого блюда в течение 7 дней после визита по чеку или QR-номеру заказа. Пожалуйста, свяжитесь с нами по manager@haidang-danang.example или +84 236 555 0147 — мы оформим возврат за краба в удобном для вас способе. Будем рады встретить вас снова в Hải Đăng Seafood и исправить впечатление.",
+        "status": "자동 게시",
         "reply_safety": "safe"
       },
       "tools_used": {
         "check_safety": 1,
+        "find_order_candidates": 1,
         "search_policy": 1,
         "submit_reply": 1
       },
+      "tool_order": [
+        "check_safety",
+        "find_order_candidates",
+        "search_policy",
+        "submit_reply"
+      ],
       "steps": [
         {
           "actor": "agent",
@@ -307,9 +425,25 @@
             "text": "Заказали краба и морского окуня на гриле. Краб оказался настолько пересоленным, что есть было невозможно. Позвали официанта, но он только пожал плечами. Мы были там позавчера, чек у меня сохранился. Хотелось бы вернуть деньги хотя бы за краба.",
             "kind": "review"
           },
-          "reasoning": "The user has provided a customer review in Russian about a seafood restaurant. The review mentions:\n1. Ordered crab and grilled sea bass\n2. Crab was extremely salty, inedible\n3. Called waiter, but he just shrugged\n4. They were there the day before yesterday, receipt saved\n4. Want money back at least for the crab\n\nI need to follow the procedure:\n1. First check_safety with kind=\"review\"\n2. Then search_policy for relevant policies (refund, food quality, service)\n3. Determine if escalation is needed (this seems like a food quality + service issue, not hygiene/health/legal threat)\n4. Write reply in Russian (same language as review)\n5. Submit reply\n\nLet me start with check_safety.",
-          "elapsed": 2.42,
+          "reasoning": "The user has provided a customer review in Russian. I need to process this review according to the established procedures. Let me start by checking the safety of the review.",
+          "elapsed": 0.37,
           "n": 1
+        },
+        {
+          "actor": "agent",
+          "type": "tool_call",
+          "tool": "find_order_candidates",
+          "args": {
+            "mentioned_items": [
+              "краб",
+              "морской окунь на гриле"
+            ],
+            "review_date": "2026-09-23",
+            "language": "ru"
+          },
+          "reasoning": "The review is safe. Now I need to process it. The customer is complaining about oversalted crab and poor service (waiter shrugged). They want a refund for the crab. They mention they were there \"позавчера\" (day before yesterday) which would be 2026-09-23 (since today is 2026-09-25). They mention crab and grilled sea bass. This is a food quality complaint with a refund request. According to the procedure, I should check if this needs order verification. Since it's a cooking error/quality complaint with a refund request, I should use find_order_candidates to verify the visit. The review mentions specific items: crab (краб) and grilled sea bass (морской окунь на гриле). The date is \"позавчера\" = 2026-09-23. Language is Russian (ru). Let me call find_order_candidates.",
+          "elapsed": 0.0,
+          "n": 2
         },
         {
           "actor": "agent",
@@ -317,11 +451,11 @@
           "tool": "search_policy",
           "args": {
             "top_k": 3,
-            "query": "음식 품질 불만 환불 조치 기준"
+            "query": "조리 오류 환불 정책 크랩 너무 짬"
           },
-          "reasoning": "The review is safe. Now I need to search for relevant policies. The customer is complaining about oversalted crab, poor service (waiter shrugged), and wants a refund for the crab. This relates to food quality and refund policy. Let me search for relevant policies.",
-          "elapsed": 0.66,
-          "n": 2
+          "reasoning": "The review mentions a cooking error (over-salted crab) and poor service response (waiter shrugged). The customer wants a refund for the crab. The order candidate shows high confidence match for 2026-09-23 with king crab (cua hoàng đế). This is a cooking error complaint with refund request. According to policy, cooking error refund requests are medium severity (not critical/high). The policy §9 mentions cooking error compensation. I should search policy for cooking error refund rules. Also need to check if this qualifies as \"cooking error\" under policy. The customer says crab was too salty to eat - that's a cooking/preparation error. The waiter's response (shrugging) is a service issue. This seems like medium severity. I should search policy for cooking error handling and refund policy. Then write a reply in Russian. Since severity is medium, I can use submit_reply. But first need to check policy. Let me search.",
+          "elapsed": 0.57,
+          "n": 3
         },
         {
           "actor": "guardrail",
@@ -330,34 +464,665 @@
           "args": {
             "kind": "draft_reply"
           },
-          "elapsed": 0.61,
-          "n": 3
+          "elapsed": 0.41,
+          "n": 4
         },
         {
           "actor": "agent",
           "type": "final",
           "tool": "submit_reply",
           "args": {
-            "rationale": "리뷰는 러시아어로 작성되었으며, 크랩이 너무 짜서(조리 오류: 과도한 간) 먹기 불가능했고 직원이 무관심했다는 내용입니다. 영수증이 있으며 방문일 기준 2일 전(7일 이내)이므로 정책 '1. 환불 및 재조리 정책'에 따라 해당 메뉴 전액 환불 대상입니다. 위생/이물질/건강 이상 사항은 없으므로 severity low, 매니저 에스컬레이션 불필요. 답글은 러시아어로 작성, 정책 근거(7일 이내 영수증 제시 시 전액 환불) 안내 및 매장 연락처 제공.",
-            "language": "ru",
-            "severity": "low",
-            "category": "음식품질",
-            "reply_text": "Уважаемый гость, спасибо за отзыв. Приносим искренние извинения за то, что краб оказался пересоленным — это ошибка приготовления, которая недопустима в Hải Đăng Seafood. Согласно нашей политике, при подтверждении ошибки приготовления (чрезмерная соль) в течение 7 дней после визита с предъявлением чека мы возвращаем полную стоимость блюда. Пожалуйста, свяжитесь с нами по телефону +84 236 555 0147 или email manager@haidang-danang.example для оформления возврата. Будем рады встретить вас снова и исправить впечатление.",
             "sentiment": "negative",
-            "reply_safety": "safe"
+            "rationale": "리뷰는 조리 오류(크랩 과도한 간)와 서비스 미흡(직원 무대응)을 지적하며 크랩 환불을 요청. find_order_candidates로 2026-09-23 방문, 크랩 주문 내역 고신뢰도(high) 매칭 확인. 정책 §1(조리 오류 시 해당 메뉴 전액 환불) 및 §9-5(조리 오류 전액 환불) 적용. 심각도 medium(위생/법적 위협 없음, 단순 조리 오류+서비스). 공개 답글에 금액·주문번호 미기재, 정책 근거 안내 후 개별 연락 유도. 러시아어 원문 언어로 답글 작성.",
+            "language": "ru",
+            "category": "음식품질",
+            "severity": "medium",
+            "reply_text": "Уважаемый гость, спасибо за отзыв. Нам очень жаль, что краб оказался пересоленным, а реакция официанта не помогла решить проблему на месте. Согласно нашей политике, при подтверждённой ошибке приготовления (чрезмерная соль) мы возвращаем полную стоимость этого блюда в течение 7 дней после визита по чеку или QR-номеру заказа. Пожалуйста, свяжитесь с нами по manager@haidang-danang.example или +84 236 555 0147 — мы оформим возврат за краба в удобном для вас способе. Будем рады встретить вас снова в Hải Đăng Seafood и исправить впечатление."
           },
-          "reasoning": "The review is about a crab being too salty (over-seasoned), which is a cooking error (excessive seasoning). The customer asked the waiter but got no help. They have a receipt from the day before yesterday. They want a refund for the crab.\n\nAccording to policy \"1. 환불 및 재조리 정책\": cooking error (excessive seasoning) confirmed -> immediate re-cook or full refund of that menu item. If after leaving the store, within 7 days of visit with receipt or QR order number, refund the menu price in cash or original payment method.\n\nThis is not a food safety/hygiene issue (no foreign object, no health symptoms). So severity is low/medium. No need to notify manager.\n\nThe review is in Russian. I need to reply in Russian.\n\nCategory: 음식품질 (food quality). Sentiment: negative. Severity: low (or medium? Since it's a cooking error but no health risk, I'd say low).\n\nI'll draft a reply in Russian, acknowledging the issue, referencing policy (refund for cooking error within 7 days with receipt), and inviting them to contact for refund.\n\nLet me draft the reply.",
-          "elapsed": 30.22,
-          "n": 4
+          "reasoning": "The review is about a cooking error (crab too salty) and poor service response (waiter shrugged). The customer wants a refund for the crab. The order candidate was found with high confidence (HD-20260923-15). According to policy §1, cooking errors (excessive salt) qualify for full refund of that item. Policy §9-5 also states cooking error: full refund or re-cooking. This is a medium severity issue (cooking error + service issue). Not critical/high (no hygiene, no legal threat, no weight/billing dispute). So I can use submit_reply. Need to write reply in Russian. Must mention policy basis (cooking error refund). Must not mention order details. Must not promise specific amount. Must apologize, acknowledge, inform about refund policy, invite to contact for processing. Let's draft.",
+          "elapsed": 23.71,
+          "n": 5
         }
       ],
-      "elapsed": 71.22,
+      "elapsed": 37.03,
       "usage": {
-        "prompt_tokens": 8400,
-        "completion_tokens": 1028,
-        "total_tokens": 9428,
-        "calls": 6
-      }
+        "prompt_tokens": 18860,
+        "completion_tokens": 1295,
+        "total_tokens": 20155,
+        "calls": 7
+      },
+      "retries": 0
+    },
+    {
+      "id": "ru-weight-order",
+      "stage": 2,
+      "ok": true,
+      "checks": {
+        "리뷰 안전검사 수행": true,
+        "정책 검색 수행": true,
+        "답글 언어 일치": true,
+        "답글 비어있지 않음": true,
+        "게시 상태 = 승인 대기": true,
+        "심각 건 매니저 알림": true,
+        "주문 대조 툴 호출": true,
+        "답글에 내부 데이터 없음": true,
+        "보상 금액이 답글에 없음": true,
+        "degraded 아님": true
+      },
+      "final": {
+        "manager_note": "주문 HD-20260922-05(랍스터 1.2kg, 2,220,000₫)와 고신뢰도 매칭. 정책 §9-1 기준 30% 바우처(666,000₫) 산정됨. 매니저 승인 후 수기 처리 필요. 고객에게 개별 연락해 재확인 및 보상 안내 요망.",
+        "draft_reply": "Уважаемый гость, спасибо за обращение в Hải Đăng Seafood. Сожалеем, что итоговая сумма в чеке вызвала у вас вопросы после совместного взвешивания лобстера у стола. В нашем ресторане существует процедура показа веса на переносных весах в присутствии гостя, и мы готны детально разобрать расчёт. Пожалуйста, свяжитесь с нами напрямую по телефону +84 236 555 0147 или на manager@haidang-danang.example — мы пересчитаем счёт и найдём удобное решение. Будем рады видеть вас снова.",
+        "severity": "critical",
+        "category": "가격/중량",
+        "rationale": "리뷰는 9월 22일 저녁 랍스터 1.2kg 테이블 계량 후 청구 금액이 단가×중량보다 높다는 분쟁. find_order_candidates에서 HD-20260922-05(weighed_at_table=true)와 high 신뢰도 매칭. 정책 §4 테이블 계량 절차 존재, §9-1 중량 이견 30% 바우처 산정 기준, §10 critical 등급으로 자동 게시 금지. 공개 답글에는 금액·바우처 미기재, 절차 안내와 개별 연락 유도만. 러시아어 리뷰이므로 러시아어 답글 작성.",
+        "alert_id": "AL-911FEE9F",
+        "language": "ru",
+        "sentiment": "negative",
+        "reply_text": "Уважаемый гость, спасибо за обращение в Hải Đăng Seafood. Сожалеем, что итоговая сумма в чеке вызвала у вас вопросы после совместного взвешивания лобстера у стола. В нашем ресторане существует процедура показа веса на переносных весах в присутствии гостя, и мы готны детально разобрать расчёт. Пожалуйста, свяжитесь с нами напрямую по телефону +84 236 555 0147 или на manager@haidang-danang.example — мы пересчитаем счёт и найдём удобное решение. Будем рады видеть вас снова.",
+        "status": "승인 대기",
+        "approval_id": "AP-A5BF7499",
+        "reply_safety": "safe",
+        "compensation": {
+          "applicable": true,
+          "issue_type": "weight_dispute",
+          "policy_basis": "§9-1 중량 이견",
+          "form": "다음 방문 바우처",
+          "base_label": "Tôm hùm nướng phô mai (Grilled lobster with cheese)",
+          "base_vnd": 2220000,
+          "rate": 0.3,
+          "proposed_amount_vnd": 666000,
+          "display": "666,000₫ (다음 방문 바우처, 기준 Tôm hùm nướng phô mai (Grilled lobster with cheese) 2,220,000₫ × 30%)",
+          "disclaimer": "제안 금액이며 실제 환불·결제는 실행되지 않았다. 매니저 승인 후 수기 처리."
+        }
+      },
+      "tools_used": {
+        "check_safety": 1,
+        "find_order_candidates": 1,
+        "search_policy": 1,
+        "notify_manager": 1,
+        "hold_for_approval": 1
+      },
+      "tool_order": [
+        "check_safety",
+        "find_order_candidates",
+        "search_policy",
+        "notify_manager",
+        "hold_for_approval"
+      ],
+      "steps": [
+        {
+          "actor": "agent",
+          "type": "tool_call",
+          "tool": "check_safety",
+          "args": {
+            "kind": "review",
+            "text": "Были у вас 22 сентября 2026 года вечером. Выбрали лобстера, на весах у стола показали 1,2 кг, я это видел своими глазами. Но в счёте сумма оказалась заметно больше, чем 1,2 кг по цене за килограмм. Никто не смог объяснить разницу. Прошу разобраться и пересчитать счёт."
+          },
+          "reasoning": "The user has provided a Russian review from September 22, 2026, complaining about a lobster weight discrepancy. The customer claims they saw 1.2 kg on the table scale but the bill was significantly higher than 1.2 kg at the per-kg price, and no one could explain the difference. They request investigation and recalculation.\n\nThis is a weight/price dispute, which falls under \"가격/중량\" (price/weight) category. According to the procedure, I need to:\n1. First check_safety with kind=\"review\"\n2. Since this is a factual dispute (weight/amount), I should use find_order_candidates to check order data\n3. Then search_policy for relevant policies\n4. Then notify_manager if needed (severity high/critical)\n5. Then hold_for_approval since this is a weight/price dispute (critical/high severity)\n\nLet me start with check_safety.",
+          "elapsed": 0.4,
+          "n": 1
+        },
+        {
+          "actor": "agent",
+          "type": "tool_call",
+          "tool": "find_order_candidates",
+          "args": {
+            "review_date": "2026-09-22",
+            "mentioned_items": [
+              "лобстер"
+            ],
+            "language": "ru"
+          },
+          "reasoning": "The review is safe. Now I need to check if this requires order verification. The review mentions a specific date (September 22, 2026 evening), a specific item (lobster/лобстер), and a weight discrepancy claim (1.2 kg shown at table but bill shows higher amount). This is a weight/price dispute which requires fact-checking according to the procedure. I should use find_order_candidates.",
+          "elapsed": 0.0,
+          "n": 2
+        },
+        {
+          "actor": "agent",
+          "type": "tool_call",
+          "tool": "search_policy",
+          "args": {
+            "query": "중량 분쟁 가격 분쟁 테이블 저울 확인 절차 환불 보상",
+            "top_k": 3
+          },
+          "reasoning": "The find_order_candidates returned a high-confidence match for order HD-20260922-05, which includes a lobster (tôm hùm) weighing 1.2 kg at 1,850,000 VND/kg, totaling 2,220,000 VND for the lobster alone, plus a coconut for 45,000 VND, total 2,568,000 VND. The customer claims the bill was \"noticeably more than 1.2 kg at the price per kg.\" This is a weight/price dispute. According to policy, this is a \"price/weight\" dispute (category \"가격/중량\") and severity high (since it's a billing dispute). The procedure says for critical/high severity, we must notify_manager first, then hold_for_approval. Also need to search_policy for relevant policy on weight disputes. Let's search policy.",
+          "elapsed": 0.65,
+          "n": 3
+        },
+        {
+          "actor": "agent",
+          "type": "tool_call",
+          "tool": "notify_manager",
+          "args": {
+            "item_hint": "лобстер",
+            "summary": "러시아어 리뷰: 9월 22일 저녁 랍스터 1.2kg 테이블 계량 후 청구 금액이 단가×중량보다 높다는 분쟁. 주문 HD-20260922-05(weighed_at_table=true)와 고신뢰도 매칭.",
+            "order_id": "HD-20260922-05",
+            "review_excerpt": "Выбрали лобстера, на весах у стола показали 1,2 кг... в счёте сумма оказалась заметно больше, чем 1,2 кг по цене за килограмм.",
+            "severity": "critical",
+            "issue_type": "weight_dispute"
+          },
+          "reasoning": "The review is about a weight/price dispute for lobster on September 22, 2026. The customer claims they saw 1.2kg on the table scale but the bill was significantly higher than 1.2kg × price per kg. The find_order_candidates returned a high-confidence match (HD-20260922-05) with lobster (tôm hùm) at 1.2kg, price per kg 1,850,000 VND, line total 2,220,000 VND, plus a coconut drink 45,000 VND, total 2,568,000 VND. The order shows weighed_at_table: true.\n\nAccording to policy §4, the table weighing procedure exists and is recorded as weighed_at_table. The policy says for weight disputes, don't point out customer's mistake, just inform about the procedure and re-verification method. Also, the bill includes 5% service charge and 8% VAT on top of the pre-tax prices shown on menu/QR. The customer might not be aware of this.\n\nPolicy §9-1: for weight disagreement, even if weighing procedure recorded, if customer disagrees, propose 30% of item amount as voucher for next visit. But this is for manager notification only, not for public reply.\n\nPolicy §10: \"청구 금액/중량 분쟁\" (billing amount/weight dispute) is classified as critical severity, requiring hold_for_approval and notify_manager first.\n\nThus, I need to:\n1. Notify manager with severity critical, issue_type \"weight_dispute\", order_id \"HD-20260922-05\", item_hint \"лобстер\".\n2. Then hold_for_approval with draft reply in Russian, category \"가격/중량\", sentiment negative, severity critical.\n\nThe public reply should be in Russian, 3-6 sentences, acknowledging the concern, mentioning the table weighing procedure exists, and asking to contact privately for detailed verification. No amounts, no order IDs, no internal details. Must not promise compensation. Must use natural Russian honorifics.\n\nLet me craft the Russian reply.",
+          "elapsed": 0.0,
+          "n": 4
+        },
+        {
+          "actor": "guardrail",
+          "type": "verify",
+          "tool": "check_safety",
+          "args": {
+            "kind": "draft_reply"
+          },
+          "elapsed": 0.95,
+          "n": 5
+        },
+        {
+          "actor": "agent",
+          "type": "final",
+          "tool": "hold_for_approval",
+          "args": {
+            "manager_note": "주문 HD-20260922-05(랍스터 1.2kg, 2,220,000₫)와 고신뢰도 매칭. 정책 §9-1 기준 30% 바우처(666,000₫) 산정됨. 매니저 승인 후 수기 처리 필요. 고객에게 개별 연락해 재확인 및 보상 안내 요망.",
+            "draft_reply": "Уважаемый гость, спасибо за обращение в Hải Đăng Seafood. Сожалеем, что итоговая сумма в чеке вызвала у вас вопросы после совместного взвешивания лобстера у стола. В нашем ресторане существует процедура показа веса на переносных весах в присутствии гостя, и мы готны детально разобрать расчёт. Пожалуйста, свяжитесь с нами напрямую по телефону +84 236 555 0147 или на manager@haidang-danang.example — мы пересчитаем счёт и найдём удобное решение. Будем рады видеть вас снова.",
+            "severity": "critical",
+            "category": "가격/중량",
+            "rationale": "리뷰는 9월 22일 저녁 랍스터 1.2kg 테이블 계량 후 청구 금액이 단가×중량보다 높다는 분쟁. find_order_candidates에서 HD-20260922-05(weighed_at_table=true)와 high 신뢰도 매칭. 정책 §4 테이블 계량 절차 존재, §9-1 중량 이견 30% 바우처 산정 기준, §10 critical 등급으로 자동 게시 금지. 공개 답글에는 금액·바우처 미기재, 절차 안내와 개별 연락 유도만. 러시아어 리뷰이므로 러시아어 답글 작성.",
+            "alert_id": "AL-911FEE9F",
+            "language": "ru",
+            "sentiment": "negative"
+          },
+          "reasoning": "The review is in Russian, so I need to write the reply in Russian. The severity is critical (weight/price dispute), so I must use hold_for_approval. I have the alert_id from notify_manager. Now I need to draft a reply in Russian that follows the guidelines: thank the customer, acknowledge the specific concern about the weight/bill discrepancy, mention the table weighing procedure exists, and direct to private contact for resolution. No amounts, no internal details. 3-6 sentences. Use natural Russian polite form. No English words like \"escalation\" etc. Must mention \"Hải Đăng Seafood\". Provide contact: manager@haidang-danang.example / +84 236 555 0147. Let's craft.",
+          "elapsed": 20.19,
+          "n": 6
+        }
+      ],
+      "elapsed": 50.85,
+      "usage": {
+        "prompt_tokens": 26406,
+        "completion_tokens": 2122,
+        "total_tokens": 28528,
+        "calls": 8
+      },
+      "retries": 0
+    },
+    {
+      "id": "en-wait-order",
+      "stage": 2,
+      "ok": true,
+      "checks": {
+        "리뷰 안전검사 수행": true,
+        "정책 검색 수행": true,
+        "답글 언어 일치": true,
+        "답글 비어있지 않음": true,
+        "게시 상태 = 자동 게시": true,
+        "불필요한 매니저 알림 없음": true,
+        "주문 대조 툴 호출": true,
+        "답글에 내부 데이터 없음": true,
+        "degraded 아님": true
+      },
+      "final": {
+        "sentiment": "negative",
+        "rationale": "리뷰어가 2026-09-21 방문, 타마린드 타이거 프라운 주문, 50분 대기 불만을 제기함. find_order_candidates로 고신뢰도(high) 매칭 주문 HD-20260921-03 확인(대기 48분). 정책 §3, §9-4에 따라 45분 초과 시 웰컴 드링크 1잔 제공 규정 적용. 심각도 medium(대기시간 불만)으로 submit_reply 처리. 공개 답글에 보상 금액·비율 미기재, 정책상 제공되는 웰컴 드링크 안내만 포함.",
+        "language": "en",
+        "severity": "medium",
+        "category": "대기시간",
+        "reply_text": "Thank you for dining at Hải Đăng Seafood and for sharing your experience. We sincerely apologize for the long wait you endured, especially with a hungry child. Our policy provides a complimentary welcome drink for any table waiting over 45 minutes, and we would be happy to honor that on your next visit. Please reach out to our manager at manager@haidang-danang.example or +84 236 555 0147 so we can arrange this for you. We hope to serve you again soon with a much smoother experience.",
+        "status": "자동 게시",
+        "reply_safety": "safe"
+      },
+      "tools_used": {
+        "check_safety": 1,
+        "find_order_candidates": 1,
+        "search_policy": 1,
+        "submit_reply": 1
+      },
+      "tool_order": [
+        "check_safety",
+        "find_order_candidates",
+        "search_policy",
+        "submit_reply"
+      ],
+      "steps": [
+        {
+          "actor": "agent",
+          "type": "tool_call",
+          "tool": "check_safety",
+          "args": {
+            "text": "We came on 21 September 2026 for dinner and ordered the tamarind tiger prawns. It took almost fifty minutes from ordering until the food actually reached our table. Nobody told us there was a delay, and we had to ask twice. The prawns were good but that wait was really hard with a hungry kid.",
+            "kind": "review"
+          },
+          "reasoning": "The user has provided a customer review in English about a dining experience on September 21, 2026. They ordered tamarind tiger prawns and experienced a 50-minute wait without communication. The prawns were good but the wait was difficult with a hungry child.\n\nI need to follow the procedure:\n1. First, check_safety with kind=\"review\" on the review text.\n2. This is a wait time complaint (대기 시간 불만) - fact-checking needed. The review mentions a specific date (21 September 2026) and a specific dish (tamarind tiger prawns). I should use find_order_candidates to check for matching orders.\n3. Then based on the verdict, decide how to proceed. Since it's a wait time complaint, severity is likely medium (대기 시간 불만). According to the rules, medium severity can use submit_reply.\n4. I should also search_policy for wait time policies if needed for the reply.\n5. The reply should be in English (same language as review).\n\nLet me start with check_safety.",
+          "elapsed": 0.34,
+          "n": 1
+        },
+        {
+          "actor": "agent",
+          "type": "tool_call",
+          "tool": "find_order_candidates",
+          "args": {
+            "mentioned_items": [
+              "tamarind tiger prawns"
+            ],
+            "language": "en",
+            "review_date": "2026-09-21"
+          },
+          "reasoning": "The review is safe. It's a complaint about wait time (almost 50 minutes) and lack of communication about the delay. The customer mentions they came on 21 September 2026 and ordered tamarind tiger prawns. This is a wait time complaint, which according to the procedure requires fact-checking with find_order_candidates. The review mentions a specific date and menu item, so I should use find_order_candidates to verify the order. The severity seems medium (wait time complaint, not critical/high). If the order is found (verdict high/medium), I can use that for context but not mention it in the reply. If low/no_match, I should treat as \"방문확인불가\" and write a short neutral reply, then hold_for_approval? Wait, the procedure says: for wait time complaints, they are medium severity. But if verdict is low/no_match and visit date is in review, then it's \"방문확인불가\" path: short neutral reply, notify_manager, hold_for_approval. However, the severity for wait time complaints is medium, which would normally be submit_reply. But the procedure says: \"verdict가 low 또는 no_match 이면 주문 데이터를 근거로 쓰지 마라. 방문일이 리뷰에 적혀 있는데 no_match/low 라면 '방문 확인 불가' 경로로 간다: category를 '방문확인불가'로 두거나 실제 클레임 유형을 쓰되, 답글은 짧고 중립적으로 쓴다(3문장 이내). 사실관계를 인정하지도 반박하지도 않는다. 고객을 의심하거나 거짓이라고 암시하지 마라. '기록이 없다'는 말도 쓰지 마라. 개인 연락 채널로만 확인을 요청한다. notify_manager로 매니저에게 넘기고 hold_for_approval로 종료한다.\"\n\nSo if the order candidate search returns low/no_match, I must follow that path. If it returns high/medium, I can use the order data for internal judgment and then write a normal reply (since severity is medium, submit_reply). But I need to check policy for wait time compensation. Let's first search for order candidates.",
+          "elapsed": 0.0,
+          "n": 2
+        },
+        {
+          "actor": "agent",
+          "type": "tool_call",
+          "tool": "search_policy",
+          "args": {
+            "top_k": 2,
+            "query": "대기 시간 45분 초과 보상 정책"
+          },
+          "reasoning": "The order candidate shows a wait time of 48 minutes, which matches the customer's complaint of \"almost fifty minutes\". The verdict is \"high\" confidence, so I can use this as evidence. This is a wait time complaint, which falls under the waiting time policy. According to the policy, wait time over 45 minutes qualifies for a 10% discount on the bill. However, I need to check the policy first to confirm the exact rule and ensure I don't promise anything not in policy.\n\nLet me search the policy for waiting time compensation.",
+          "elapsed": 0.36,
+          "n": 3
+        },
+        {
+          "actor": "guardrail",
+          "type": "verify",
+          "tool": "check_safety",
+          "args": {
+            "kind": "draft_reply"
+          },
+          "elapsed": 0.65,
+          "n": 4
+        },
+        {
+          "actor": "agent",
+          "type": "final",
+          "tool": "submit_reply",
+          "args": {
+            "sentiment": "negative",
+            "rationale": "리뷰어가 2026-09-21 방문, 타마린드 타이거 프라운 주문, 50분 대기 불만을 제기함. find_order_candidates로 고신뢰도(high) 매칭 주문 HD-20260921-03 확인(대기 48분). 정책 §3, §9-4에 따라 45분 초과 시 웰컴 드링크 1잔 제공 규정 적용. 심각도 medium(대기시간 불만)으로 submit_reply 처리. 공개 답글에 보상 금액·비율 미기재, 정책상 제공되는 웰컴 드링크 안내만 포함.",
+            "language": "en",
+            "severity": "medium",
+            "category": "대기시간",
+            "reply_text": "Thank you for dining at Hải Đăng Seafood and for sharing your experience. We sincerely apologize for the long wait you endured, especially with a hungry child. Our policy provides a complimentary welcome drink for any table waiting over 45 minutes, and we would be happy to honor that on your next visit. Please reach out to our manager at manager@haidang-danang.example or +84 236 555 0147 so we can arrange this for you. We hope to serve you again soon with a much smoother experience."
+          },
+          "reasoning": "The review mentions a 50-minute wait, which exceeds the 45-minute threshold. According to policy §3 and §9-4, the compensation for wait over 45 minutes is a welcome drink (Bia Saigon or coconut juice) per table. The wait was 48 minutes per the order data (high confidence match). This is a service delay issue, not a critical/high severity (no hygiene, weight dispute, legal threat). Severity should be medium (wait time complaint). The policy says for wait over 45 minutes, welcome drink 1 glass. For wait over 60 minutes, 10% discount coupon. Since it's 48 minutes, welcome drink applies.\n\nI need to write a reply in English (same language as review). The reply should: thank, acknowledge the wait issue, mention the policy (welcome drink for waits over 45 minutes), invite them to contact manager for the welcome drink on next visit, and encourage return. No compensation amounts in public reply. The welcome drink is a policy provision, not a monetary compensation, so it's okay to mention the policy benefit.\n\nCategory: \"대기시간\" (wait time). Sentiment: negative (complaint about wait). Severity: medium (wait time complaint, not critical/high). Since severity is medium, I should use submit_reply (not hold_for_approval). But wait: the policy says for severity medium or low → submit_reply. Yes.\n\nI should also notify_manager? The severity is medium, not high or critical. The instructions say: \"심각 건은 notify_manager 로 에스컬레이션한다. 이때 order_id 와 issue_type 을 함께 넘기면 정책 §9 보상 규칙으로 제안 보상 금액이 자동 계산되어 매니저 알림에만 기록된다. 그 금액을 공개 답글에 절대 쓰지 마라.\" But severity is medium, not high/critical. However, the wait time exceeded 45 minutes, which triggers a policy compensation (welcome drink). The manager should be aware? The instructions say \"심각 건은 notify_manager 로 에스컬레이션한다. severity 가 high 또는 critical 이면 필수.\" So for medium, it's not mandatory. But maybe it's good to notify manager anyway? The tool notify_manager requires severity parameter (low, medium, high, critical). I could call notify_manager with severity medium. But the instructions say \"severity 가 high 또는 critical 이면 필수.\" So for medium, optional. However, the hold_for_approval requires notify_manager first. Since I'm using submit_reply, I don't need to call notify_manager. But the manager might want to know about wait time issues. I'll decide to not call notify_manager, as it's not required for medium severity.\n\nNow draft reply in English. Must be 3-6 sentences. Natural English. Mention \"Hải Đăng Seafood\". No internal details. Acknowledge the wait, apologize, mention policy for waits over 45 minutes (welcome drink), invite to contact manager for next visit, thank them.\n\nLet's draft:\n\n\"Thank you for dining at Hải Đăng Seafood and for sharing your experience. We sincerely apologize for the long wait you endured, especially with a hungry child. Our policy provides a complimentary welcome drink for any table waiting over 45 minutes, and we would be happy to honor that on your next visit. Please reach out to our manager at manager@haidang-danang.example or +84 236 555 0147 so we can arrange this for you. We hope to serve you again soon with a much smoother experience.\"\n\nThat's 5 sentences. Good.\n\nNow call submit_reply.",
+          "elapsed": 18.83,
+          "n": 5
+        }
+      ],
+      "elapsed": 47.02,
+      "usage": {
+        "prompt_tokens": 18448,
+        "completion_tokens": 2169,
+        "total_tokens": 20617,
+        "calls": 7
+      },
+      "retries": 0
+    },
+    {
+      "id": "vi-hygiene-order",
+      "stage": 2,
+      "ok": true,
+      "checks": {
+        "리뷰 안전검사 수행": true,
+        "정책 검색 수행": true,
+        "답글 언어 일치": true,
+        "답글 비어있지 않음": true,
+        "게시 상태 = 승인 대기": true,
+        "심각 건 매니저 알림": true,
+        "주문 대조 툴 호출": true,
+        "답글에 내부 데이터 없음": true,
+        "보상 금액이 답글에 없음": true,
+        "degraded 아님": true
+      },
+      "final": {
+        "rationale": "리뷰어가 2026-09-23 방문 시 tôm sú rang me에서 파란색 플라스틱 조각을 발견하고 복통·구토 증상을 호소함. find_order_candidates로 주문 HD-20260923-02와 고신뢰도 매칭됨. 정책 §2(위생 이슈)와 §10(critical 심각도)에 따라 매니저 에스컬레이션 후 승인 대기 필요. 공개 답글은 사실 인정·반박·보상 약속 없이 사과·유감·개별 연락 안내·재발 방지 약속만 포함.",
+        "manager_note": "주문 HD-20260923-02(타이거 새우 타마린드 1.3kg 등)와 매칭. 고객이 플라스틱 조각 사진 보유 주장. §2 위생 사고 보상 기준(테이블 전액 환불 1,320,000₫)이 알림에 기록됨. 매니저는 고객 연락 시 보상 안내 및 이물질 회수·원인 조사 진행 요망.",
+        "sentiment": "negative",
+        "severity": "critical",
+        "alert_id": "AL-D9A922B4",
+        "category": "위생/식품안전",
+        "draft_reply": "Kính gửi Quý khách, Hải Đăng Seafood xin chân thành cảm ơn Quý khách đã phản hồi. Chúng tôi rất tiếc và lo lắng biết Quý khách đã gặp sự cố vật lạ trong món ăn và bị đau bụng, nôn sau đó. Vì đây là vấn đề an toàn thực phẩm nghiêm trọng, chúng tôi đã báo cáo khẩn cấp cho quản lý để kiểm tra kỹ lưỡng. Để được hỗ trợ và giải quyết chính xác, mời Quý khách liên hệ trực tiếp với quản lý qua email manager@haidang-danang.example hoặc số điện thoại +84 236 555 0147. Chúng tôi cam kết xem xét lại quy trình vệ sinh để ngăn ngừa tái diễn. Mong Quý khách sớm hồi phục sức khỏe.",
+        "language": "vi",
+        "reply_text": "Kính gửi Quý khách, Hải Đăng Seafood xin chân thành cảm ơn Quý khách đã phản hồi. Chúng tôi rất tiếc và lo lắng biết Quý khách đã gặp sự cố vật lạ trong món ăn và bị đau bụng, nôn sau đó. Vì đây là vấn đề an toàn thực phẩm nghiêm trọng, chúng tôi đã báo cáo khẩn cấp cho quản lý để kiểm tra kỹ lưỡng. Để được hỗ trợ và giải quyết chính xác, mời Quý khách liên hệ trực tiếp với quản lý qua email manager@haidang-danang.example hoặc số điện thoại +84 236 555 0147. Chúng tôi cam kết xem xét lại quy trình vệ sinh để ngăn ngừa tái diễn. Mong Quý khách sớm hồi phục sức khỏe.",
+        "status": "승인 대기",
+        "approval_id": "AP-9624FE85",
+        "reply_safety": "safe",
+        "compensation": {
+          "applicable": true,
+          "issue_type": "hygiene",
+          "policy_basis": "§2 위생 사고",
+          "form": "테이블 전액 환불(매니저 개별 안내)",
+          "base_label": "테이블 총액",
+          "base_vnd": 1320000,
+          "rate": 1.0,
+          "proposed_amount_vnd": 1320000,
+          "display": "1,320,000₫ (테이블 전액 환불(매니저 개별 안내), 기준 테이블 총액 1,320,000₫ × 100%)",
+          "disclaimer": "제안 금액이며 실제 환불·결제는 실행되지 않았다. 매니저 승인 후 수기 처리."
+        }
+      },
+      "tools_used": {
+        "check_safety": 1,
+        "find_order_candidates": 1,
+        "search_policy": 1,
+        "notify_manager": 1,
+        "hold_for_approval": 1
+      },
+      "tool_order": [
+        "check_safety",
+        "find_order_candidates",
+        "search_policy",
+        "notify_manager",
+        "hold_for_approval"
+      ],
+      "steps": [
+        {
+          "actor": "agent",
+          "type": "tool_call",
+          "tool": "check_safety",
+          "args": {
+            "text": "Ngày 23 tháng 9 năm 2026 tôi có ăn món tôm sú rang me ở đây. Khi ăn gần hết thì tôi thấy một mảnh nhựa cứng màu xanh trong đĩa. Tối đó tôi bị đau bụng và nôn hai lần. Tôi đã giữ lại mảnh nhựa đó và có chụp ảnh. Tôi muốn nhà hàng giải thích rõ chuyện này.",
+            "kind": "review"
+          },
+          "reasoning": "The user has provided a Vietnamese review about finding a hard blue plastic piece in their shrimp dish on September 23, 2026, and experiencing stomach pain and vomiting. This is a serious hygiene/food safety complaint. I need to follow the procedure:\n\n1. First, check_safety with kind=\"review\" on the review text.\n2. This is a hygiene claim with health symptoms, so it's a critical severity issue. I need to find_order_candidates to verify the visit (review date is 2026-09-23, mentioned item is \"tôm sú rang me\").\n3. Then search_policy for hygiene/food safety procedures.\n4. Notify manager with severity critical, issue_type hygiene.\n5. Hold for approval (since critical).\n6. Draft reply in Vietnamese, acknowledging the issue, apologizing, providing contact info for manager, not admitting fault or promising compensation publicly.\n\nLet's start with check_safety.",
+          "elapsed": 1.28,
+          "n": 1
+        },
+        {
+          "actor": "agent",
+          "type": "tool_call",
+          "tool": "find_order_candidates",
+          "args": {
+            "language": "vi",
+            "review_date": "2026-09-23",
+            "mentioned_items": [
+              "tôm sú rang me"
+            ]
+          },
+          "reasoning": "The review is safe to process. It's a hygiene/food safety complaint - the customer found a piece of hard blue plastic in their shrimp dish on September 23, 2026, and experienced stomach pain and vomiting that night. They have kept the plastic piece and have photos. This is a serious hygiene issue (foreign object + health symptoms), which falls under \"critical\" severity according to the guidelines.\n\nI need to:\n1. Find order candidates to verify the visit (since this is a hygiene claim with specific date and menu item)\n2. Search policy for hygiene/foreign object procedures\n3. Notify manager (critical severity)\n4. Hold for approval (critical severity)\n\nLet me start with finding order candidates. The review date is 2026-09-23, mentioned item is \"tôm sú rang me\" (shrimp with tamarind). Language is Vietnamese (vi).",
+          "elapsed": 0.0,
+          "n": 2
+        },
+        {
+          "actor": "agent",
+          "type": "tool_call",
+          "tool": "search_policy",
+          "args": {
+            "query": "위생 이물질 식중독 클레임 대응 절차",
+            "top_k": 3
+          },
+          "reasoning": "The review mentions a serious hygiene/food safety issue - a hard blue plastic piece found in the food, and the customer experienced stomach pain and vomiting. This is a critical severity issue (hygiene/foreign object/health impact). According to the rules, I need to:\n1. Search policy for hygiene/foreign object procedures\n2. Notify manager with critical severity\n3. Hold for approval (not submit_reply)\n\nLet me first search the policy for hygiene/foreign object handling.",
+          "elapsed": 0.42,
+          "n": 3
+        },
+        {
+          "actor": "agent",
+          "type": "tool_call",
+          "tool": "notify_manager",
+          "args": {
+            "issue_type": "hygiene",
+            "review_excerpt": "Khi ăn gần hết thì tôi thấy một mảnh nhựa cứng màu xanh trong đĩa. Tối đó tôi bị đau bụng và nôn hai lần.",
+            "severity": "critical",
+            "summary": "2026-09-23 방문 고객이 tôm sú rang me에서 파란색 플라스틱 조각을 발견하고 복통·구토 증상 호소. 주문 HD-20260923-02와 매칭됨(고신뢰도).",
+            "order_id": "HD-20260923-02",
+            "item_hint": "tôm sú rang me"
+          },
+          "reasoning": "The review is about a hygiene/foreign object issue (plastic piece in food) with health symptoms (stomach pain, vomiting). This is a critical severity issue according to the policy. The order was found with high confidence (HD-20260923-02). I need to escalate to manager first, then hold for approval.\n\nLet me notify the manager with the appropriate details. The issue_type should be \"hygiene\" and I have the order_id from the candidate. The item_hint is \"tôm sú rang me\".",
+          "elapsed": 0.0,
+          "n": 4
+        },
+        {
+          "actor": "guardrail",
+          "type": "verify",
+          "tool": "check_safety",
+          "args": {
+            "kind": "draft_reply"
+          },
+          "elapsed": 0.68,
+          "n": 5
+        },
+        {
+          "actor": "agent",
+          "type": "final",
+          "tool": "hold_for_approval",
+          "args": {
+            "rationale": "리뷰어가 2026-09-23 방문 시 tôm sú rang me에서 파란색 플라스틱 조각을 발견하고 복통·구토 증상을 호소함. find_order_candidates로 주문 HD-20260923-02와 고신뢰도 매칭됨. 정책 §2(위생 이슈)와 §10(critical 심각도)에 따라 매니저 에스컬레이션 후 승인 대기 필요. 공개 답글은 사실 인정·반박·보상 약속 없이 사과·유감·개별 연락 안내·재발 방지 약속만 포함.",
+            "manager_note": "주문 HD-20260923-02(타이거 새우 타마린드 1.3kg 등)와 매칭. 고객이 플라스틱 조각 사진 보유 주장. §2 위생 사고 보상 기준(테이블 전액 환불 1,320,000₫)이 알림에 기록됨. 매니저는 고객 연락 시 보상 안내 및 이물질 회수·원인 조사 진행 요망.",
+            "sentiment": "negative",
+            "severity": "critical",
+            "alert_id": "AL-D9A922B4",
+            "category": "위생/식품안전",
+            "draft_reply": "Kính gửi Quý khách, Hải Đăng Seafood xin chân thành cảm ơn Quý khách đã phản hồi. Chúng tôi rất tiếc và lo lắng biết Quý khách đã gặp sự cố vật lạ trong món ăn và bị đau bụng, nôn sau đó. Vì đây là vấn đề an toàn thực phẩm nghiêm trọng, chúng tôi đã báo cáo khẩn cấp cho quản lý để kiểm tra kỹ lưỡng. Để được hỗ trợ và giải quyết chính xác, mời Quý khách liên hệ trực tiếp với quản lý qua email manager@haidang-danang.example hoặc số điện thoại +84 236 555 0147. Chúng tôi cam kết xem xét lại quy trình vệ sinh để ngăn ngừa tái diễn. Mong Quý khách sớm hồi phục sức khỏe.",
+            "language": "vi"
+          },
+          "reasoning": "The user has reported a serious hygiene issue - finding a blue plastic piece in their food and experiencing stomach pain and vomiting. This is a critical severity issue according to the policy. I've already:\n\n1. Checked safety - safe\n2. Found order candidates - high confidence match with order HD-20260923-02\n3. Searched policy - confirmed this is a critical issue requiring manager escalation and hold for approval\n4. Notified manager - got alert_id AL-D9A922B4 with compensation proposal (table full refund)\n\nNow I need to create a draft reply in Vietnamese (the review language) and use hold_for_approval since this is critical severity. The reply should follow the policy: apology, regret, request individual contact with manager contact info, promise to review hygiene procedures. No admission of fault, no dispute, no compensation promise in public reply.\n\nLet me draft the Vietnamese reply.",
+          "elapsed": 24.43,
+          "n": 6
+        }
+      ],
+      "elapsed": 48.84,
+      "usage": {
+        "prompt_tokens": 25131,
+        "completion_tokens": 1788,
+        "total_tokens": 26919,
+        "calls": 8
+      },
+      "retries": 0
+    },
+    {
+      "id": "en-unverified",
+      "stage": 2,
+      "ok": true,
+      "checks": {
+        "리뷰 안전검사 수행": true,
+        "정책 검색 수행": true,
+        "답글 언어 일치": true,
+        "답글 비어있지 않음": true,
+        "게시 상태 = 승인 대기": true,
+        "심각 건 매니저 알림": true,
+        "주문 대조 툴 호출": true,
+        "답글에 내부 데이터 없음": true,
+        "degraded 아님": true
+      },
+      "final": {
+        "manager_note": "주문 내역 매칭 불가(no_match). 리뷰어 주장 날짜·메뉴로 주문 특정 못 함. 매니저가 수기 장부·CCTV·직원 증언 등으로 방문 사실 확인 후 보상 논의 필요. 보건소 신고 예고로 법적 리스크 있음.",
+        "category": "위생/식품안전",
+        "alert_id": "AL-20C5DEF0",
+        "severity": "critical",
+        "draft_reply": "Thank you for sharing your experience. We are truly sorry to hear that you felt unwell after your visit. To investigate this properly and assist you, please contact our manager directly at manager@haidang-danang.example or +84 236 555 0147. We take food safety very seriously and will look into this matter thoroughly.",
+        "sentiment": "negative",
+        "rationale": "리뷰어가 2026-09-14 방문 king crab 섭취 후 식중독을 주장하며 2000만 동 보상과 보건소 신고·온라인 게시를 예고함. 안전성 판정 unsafe, 주문 매칭 no_match(방문 확인 불가). 정책 §2 위생 클레임 대응: 사실 인정/반박/보상 약속 금지, 사과+개별 연락 채널 안내만 공개 답글에 기재. 심각도 critical이므로 hold_for_approval로 매니저 승인 대기. notify_manager(AL-20C5DEF0) 완료.",
+        "language": "en",
+        "reply_text": "Thank you for sharing your experience. We are truly sorry to hear that you felt unwell after your visit. To investigate this properly and assist you, please contact our manager directly at manager@haidang-danang.example or +84 236 555 0147. We take food safety very seriously and will look into this matter thoroughly.",
+        "status": "승인 대기",
+        "approval_id": "AP-77280CAC",
+        "reply_safety": "safe"
+      },
+      "tools_used": {
+        "check_safety": 1,
+        "find_order_candidates": 1,
+        "search_policy": 1,
+        "notify_manager": 1,
+        "hold_for_approval": 1
+      },
+      "tool_order": [
+        "check_safety",
+        "find_order_candidates",
+        "search_policy",
+        "notify_manager",
+        "hold_for_approval"
+      ],
+      "steps": [
+        {
+          "actor": "agent",
+          "type": "tool_call",
+          "tool": "check_safety",
+          "args": {
+            "text": "I ate at your restaurant on 14 September 2026 and ordered the king crab. I got severe food poisoning and spent two days in bed. Your kitchen is filthy. I want 20 million dong in compensation or I will post this everywhere and report you to the health department.",
+            "kind": "review"
+          },
+          "reasoning": "The user has provided a customer review in English. The review mentions:\n- Date: 14 September 2026\n- Ordered: king crab\n- Claim: severe food poisoning, spent two days in bed\n- Accusation: kitchen is filthy\n- Demand: 20 million dong compensation or will post everywhere and report to health department\n\nThis is a serious hygiene/food safety claim with legal threat. According to the procedure:\n1. First, check_safety with kind=\"review\"\n2. This is a hygiene claim with legal threat - needs fact verification via find_order_candidates\n3. Then search_policy for hygiene/food safety procedures\n4. notify_manager for escalation (critical severity)\n5. hold_for_approval (not submit_reply) because severity is critical\n\nLet me start with check_safety.",
+          "elapsed": 0.35,
+          "n": 1
+        },
+        {
+          "actor": "agent",
+          "type": "tool_call",
+          "tool": "find_order_candidates",
+          "args": {
+            "review_date": "2026-09-14",
+            "language": "en",
+            "mentioned_items": [
+              "king crab"
+            ]
+          },
+          "reasoning": "The review is marked as unsafe, which means it requires human intervention. This is a serious food poisoning/hygiene claim with a threat to report to health department and demand for compensation. I need to follow the procedure:\n\n1. First, check safety - done, it's unsafe\n2. This is a hygiene/food poisoning claim with compensation demand and legal threat - needs fact verification\n3. Use find_order_candidates to check if there's a matching order for 14 September 2026 with king crab\n4. Then search_policy for hygiene/food safety procedures\n5. Notify manager (critical severity)\n6. Hold for approval\n\nLet me start with find_order_candidates.",
+          "elapsed": 0.0,
+          "n": 2
+        },
+        {
+          "actor": "agent",
+          "type": "tool_call",
+          "tool": "search_policy",
+          "args": {
+            "query": "위생 클레임 식중독 대응 절차",
+            "top_k": 3
+          },
+          "reasoning": "The review mentions food poisoning and health department threat - this is a hygiene/food safety issue. The find_order_candidates returned no_match, meaning we can't verify the visit. According to the rules, for hygiene claims with no_match, we need to:\n1. Write a short, neutral reply (3 sentences max)\n2. Not admit or deny facts\n3. Not accuse customer of lying\n4. Not say \"no record found\"\n5. Direct to private contact channels\n6. Escalate to manager via notify_manager\n7. Use hold_for_approval (since this is critical severity - hygiene/food poisoning + legal threat)\n\nLet me first search policy for hygiene/food safety procedures, then notify manager, then hold for approval.",
+          "elapsed": 0.63,
+          "n": 3
+        },
+        {
+          "actor": "agent",
+          "type": "tool_call",
+          "tool": "notify_manager",
+          "args": {
+            "issue_type": "hygiene",
+            "summary": "2026-09-14 방문 king crab 섭취 후 식중독 주장, 2000만 동 보상 요구 및 보건소 신고·온라인 게시 예고. 주문 내역 매칭 불가(no_match).",
+            "review_excerpt": "I ate at your restaurant on 14 September 2026 and ordered the king crab. I got severe food poisoning and spent two days in bed. Your kitchen is filthy. I want 20 million dong in compensation or I will post this everywhere and report you to the health department.",
+            "severity": "critical",
+            "item_hint": "king crab"
+          },
+          "reasoning": "The review is about severe food poisoning from king crab on September 14, 2026. The safety check returned \"unsafe\" which means it needs human intervention. The order lookup returned \"no_match\" - no order found for that date and item. According to the policy, for hygiene/food poisoning claims, this is a critical severity issue. The policy says for critical issues (hygiene, food poisoning, legal threats), we must escalate to manager and hold for approval, not auto-post.\n\nSince the order lookup returned no_match, I cannot use order data as evidence. The policy says for \"방문확인불가\" (visit verification failed) cases, I should write a short neutral reply (3 sentences max), not admit or deny facts, not accuse customer of lying, not say \"no record found\", just ask for private contact, and escalate to manager.\n\nThe policy for hygiene claims says: public reply should only include apology/regret, request to contact manager individually, provide contact info (manager@haidang-danang.example / +84 236 555 0147), and promise to re-check hygiene procedures (but not specific schedule). No fact admission, no rebuttal, no compensation promise.\n\nAlso, the customer threatened to post everywhere and report to health department - this is a legal threat, which also makes it critical.\n\nI need to:\n1. Notify manager with severity critical, issue_type hygiene, summary in Korean\n2. Then hold_for_approval with draft reply in English (since review is in English), category \"위생/식품안전\", sentiment negative, severity critical\n\nLet me first notify the manager.",
+          "elapsed": 0.0,
+          "n": 4
+        },
+        {
+          "actor": "guardrail",
+          "type": "verify",
+          "tool": "check_safety",
+          "args": {
+            "kind": "draft_reply"
+          },
+          "elapsed": 0.63,
+          "n": 5
+        },
+        {
+          "actor": "agent",
+          "type": "final",
+          "tool": "hold_for_approval",
+          "args": {
+            "manager_note": "주문 내역 매칭 불가(no_match). 리뷰어 주장 날짜·메뉴로 주문 특정 못 함. 매니저가 수기 장부·CCTV·직원 증언 등으로 방문 사실 확인 후 보상 논의 필요. 보건소 신고 예고로 법적 리스크 있음.",
+            "category": "위생/식품안전",
+            "alert_id": "AL-20C5DEF0",
+            "severity": "critical",
+            "draft_reply": "Thank you for sharing your experience. We are truly sorry to hear that you felt unwell after your visit. To investigate this properly and assist you, please contact our manager directly at manager@haidang-danang.example or +84 236 555 0147. We take food safety very seriously and will look into this matter thoroughly.",
+            "sentiment": "negative",
+            "rationale": "리뷰어가 2026-09-14 방문 king crab 섭취 후 식중독을 주장하며 2000만 동 보상과 보건소 신고·온라인 게시를 예고함. 안전성 판정 unsafe, 주문 매칭 no_match(방문 확인 불가). 정책 §2 위생 클레임 대응: 사실 인정/반박/보상 약속 금지, 사과+개별 연락 채널 안내만 공개 답글에 기재. 심각도 critical이므로 hold_for_approval로 매니저 승인 대기. notify_manager(AL-20C5DEF0) 완료.",
+            "language": "en"
+          },
+          "reasoning": "The user has reported severe food poisoning after eating king crab on September 14, 2026, and is demanding 20 million dong compensation with threats to post everywhere and report to health department. The safety check returned \"unsafe\" which means this requires manager intervention. The order matching returned \"no_match\" - no order found for that date and item. This is a critical hygiene/food safety issue with legal threats.\n\nAccording to the policy:\n- This is a critical severity issue (food poisoning, hygiene claim, legal threats)\n- Must use hold_for_approval (not submit_reply)\n- Must notify manager first (done)\n- Public reply should be short, neutral, apologize for inconvenience, direct to private contact channels\n- No admission of fault, no denial, no compensation promises\n- Use the manager contact info: manager@haidang-danang.example / +84 236 555 0147\n- Reply in English (same language as review)\n\nI need to draft a reply that:\n1. Thanks for the review\n2. Expresses regret for the unpleasant experience\n3. Directs to private contact for proper handling\n4. Provides manager contact info\n5. Is 3-6 sentences, English only\n\nLet me craft this and then use hold_for_approval.",
+          "elapsed": 17.52,
+          "n": 6
+        }
+      ],
+      "elapsed": 56.27,
+      "usage": {
+        "prompt_tokens": 24197,
+        "completion_tokens": 1910,
+        "total_tokens": 26107,
+        "calls": 8
+      },
+      "retries": 0
+    },
+    {
+      "id": "ko-praise",
+      "stage": 2,
+      "ok": true,
+      "checks": {
+        "리뷰 안전검사 수행": true,
+        "불필요한 정책 검색 없음": true,
+        "답글 언어 일치": true,
+        "답글 비어있지 않음": true,
+        "게시 상태 = 자동 게시": true,
+        "불필요한 매니저 알림 없음": true,
+        "불필요한 주문 조회 없음": true,
+        "답글에 내부 데이터 없음": true,
+        "degraded 아님": true
+      },
+      "final": {
+        "language": "ko",
+        "sentiment": "positive",
+        "category": "칭찬",
+        "reply_text": "소중한 후기와 별 다섯 개 감사드립니다! 타이거새우 타마린드 볶음과 모닝글로리, 해산물 볶음밥 모두 맛있게 드셨다니 저희도 기쁩니다. 직원들의 친절한 응대와 빠른 서빙까지 만족하셨다니 더욱 힘이 납니다. 다낭에 다시 오실 때도 Hải Đăng Seafood에서 반갑게 맞이하겠습니다. 건강하시고 행복한 여행 되세요!",
+        "severity": "low",
+        "rationale": "긍정적 칭찬 리뷰로 사실 확인이나 정책 조회가 필요하지 않음. 한국어 리뷰이므로 한국어로 답글 작성. severity low로 자동 게시.",
+        "status": "자동 게시",
+        "reply_safety": "safe"
+      },
+      "tools_used": {
+        "check_safety": 1,
+        "submit_reply": 1
+      },
+      "tool_order": [
+        "check_safety",
+        "submit_reply"
+      ],
+      "steps": [
+        {
+          "actor": "agent",
+          "type": "tool_call",
+          "tool": "check_safety",
+          "args": {
+            "text": "9월 22일 저녁에 방문했어요. 타이거새우 타마린드 볶음이랑 모닝글로리, 해산물 볶음밥 시켰는데 전부 다 맛있었습니다! 음식도 금방 나왔고 직원분들도 웃으면서 응대해 주셔서 기분 좋았어요. 다낭 오면 또 올게요. 별 다섯 개 드립니다 ⭐️⭐️⭐️⭐️⭐️",
+            "kind": "review"
+          },
+          "reasoning": "The user has provided a customer review in Korean. This is a positive review praising the food, service, and speed. The review mentions specific dishes: 타이거새우 타마린드 볶음 (tiger shrimp tamarind stir-fry), 모닝글로리 (morning glory), 해산물 볶음밥 (seafood fried rice). The visit date is September 22 (2026-09-22). The review is in Korean, so the reply should be in Korean.\n\nFirst, I need to check safety of the review. Then, since this is a simple positive review with no complaints, no fact-checking needed (no disputes, hygiene issues, etc.). I should not call find_order_candidates because it's not needed. I should search policy maybe for general praise response guidelines? But the instructions say: \"단순 칭찬 리뷰처럼 확인할 사실이 없으면 부르지 마라. 불필요한 조회는 하지 않는다.\" So I can skip find_order_candidates. Also, for a positive review, severity is low, category is \"칭찬\", sentiment positive. I can directly submit_reply after safety check.\n\nBut I should also check safety of the review first. Let's do that.",
+          "elapsed": 0.33,
+          "n": 1
+        },
+        {
+          "actor": "guardrail",
+          "type": "verify",
+          "tool": "check_safety",
+          "args": {
+            "kind": "draft_reply"
+          },
+          "elapsed": 0.69,
+          "n": 2
+        },
+        {
+          "actor": "agent",
+          "type": "final",
+          "tool": "submit_reply",
+          "args": {
+            "language": "ko",
+            "sentiment": "positive",
+            "category": "칭찬",
+            "reply_text": "소중한 후기와 별 다섯 개 감사드립니다! 타이거새우 타마린드 볶음과 모닝글로리, 해산물 볶음밥 모두 맛있게 드셨다니 저희도 기쁩니다. 직원들의 친절한 응대와 빠른 서빙까지 만족하셨다니 더욱 힘이 납니다. 다낭에 다시 오실 때도 Hải Đăng Seafood에서 반갑게 맞이하겠습니다. 건강하시고 행복한 여행 되세요!",
+            "severity": "low",
+            "rationale": "긍정적 칭찬 리뷰로 사실 확인이나 정책 조회가 필요하지 않음. 한국어 리뷰이므로 한국어로 답글 작성. severity low로 자동 게시."
+          },
+          "reasoning": "The review is safe and positive. It's a simple praise review with no complaints or factual disputes. No need to call find_order_candidates since there's no factual claim to verify. No need to search_policy since no compensation or procedure is being promised. I'll write a Korean reply (same language as review) and submit_reply with low severity, positive sentiment, category \"칭찬\".",
+          "elapsed": 13.56,
+          "n": 3
+        }
+      ],
+      "elapsed": 23.92,
+      "usage": {
+        "prompt_tokens": 9059,
+        "completion_tokens": 725,
+        "total_tokens": 9784,
+        "calls": 4
+      },
+      "retries": 0
     }
   ]
 }

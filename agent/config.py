@@ -22,10 +22,12 @@ MODEL_SAFETY = "nvidia/nemotron-3.5-content-safety"
 MODEL_EMBED = "nvidia/nemotron-3-embed-1b"
 
 POLICY_PATH = ROOT / "data" / "policy.md"
+ORDERS_PATH = ROOT / "data" / "orders.json"        # 가상 주문 데이터(합성)
 INDEX_PATH = ROOT / "data" / "policy_index.json"
 ALERTS_PATH = ROOT / "logs" / "alerts.jsonl"
+PENDING_PATH = ROOT / "logs" / "pending_approvals.jsonl"   # 승인 대기 큐
 
-MAX_AGENT_STEPS = 8          # 에이전트 루프 최대 반복(무한루프 방지)
+MAX_AGENT_STEPS = 12         # 가드레일 반려→재작업 왕복이 늘어 여유를 둔다
 REQUEST_TIMEOUT = 120.0
 MAX_RETRIES = 6              # 500/503 이 연속 발생하는 구간이 있어 넉넉히 잡는다
 

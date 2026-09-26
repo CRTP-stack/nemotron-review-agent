@@ -1,0 +1,48 @@
+──────────────────────────────────────────────────────────────────────
+▶ [2단계] 🇷🇺 무게 분쟁 (주문 대조)  (ru-weight-order)
+──────────────────────────────────────────────────────────────────────────────
+리뷰: Были у вас 22 сентября 2026 года вечером. Выбрали лобстера, на весах у стола показали 1,2 кг, я это видел свои…
+
+  🔧 step1 [에이전트 결정] check_safety (0.4s)
+      why: The user has provided a Russian review from September 22, 2026, complaining about a lobster weight discrepancy. The customer claims they saw
+      args: {"kind": "review", "text": "Были у вас 22 сентября 2026 года вечером. Выбрали лобстера, на весах у стола показали 1,2 кг, я это в…
+      → {"kind": "review", "verdict": "safe", "raw": "User Safety: safe", "model": "nvidia/nemotron-3.5-content-safety", "note": "일반 리뷰로 처리 가능."}
+  🔧 step2 [에이전트 결정] find_order_candidates (0.0s)
+      why: The review is safe. Now I need to check if this requires order verification. The review mentions a specific date (September 22, 2026 evening
+      args: {"review_date": "2026-09-22", "mentioned_items": ["лобстер"], "language": "ru"}
+      → {"query": {"review_date": "2026-09-22", "mentioned_items": ["лобстер"], "language": "ru"}, "date_provided": true, "resolved_items": ["tôm hùm"], "verdict": "high", "usab…
+  🔧 step3 [에이전트 결정] search_policy (0.65s)
+      why: The find_order_candidates returned a high-confidence match for order HD-20260922-05, which includes a lobster (tôm hùm) weighing 1.2 kg at 1
+      args: {"query": "중량 분쟁 가격 분쟁 테이블 저울 확인 절차 환불 보상", "top_k": 3}
+      → {"query": "중량 분쟁 가격 분쟁 테이블 저울 확인 절차 환불 보상", "model": "nvidia/nemotron-3-embed-1b", "hits": [{"title": "4. 살아있는 해산물 선택 및 중량 표기", "text": "수족관의 랍스터, 킹크랩, 타이거새우는 고객이 직접 선택한…
+  🔧 step4 [에이전트 결정] notify_manager (0.0s)
+      why: The review is about a weight/price dispute for lobster on September 22, 2026. The customer claims they saw 1.2kg on the table scale but the 
+      args: {"item_hint": "лобстер", "summary": "러시아어 리뷰: 9월 22일 저녁 랍스터 1.2kg 테이블 계량 후 청구 금액이 단가×중량보다 높다는 분쟁. 주문 HD-20260922-05(weighed_at_ta…
+      → {"status": "logged", "alert_id": "AL-911FEE9F", "severity": "critical", "compensation": {"applicable": true, "issue_type": "weight_dispute", "policy_basis": "§9-1 중량 이견"…
+  🛡️ step5 [가드레일] check_safety (0.95s)
+      args: {"kind": "draft_reply"}
+      → {"kind": "draft_reply", "verdict": "safe", "raw": "User Safety: safe\nResponse Safety: safe", "model": "nvidia/nemotron-3.5-content-safety", "note": "답글 초안 게시 가능."}
+  ✅ step6 [에이전트 결정] hold_for_approval (20.19s)
+      why: The review is in Russian, so I need to write the reply in Russian. The severity is critical (weight/price dispute), so I must use hold_for_a
+      → {"accepted": true, "status": "pending_approval", "approval_id": "AP-A5BF7499", "path": "logs/pending_approvals.jsonl", "note": "초안을 저장했다. 매니저가 승인하기 전까지 공개 게시되지 않는다."}
+
+  상태: 승인 대기 | language=ru / category=가격/중량 / severity=critical / 답글안전=safe
+  승인대기 ID: AP-A5BF7499  (공개 게시 안 됨)
+  보상 제안(매니저 알림 전용): 666,000₫ (다음 방문 바우처, 기준 Tôm hùm nướng phô mai (Grilled lobster with cheese) 2,220,000₫ × 30%)
+  답글:
+      Уважаемый гость, спасибо за обращение в Hải Đăng Seafood. Сожалеем, что итоговая сумма в чеке вызвала у вас вопросы после совместного взвешивания лобстера у стола. В нашем ресторане существует процедура показа веса на переносных весах в присутствии гостя, и мы готны детально разобрать расчёт. Пожалуйста, свяжитесь с нами напрямую по телефону +84 236 555 0147 или на manager@haidang-danang.example — мы пересчитаем счёт и найдём удобное решение. Будем рады видеть вас снова.
+
+  사용 툴: {'check_safety': 1, 'find_order_candidates': 1, 'search_policy': 1, 'notify_manager': 1, 'hold_for_approval': 1} | 50.85s | 8콜 28528토큰
+
+  ✔ 리뷰 안전검사 수행
+  ✔ 정책 검색 수행
+  ✔ 답글 언어 일치
+  ✔ 답글 비어있지 않음
+  ✔ 게시 상태 = 승인 대기
+  ✔ 심각 건 매니저 알림
+  ✔ 주문 대조 툴 호출
+  ✔ 답글에 내부 데이터 없음
+  ✔ 보상 금액이 답글에 없음
+  ✔ degraded 아님
+
+  결과: PASS  (50.9s)

@@ -1,0 +1,640 @@
+{
+  "_note": "데모용 합성 주문 데이터. 실제 매장·실제 거래와 무관한 가상 데이터입니다.",
+  "restaurant": "Hải Đăng Seafood Đà Nẵng (가상 매장)",
+  "currency": "VND",
+  "generated_for": "NVIDIA Korea Agentic AI Hackathon demo",
+  "orders": [
+    {
+      "order_id": "HD-20260918-02",
+      "table_no": 5,
+      "date": "2026-09-18",
+      "ordered_at": "18:40",
+      "served_at": "19:02",
+      "language": "ko",
+      "items": [
+        {
+          "name": "Tôm sú rang me (Tiger prawn with tamarind)",
+          "qty": 1,
+          "unit": "kg",
+          "weight_kg": 1.1,
+          "price_per_kg": 780000,
+          "line_total": 858000
+        },
+        {
+          "name": "Rau muống xào tỏi (Morning glory with garlic)",
+          "qty": 1,
+          "unit": "phần",
+          "weight_kg": null,
+          "price_per_kg": null,
+          "line_total": 90000
+        },
+        {
+          "name": "Bia Sài Gòn (Saigon beer)",
+          "qty": 2,
+          "unit": "phần",
+          "weight_kg": null,
+          "price_per_kg": null,
+          "line_total": 70000
+        }
+      ],
+      "weighed_at_table": true,
+      "vat_rate": 0.08,
+      "service_charge": 51000,
+      "total_vnd": 1155000
+    },
+    {
+      "order_id": "HD-20260918-11",
+      "table_no": 12,
+      "date": "2026-09-18",
+      "ordered_at": "19:15",
+      "served_at": "19:33",
+      "language": "vi",
+      "items": [
+        {
+          "name": "Nghêu hấp sả (Steamed clam with lemongrass)",
+          "qty": 1,
+          "unit": "kg",
+          "weight_kg": 0.8,
+          "price_per_kg": 240000,
+          "line_total": 192000
+        },
+        {
+          "name": "Mực nướng sa tế (Grilled squid)",
+          "qty": 1,
+          "unit": "kg",
+          "weight_kg": 0.6,
+          "price_per_kg": 420000,
+          "line_total": 252000
+        },
+        {
+          "name": "Cơm chiên hải sản (Seafood fried rice)",
+          "qty": 1,
+          "unit": "phần",
+          "weight_kg": null,
+          "price_per_kg": null,
+          "line_total": 150000
+        }
+      ],
+      "weighed_at_table": false,
+      "vat_rate": 0.08,
+      "service_charge": 30000,
+      "total_vnd": 674000
+    },
+    {
+      "order_id": "HD-20260919-04",
+      "table_no": 3,
+      "date": "2026-09-19",
+      "ordered_at": "12:20",
+      "served_at": "12:46",
+      "language": "en",
+      "items": [
+        {
+          "name": "Cá mú hấp Hồng Kông (Steamed grouper)",
+          "qty": 1,
+          "unit": "kg",
+          "weight_kg": 1.4,
+          "price_per_kg": 620000,
+          "line_total": 868000
+        },
+        {
+          "name": "Cơm chiên hải sản (Seafood fried rice)",
+          "qty": 1,
+          "unit": "phần",
+          "weight_kg": null,
+          "price_per_kg": null,
+          "line_total": 150000
+        }
+      ],
+      "weighed_at_table": false,
+      "vat_rate": 0.08,
+      "service_charge": 51000,
+      "total_vnd": 1155000
+    },
+    {
+      "order_id": "HD-20260919-09",
+      "table_no": 8,
+      "date": "2026-09-19",
+      "ordered_at": "19:50",
+      "served_at": "20:21",
+      "language": "ru",
+      "items": [
+        {
+          "name": "Tôm hùm nướng phô mai (Grilled lobster with cheese)",
+          "qty": 1,
+          "unit": "kg",
+          "weight_kg": 0.9,
+          "price_per_kg": 1850000,
+          "line_total": 1665000
+        },
+        {
+          "name": "Nước dừa tươi (Fresh coconut)",
+          "qty": 2,
+          "unit": "phần",
+          "weight_kg": null,
+          "price_per_kg": null,
+          "line_total": 90000
+        }
+      ],
+      "weighed_at_table": true,
+      "vat_rate": 0.08,
+      "service_charge": 88000,
+      "total_vnd": 1990000
+    },
+    {
+      "order_id": "HD-20260920-06",
+      "table_no": 7,
+      "date": "2026-09-20",
+      "ordered_at": "18:10",
+      "served_at": "18:45",
+      "language": "ko",
+      "items": [
+        {
+          "name": "Cua hoàng đế hấp (Steamed king crab)",
+          "qty": 1,
+          "unit": "kg",
+          "weight_kg": 1.8,
+          "price_per_kg": 2600000,
+          "line_total": 4680000
+        },
+        {
+          "name": "Rau muống xào tỏi (Morning glory with garlic)",
+          "qty": 1,
+          "unit": "phần",
+          "weight_kg": null,
+          "price_per_kg": null,
+          "line_total": 90000
+        }
+      ],
+      "weighed_at_table": true,
+      "vat_rate": 0.08,
+      "service_charge": 238000,
+      "total_vnd": 5409000
+    },
+    {
+      "order_id": "HD-20260920-13",
+      "table_no": 15,
+      "date": "2026-09-20",
+      "ordered_at": "20:05",
+      "served_at": "20:25",
+      "language": "vi",
+      "items": [
+        {
+          "name": "Tôm sú rang me (Tiger prawn with tamarind)",
+          "qty": 1,
+          "unit": "kg",
+          "weight_kg": 0.9,
+          "price_per_kg": 780000,
+          "line_total": 702000
+        },
+        {
+          "name": "Đậu hũ chiên sả (Fried tofu with lemongrass)",
+          "qty": 1,
+          "unit": "phần",
+          "weight_kg": null,
+          "price_per_kg": null,
+          "line_total": 110000
+        }
+      ],
+      "weighed_at_table": false,
+      "vat_rate": 0.08,
+      "service_charge": 41000,
+      "total_vnd": 921000
+    },
+    {
+      "order_id": "HD-20260921-03",
+      "table_no": 2,
+      "date": "2026-09-21",
+      "ordered_at": "18:32",
+      "served_at": "19:20",
+      "language": "en",
+      "items": [
+        {
+          "name": "Tôm sú rang me (Tiger prawn with tamarind)",
+          "qty": 1,
+          "unit": "kg",
+          "weight_kg": 1.2,
+          "price_per_kg": 780000,
+          "line_total": 936000
+        },
+        {
+          "name": "Cơm chiên hải sản (Seafood fried rice)",
+          "qty": 1,
+          "unit": "phần",
+          "weight_kg": null,
+          "price_per_kg": null,
+          "line_total": 150000
+        },
+        {
+          "name": "Bia Sài Gòn (Saigon beer)",
+          "qty": 2,
+          "unit": "phần",
+          "weight_kg": null,
+          "price_per_kg": null,
+          "line_total": 70000
+        }
+      ],
+      "weighed_at_table": false,
+      "vat_rate": 0.08,
+      "service_charge": 58000,
+      "total_vnd": 1311000
+    },
+    {
+      "order_id": "HD-20260921-10",
+      "table_no": 9,
+      "date": "2026-09-21",
+      "ordered_at": "19:40",
+      "served_at": "20:04",
+      "language": "ru",
+      "items": [
+        {
+          "name": "Cá mú hấp Hồng Kông (Steamed grouper)",
+          "qty": 1,
+          "unit": "kg",
+          "weight_kg": 1.1,
+          "price_per_kg": 620000,
+          "line_total": 682000
+        },
+        {
+          "name": "Bia Sài Gòn (Saigon beer)",
+          "qty": 1,
+          "unit": "phần",
+          "weight_kg": null,
+          "price_per_kg": null,
+          "line_total": 35000
+        }
+      ],
+      "weighed_at_table": false,
+      "vat_rate": 0.08,
+      "service_charge": 36000,
+      "total_vnd": 813000
+    },
+    {
+      "order_id": "HD-20260922-05",
+      "table_no": 6,
+      "date": "2026-09-22",
+      "ordered_at": "19:05",
+      "served_at": "19:36",
+      "language": "ru",
+      "items": [
+        {
+          "name": "Tôm hùm nướng phô mai (Grilled lobster with cheese)",
+          "qty": 1,
+          "unit": "kg",
+          "weight_kg": 1.2,
+          "price_per_kg": 1850000,
+          "line_total": 2220000
+        },
+        {
+          "name": "Nước dừa tươi (Fresh coconut)",
+          "qty": 1,
+          "unit": "phần",
+          "weight_kg": null,
+          "price_per_kg": null,
+          "line_total": 45000
+        }
+      ],
+      "weighed_at_table": true,
+      "vat_rate": 0.08,
+      "service_charge": 113000,
+      "total_vnd": 2568000
+    },
+    {
+      "order_id": "HD-20260922-12",
+      "table_no": 14,
+      "date": "2026-09-22",
+      "ordered_at": "18:25",
+      "served_at": "18:44",
+      "language": "ko",
+      "items": [
+        {
+          "name": "Tôm sú rang me (Tiger prawn with tamarind)",
+          "qty": 1,
+          "unit": "kg",
+          "weight_kg": 1.0,
+          "price_per_kg": 780000,
+          "line_total": 780000
+        },
+        {
+          "name": "Rau muống xào tỏi (Morning glory with garlic)",
+          "qty": 1,
+          "unit": "phần",
+          "weight_kg": null,
+          "price_per_kg": null,
+          "line_total": 90000
+        },
+        {
+          "name": "Cơm chiên hải sản (Seafood fried rice)",
+          "qty": 1,
+          "unit": "phần",
+          "weight_kg": null,
+          "price_per_kg": null,
+          "line_total": 150000
+        }
+      ],
+      "weighed_at_table": true,
+      "vat_rate": 0.08,
+      "service_charge": 51000,
+      "total_vnd": 1157000
+    },
+    {
+      "order_id": "HD-20260922-16",
+      "table_no": 4,
+      "date": "2026-09-22",
+      "ordered_at": "20:30",
+      "served_at": "20:51",
+      "language": "en",
+      "items": [
+        {
+          "name": "Nghêu hấp sả (Steamed clam with lemongrass)",
+          "qty": 1,
+          "unit": "kg",
+          "weight_kg": 1.0,
+          "price_per_kg": 240000,
+          "line_total": 240000
+        },
+        {
+          "name": "Bia Sài Gòn (Saigon beer)",
+          "qty": 2,
+          "unit": "phần",
+          "weight_kg": null,
+          "price_per_kg": null,
+          "line_total": 70000
+        }
+      ],
+      "weighed_at_table": false,
+      "vat_rate": 0.08,
+      "service_charge": 16000,
+      "total_vnd": 352000
+    },
+    {
+      "order_id": "HD-20260922-08",
+      "table_no": 9,
+      "date": "2026-09-22",
+      "ordered_at": "19:30",
+      "served_at": "19:55",
+      "language": "ru",
+      "items": [
+        {
+          "name": "Cá mú hấp Hồng Kông (Steamed grouper)",
+          "qty": 1,
+          "unit": "kg",
+          "weight_kg": 1.0,
+          "price_per_kg": 620000,
+          "line_total": 620000
+        },
+        {
+          "name": "Bia Sài Gòn (Saigon beer)",
+          "qty": 2,
+          "unit": "phần",
+          "weight_kg": null,
+          "price_per_kg": null,
+          "line_total": 70000
+        }
+      ],
+      "weighed_at_table": false,
+      "vat_rate": 0.08,
+      "service_charge": 34000,
+      "total_vnd": 782000
+    },
+    {
+      "order_id": "HD-20260922-19",
+      "table_no": 11,
+      "date": "2026-09-22",
+      "ordered_at": "20:15",
+      "served_at": "20:36",
+      "language": "ru",
+      "items": [
+        {
+          "name": "Nghêu hấp sả (Steamed clam with lemongrass)",
+          "qty": 1,
+          "unit": "kg",
+          "weight_kg": 0.9,
+          "price_per_kg": 240000,
+          "line_total": 216000
+        },
+        {
+          "name": "Nước dừa tươi (Fresh coconut)",
+          "qty": 1,
+          "unit": "phần",
+          "weight_kg": null,
+          "price_per_kg": null,
+          "line_total": 45000
+        }
+      ],
+      "weighed_at_table": false,
+      "vat_rate": 0.08,
+      "service_charge": 13000,
+      "total_vnd": 296000
+    },
+    {
+      "order_id": "HD-20260923-02",
+      "table_no": 1,
+      "date": "2026-09-23",
+      "ordered_at": "19:10",
+      "served_at": "19:35",
+      "language": "vi",
+      "items": [
+        {
+          "name": "Tôm sú rang me (Tiger prawn with tamarind)",
+          "qty": 1,
+          "unit": "kg",
+          "weight_kg": 1.3,
+          "price_per_kg": 780000,
+          "line_total": 1014000
+        },
+        {
+          "name": "Cơm chiên hải sản (Seafood fried rice)",
+          "qty": 1,
+          "unit": "phần",
+          "weight_kg": null,
+          "price_per_kg": null,
+          "line_total": 150000
+        }
+      ],
+      "weighed_at_table": false,
+      "vat_rate": 0.08,
+      "service_charge": 58000,
+      "total_vnd": 1320000
+    },
+    {
+      "order_id": "HD-20260923-08",
+      "table_no": 11,
+      "date": "2026-09-23",
+      "ordered_at": "12:40",
+      "served_at": "13:03",
+      "language": "ko",
+      "items": [
+        {
+          "name": "Mực nướng sa tế (Grilled squid)",
+          "qty": 1,
+          "unit": "kg",
+          "weight_kg": 0.7,
+          "price_per_kg": 420000,
+          "line_total": 294000
+        },
+        {
+          "name": "Đậu hũ chiên sả (Fried tofu with lemongrass)",
+          "qty": 1,
+          "unit": "phần",
+          "weight_kg": null,
+          "price_per_kg": null,
+          "line_total": 110000
+        }
+      ],
+      "weighed_at_table": false,
+      "vat_rate": 0.08,
+      "service_charge": 20000,
+      "total_vnd": 458000
+    },
+    {
+      "order_id": "HD-20260923-15",
+      "table_no": 10,
+      "date": "2026-09-23",
+      "ordered_at": "19:55",
+      "served_at": "20:35",
+      "language": "ru",
+      "items": [
+        {
+          "name": "Cua hoàng đế hấp (Steamed king crab)",
+          "qty": 1,
+          "unit": "kg",
+          "weight_kg": 1.5,
+          "price_per_kg": 2600000,
+          "line_total": 3900000
+        },
+        {
+          "name": "Nước dừa tươi (Fresh coconut)",
+          "qty": 2,
+          "unit": "phần",
+          "weight_kg": null,
+          "price_per_kg": null,
+          "line_total": 90000
+        }
+      ],
+      "weighed_at_table": true,
+      "vat_rate": 0.08,
+      "service_charge": 200000,
+      "total_vnd": 4525000
+    },
+    {
+      "order_id": "HD-20260924-03",
+      "table_no": 5,
+      "date": "2026-09-24",
+      "ordered_at": "18:15",
+      "served_at": "18:44",
+      "language": "en",
+      "items": [
+        {
+          "name": "Tôm hùm nướng phô mai (Grilled lobster with cheese)",
+          "qty": 1,
+          "unit": "kg",
+          "weight_kg": 1.05,
+          "price_per_kg": 1850000,
+          "line_total": 1942000
+        },
+        {
+          "name": "Cơm chiên hải sản (Seafood fried rice)",
+          "qty": 1,
+          "unit": "phần",
+          "weight_kg": null,
+          "price_per_kg": null,
+          "line_total": 150000
+        }
+      ],
+      "weighed_at_table": true,
+      "vat_rate": 0.08,
+      "service_charge": 105000,
+      "total_vnd": 2373000
+    },
+    {
+      "order_id": "HD-20260924-07",
+      "table_no": 13,
+      "date": "2026-09-24",
+      "ordered_at": "19:20",
+      "served_at": "19:37",
+      "language": "vi",
+      "items": [
+        {
+          "name": "Ốc hương rang muối (Salted sweet snail)",
+          "qty": 1,
+          "unit": "kg",
+          "weight_kg": 0.6,
+          "price_per_kg": 690000,
+          "line_total": 414000
+        },
+        {
+          "name": "Rau muống xào tỏi (Morning glory with garlic)",
+          "qty": 1,
+          "unit": "phần",
+          "weight_kg": null,
+          "price_per_kg": null,
+          "line_total": 90000
+        }
+      ],
+      "weighed_at_table": false,
+      "vat_rate": 0.08,
+      "service_charge": 25000,
+      "total_vnd": 571000
+    },
+    {
+      "order_id": "HD-20260924-11",
+      "table_no": 3,
+      "date": "2026-09-24",
+      "ordered_at": "12:05",
+      "served_at": "12:32",
+      "language": "ko",
+      "items": [
+        {
+          "name": "Cá mú hấp Hồng Kông (Steamed grouper)",
+          "qty": 1,
+          "unit": "kg",
+          "weight_kg": 1.2,
+          "price_per_kg": 620000,
+          "line_total": 744000
+        },
+        {
+          "name": "Bia Sài Gòn (Saigon beer)",
+          "qty": 1,
+          "unit": "phần",
+          "weight_kg": null,
+          "price_per_kg": null,
+          "line_total": 35000
+        }
+      ],
+      "weighed_at_table": false,
+      "vat_rate": 0.08,
+      "service_charge": 39000,
+      "total_vnd": 883000
+    },
+    {
+      "order_id": "HD-20260924-14",
+      "table_no": 16,
+      "date": "2026-09-24",
+      "ordered_at": "20:10",
+      "served_at": "20:43",
+      "language": "en",
+      "items": [
+        {
+          "name": "Tôm sú rang me (Tiger prawn with tamarind)",
+          "qty": 1,
+          "unit": "kg",
+          "weight_kg": 1.4,
+          "price_per_kg": 780000,
+          "line_total": 1092000
+        },
+        {
+          "name": "Nghêu hấp sả (Steamed clam with lemongrass)",
+          "qty": 1,
+          "unit": "kg",
+          "weight_kg": 0.9,
+          "price_per_kg": 240000,
+          "line_total": 216000
+        }
+      ],
+      "weighed_at_table": false,
+      "vat_rate": 0.08,
+      "service_charge": 65000,
+      "total_vnd": 1483000
+    }
+  ]
+}

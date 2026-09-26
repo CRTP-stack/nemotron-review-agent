@@ -13,7 +13,7 @@ import uuid
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
-from . import config, llm
+from . import config, llm, orders as orders_mod
 
 # ---------------------------------------------------------------- 안전 필터
 
@@ -160,23 +160,54 @@ def search_policy(query: str, top_k: int = 2) -> Dict[str, Any]:
     }
 
 
+# ---------------------------------------------------------------- 주문 대조
+
+
+def find_order_candidates(
+    review_date: str = "", mentioned_items: Optional[List[str]] = None, language: str = ""
+) -> Dict[str, Any]:
+    """리뷰 내용으로 가상 주문 데이터에서 후보 주문을 찾는다(확정 매칭 아님)."""
+    return orders_mod.find_candidates(
+        review_date=review_date, mentioned_items=mentioned_items or [], language=language
+    )
+
+
 # ---------------------------------------------------------------- 매니저 알림
 
 SEVERITIES = ("low", "medium", "high", "critical")
 
 
-def notify_manager(summary: str, severity: str, review_excerpt: str = "") -> Dict[str, Any]:
-    """심각 건을 매장 매니저에게 에스컬레이션한다(1단계: logs/alerts.jsonl 기록)."""
+def notify_manager(
+    summary: str,
+    severity: str,
+    review_excerpt: str = "",
+    order_id: str = "",
+    issue_type: str = "",
+    item_hint: str = "",
+) -> Dict[str, Any]:
+    """심각 건을 매장 매니저에게 에스컬레이션한다(logs/alerts.jsonl 기록).
+
+    issue_type 과 order_id 가 주어지면 policy.md §9 보상 규칙으로 '제안 금액'을 계산해
+    **매니저 알림에만** 넣는다. 실제 환불·결제 실행 기능은 없다.
+    """
     sev = severity.lower().strip()
     if sev not in SEVERITIES:
         sev = "high"
+    comp = (
+        orders_mod.calc_compensation(issue_type, order_id, item_hint)
+        if issue_type
+        else {"applicable": False, "reason": "issue_type 미지정 → 보상 산정 안 함"}
+    )
     record = {
         "alert_id": f"AL-{uuid.uuid4().hex[:8].upper()}",
         "created_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "severity": sev,
         "summary": summary,
         "review_excerpt": review_excerpt[:300],
-        "channel": "jsonl(local)",  # 2단계: Slack/Webhook 연동 예정
+        "order_id": order_id or None,
+        "issue_type": issue_type or None,
+        "compensation": comp,
+        "channel": "jsonl(local)",  # 3단계: Slack/Webhook 연동 예정
     }
     config.ALERTS_PATH.parent.mkdir(parents=True, exist_ok=True)
     with config.ALERTS_PATH.open("a", encoding="utf-8") as fp:
@@ -185,8 +216,61 @@ def notify_manager(summary: str, severity: str, review_excerpt: str = "") -> Dic
         "status": "logged",
         "alert_id": record["alert_id"],
         "severity": sev,
+        "compensation": comp,
         "path": str(config.ALERTS_PATH.relative_to(config.ROOT)),
+        "note": "보상안은 매니저 알림에만 기록했다. 공개 답글에는 금액·비율·바우처를 쓰지 마라.",
     }
+
+
+# ---------------------------------------------------------------- 승인 대기 큐
+
+
+def hold_for_approval(
+    language: str,
+    category: str,
+    sentiment: str,
+    severity: str,
+    draft_reply: str,
+    rationale: str,
+    manager_note: str = "",
+    alert_id: str = "",
+) -> Dict[str, Any]:
+    """공개 답글을 게시하지 않고 매니저 승인 대기 큐에 넣는다."""
+    record = {
+        "approval_id": f"AP-{uuid.uuid4().hex[:8].upper()}",
+        "created_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "status": "승인 대기",
+        "severity": severity,
+        "category": category,
+        "language": language,
+        "sentiment": sentiment,
+        "draft_reply": draft_reply,
+        "rationale": rationale,
+        "manager_note": manager_note,
+        "linked_alert_id": alert_id or None,
+    }
+    config.PENDING_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with config.PENDING_PATH.open("a", encoding="utf-8") as fp:
+        fp.write(json.dumps(record, ensure_ascii=False) + "\n")
+    return {
+        "status": "pending_approval",
+        "approval_id": record["approval_id"],
+        "path": str(config.PENDING_PATH.relative_to(config.ROOT)),
+        "note": "초안을 저장했다. 매니저가 승인하기 전까지 공개 게시되지 않는다.",
+    }
+
+
+def read_pending(limit: int = 20) -> List[Dict[str, Any]]:
+    if not config.PENDING_PATH.exists():
+        return []
+    lines = config.PENDING_PATH.read_text(encoding="utf-8").strip().splitlines()
+    out = []
+    for line in lines[-limit:][::-1]:
+        try:
+            out.append(json.loads(line))
+        except json.JSONDecodeError:
+            continue
+    return out
 
 
 def read_alerts(limit: int = 20) -> List[Dict[str, Any]]:
@@ -264,6 +348,20 @@ TOOL_SCHEMAS: List[Dict[str, Any]] = [
                         "description": "심각도",
                     },
                     "review_excerpt": {"type": "string", "description": "리뷰 핵심 발췌"},
+                    "order_id": {
+                        "type": "string",
+                        "description": "find_order_candidates 로 찾은 후보 주문번호(확신도 high/medium일 때만). 보상 금액 산정에 쓰인다.",
+                    },
+                    "issue_type": {
+                        "type": "string",
+                        "enum": ["weight_dispute", "weight_shortage", "wait_over_45",
+                                 "wait_over_60", "cooking_error", "hygiene", "service"],
+                        "description": "정책 §9 보상 규칙 분류. 지정하면 제안 보상 금액이 자동 계산되어 매니저 알림에만 기록된다.",
+                    },
+                    "item_hint": {
+                        "type": "string",
+                        "description": "문제가 된 메뉴 표현(예: 'лобстер', 'lobster'). 보상 기준 품목 선택에 쓰인다.",
+                    },
                 },
                 "required": ["summary", "severity"],
             },
@@ -272,9 +370,84 @@ TOOL_SCHEMAS: List[Dict[str, Any]] = [
     {
         "type": "function",
         "function": {
+            "name": "find_order_candidates",
+            "description": (
+                "리뷰에 적힌 방문일과 언급된 메뉴로 매장 주문 데이터에서 후보 주문을 찾는다. "
+                "중량·금액 분쟁, 대기 시간 불만, 위생 클레임처럼 사실 확인이 필요한 리뷰에 사용한다. "
+                "단순 칭찬 리뷰에는 부를 필요가 없다. "
+                "반환값은 확정된 매칭이 아니라 '후보 + 확신도(high/medium/low) + 근거' 이며, "
+                "여기서 얻은 주문번호·테이블번호·시각·금액은 내부 판단과 매니저 알림에만 쓰고 "
+                "공개 답글에는 절대 쓰지 않는다."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "review_date": {
+                        "type": "string",
+                        "description": "리뷰에 적힌 방문 날짜(YYYY-MM-DD). 없으면 빈 문자열.",
+                    },
+                    "mentioned_items": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "리뷰에 언급된 메뉴 표현을 원문 그대로 넣는다(예: ['лобстер','краб']).",
+                    },
+                    "language": {
+                        "type": "string",
+                        "description": "리뷰 언어 코드(ko/en/vi/ru).",
+                    },
+                },
+                "required": ["review_date", "mentioned_items"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "hold_for_approval",
+            "description": (
+                "공개 답글을 게시하지 않고 매니저 승인 대기 큐에 넣는다. "
+                "severity 가 critical 또는 high 인 건(위생·식중독, 청구 금액/중량 분쟁, "
+                "법적 위협, 직원 부적절 언행)은 submit_reply 대신 반드시 이 툴로 종료한다. "
+                "호출 전에 notify_manager 로 에스컬레이션을 먼저 마쳐야 한다."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "language": {"type": "string", "enum": ["ko", "en", "vi", "ru", "other"]},
+                    "category": {
+                        "type": "string",
+                        "enum": ["칭찬", "음식품질", "위생/식품안전", "서비스/응대", "대기시간",
+                                 "가격/중량", "예약/환불", "방문확인불가", "기타"],
+                    },
+                    "sentiment": {"type": "string", "enum": ["positive", "neutral", "negative"]},
+                    "severity": {"type": "string", "enum": list(SEVERITIES)},
+                    "draft_reply": {
+                        "type": "string",
+                        "description": "매니저 승인 후 게시할 답글 초안(리뷰어 언어).",
+                    },
+                    "rationale": {"type": "string", "description": "판단 근거(한국어, 운영자용)"},
+                    "manager_note": {
+                        "type": "string",
+                        "description": "매니저가 승인 전에 확인해야 할 사항(한국어).",
+                    },
+                    "alert_id": {
+                        "type": "string",
+                        "description": "notify_manager 가 돌려준 alert_id",
+                    },
+                },
+                "required": ["language", "category", "sentiment", "severity",
+                             "draft_reply", "rationale"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "submit_reply",
             "description": (
-                "최종 결과를 제출하고 작업을 종료한다. 반드시 마지막에 이 툴을 호출해야 한다. "
+                "답글을 즉시 자동 게시하고 작업을 종료한다. "
+                "severity 가 low 또는 medium 인 건(칭찬, 대기 시간, 기호 차이 등)에만 쓴다. "
+                "critical/high 인 건은 이 툴 대신 hold_for_approval 을 써야 한다. "
                 "reply_text 는 리뷰 작성자가 쓴 언어와 동일한 언어로 작성한다."
             ),
             "parameters": {
@@ -295,6 +468,7 @@ TOOL_SCHEMAS: List[Dict[str, Any]] = [
                             "대기시간",
                             "가격/중량",
                             "예약/환불",
+                            "방문확인불가",
                             "기타",
                         ],
                         "description": "리뷰 분류",
