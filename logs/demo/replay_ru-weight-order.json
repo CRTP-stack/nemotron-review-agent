@@ -1,0 +1,295 @@
+{
+  "sample_id": "ru-weight-order",
+  "label": "🇷🇺 무게 분쟁 (주문 대조)",
+  "stage": 2,
+  "recorded_at": "2026-09-27 03:14:02",
+  "review": "Были у вас 22 сентября 2026 года вечером. Выбрали лобстера, на весах у стола показали 1,2 кг, я это видел своими глазами. Но в счёте сумма оказалась заметно больше, чем 1,2 кг по цене за килограмм. Никто не смог объяснить разницу. Прошу разобраться и пересчитать счёт.",
+  "rejected": false,
+  "final": {
+    "severity": "critical",
+    "manager_note": "주문 HD-20260922-05(랍스터 1.2kg, 2,220,000₫) 테이블 계량 기록 있음. 청구 총액 2,568,000₫(서비스 5% + VAT 8% 포함) 구조 안내 필요. 정책 §9-1 기준 666,000₫ 바우처 산정됨. 매니저 승인 후 개별 연락으로 안내 요망.",
+    "sentiment": "negative",
+    "category": "가격/중량",
+    "language": "ru",
+    "draft_reply": "Уважаемый гость, спасибо за подробный отзыв. Мы с уважением относимся к вашему замечанию о расхождении суммы в чеке относительно веса лобстера, подтверждённого на столе. В Hải Đăng Seafood процедура взвешивания у стола в присутствии гостя зафиксирована, и мы готны перепроверить расчёт. Пожалуйста, свяжитесь с менеджером напрямую по manager@haidang-danang.example или +84 236 555 0147 — мы разберёмся и всё исправим. Будем рады видеть вас снова.",
+    "rationale": "리뷰는 2026-09-22 저녁 랍스터 1.2kg 테이블 계량 후 청구 금액이 단가×중량보다 높다는 중량/금액 분쟁. find_order_candidates verdict=high로 HD-20260922-05(weighed_at_table=true) 매칭. 정책 §4 테이블 계량 절차 존재, §9-1 중량 이견 30% 바우처 산정, §10 critical 등급으로 자동 게시 금지. notify_manager(AL-4E6A0AEE) 완료. 공개 답글에 금액·보상 약속 없이 개별 연락 유도만 포함.",
+    "alert_id": "AL-4E6A0AEE",
+    "reply_text": "Уважаемый гость, спасибо за подробный отзыв. Мы с уважением относимся к вашему замечанию о расхождении суммы в чеке относительно веса лобстера, подтверждённого на столе. В Hải Đăng Seafood процедура взвешивания у стола в присутствии гостя зафиксирована, и мы готны перепроверить расчёт. Пожалуйста, свяжитесь с менеджером напрямую по manager@haidang-danang.example или +84 236 555 0147 — мы разберёмся и всё исправим. Будем рады видеть вас снова.",
+    "status": "승인 대기",
+    "approval_id": "AP-9A447D23",
+    "reply_safety": "safe",
+    "compensation": {
+      "applicable": true,
+      "issue_type": "weight_dispute",
+      "policy_basis": "§9-1 중량 이견",
+      "form": "다음 방문 바우처",
+      "base_label": "Tôm hùm nướng phô mai (Grilled lobster with cheese)",
+      "base_vnd": 2220000,
+      "rate": 0.3,
+      "proposed_amount_vnd": 666000,
+      "display": "666,000₫ (다음 방문 바우처, 기준 Tôm hùm nướng phô mai (Grilled lobster with cheese) 2,220,000₫ × 30%)",
+      "disclaimer": "제안 금액이며 실제 환불·결제는 실행되지 않았다. 매니저 승인 후 수기 처리."
+    }
+  },
+  "steps": [
+    {
+      "actor": "agent",
+      "type": "tool_call",
+      "tool": "check_safety",
+      "args": {
+        "text": "Были у вас 22 сентября 2026 года вечером. Выбрали лобстера, на весах у стола показали 1,2 кг, я это видел своими глазами. Но в счёте сумма оказалась заметно больше, чем 1,2 кг по цене за килограмм. Никто не смог объяснить разницу. Прошу разобраться и пересчитать счёт.",
+        "kind": "review"
+      },
+      "reasoning": "The user has provided a Russian review from September 22, 2026, complaining about a lobster weight discrepancy. The customer claims they saw 1.2 kg on the table scale but the bill was significantly higher than 1.2 kg at the per-kg price. They're asking for investigation and recalculation.\n\nThis is a weight/price dispute (가격/중량 category). According to the procedure:\n1. First, check_safety with kind=\"review\"\n2. Since this is a factual dispute about weight and billing, I need to use find_order_candidates to check order data\n3. Then search_policy for relevant policies\n4. Then notify_manager if needed (since this involves billing dispute)\n5. Then hold_for_approval (since severity is likely high for billing disputes)\n\nLet me start with check_safety.",
+      "elapsed": 0.4,
+      "result": {
+        "kind": "review",
+        "verdict": "safe",
+        "raw": "User Safety: safe",
+        "model": "nvidia/nemotron-3.5-content-safety",
+        "note": "일반 리뷰로 처리 가능."
+      },
+      "n": 1
+    },
+    {
+      "actor": "agent",
+      "type": "tool_call",
+      "tool": "find_order_candidates",
+      "args": {
+        "review_date": "2026-09-22",
+        "mentioned_items": [
+          "лобстер"
+        ],
+        "language": "ru"
+      },
+      "reasoning": "The review is safe. It's a weight/price dispute - the customer claims they saw 1.2kg of lobster on the table scale but the bill was higher than 1.2kg at the per-kg price. This is a factual dispute that needs order verification. I should use find_order_candidates with the review date (2026-09-22) and mentioned items (лобстер). The language is Russian (ru). Let me call find_order_candidates.",
+      "elapsed": 0.0,
+      "result": {
+        "query": {
+          "review_date": "2026-09-22",
+          "mentioned_items": [
+            "лобстер"
+          ],
+          "language": "ru"
+        },
+        "date_provided": true,
+        "resolved_items": [
+          "tôm hùm"
+        ],
+        "verdict": "high",
+        "usable_as_evidence": true,
+        "candidates": [
+          {
+            "order_id": "HD-20260922-05",
+            "date": "2026-09-22",
+            "match_confidence": "high",
+            "reasons": [
+              "방문일 일치(2026-09-22)",
+              "메뉴 일치: tôm hùm",
+              "주문 언어 일치(ru)"
+            ],
+            "wait_minutes": 31,
+            "weighed_at_table": true,
+            "total_vnd": 2568000,
+            "items": [
+              {
+                "name": "Tôm hùm nướng phô mai (Grilled lobster with cheese)",
+                "weight_kg": 1.2,
+                "price_per_kg": 1850000,
+                "line_total": 2220000
+              },
+              {
+                "name": "Nước dừa tươi (Fresh coconut)",
+                "weight_kg": null,
+                "price_per_kg": null,
+                "line_total": 45000
+              }
+            ]
+          },
+          {
+            "order_id": "HD-20260922-08",
+            "date": "2026-09-22",
+            "match_confidence": "low",
+            "reasons": [
+              "방문일 일치(2026-09-22)",
+              "언급 메뉴 불일치/없음",
+              "주문 언어 일치(ru)"
+            ],
+            "wait_minutes": 25,
+            "weighed_at_table": false,
+            "total_vnd": 782000,
+            "items": [
+              {
+                "name": "Cá mú hấp Hồng Kông (Steamed grouper)",
+                "weight_kg": 1.0,
+                "price_per_kg": 620000,
+                "line_total": 620000
+              },
+              {
+                "name": "Bia Sài Gòn (Saigon beer)",
+                "weight_kg": null,
+                "price_per_kg": null,
+                "line_total": 70000
+              }
+            ]
+          },
+          {
+            "order_id": "HD-20260922-19",
+            "date": "2026-09-22",
+            "match_confidence": "low",
+            "reasons": [
+              "방문일 일치(2026-09-22)",
+              "언급 메뉴 불일치/없음",
+              "주문 언어 일치(ru)"
+            ],
+            "wait_minutes": 21,
+            "weighed_at_table": false,
+            "total_vnd": 296000,
+            "items": [
+              {
+                "name": "Nghêu hấp sả (Steamed clam with lemongrass)",
+                "weight_kg": 0.9,
+                "price_per_kg": 240000,
+                "line_total": 216000
+              },
+              {
+                "name": "Nước dừa tươi (Fresh coconut)",
+                "weight_kg": null,
+                "price_per_kg": null,
+                "line_total": 45000
+              }
+            ]
+          }
+        ],
+        "note": "이것은 후보일 뿐 확정된 매칭이 아니다. 판단 근거로 쓸 수 있다. 단, 주문번호·테이블번호·주문시각·금액을 공개 답글에 절대 쓰지 마라. 이 정보는 매니저 알림과 내부 판단에만 쓴다."
+      },
+      "n": 2
+    },
+    {
+      "actor": "agent",
+      "type": "tool_call",
+      "tool": "search_policy",
+      "args": {
+        "top_k": 3,
+        "query": "중량 분쟁 가격 분쟁 테이블 저울 확인 절차 환불 보상"
+      },
+      "reasoning": "The review is about a lobster weight/billing dispute on September 22, 2026. The find_order_candidates returned a high-confidence match (HD-20260922-05) with lobster (tôm hùm) at 1.2kg, price per kg 1,850,000 VND, line total 2,220,000 VND, plus a coconut drink 45,000 VND, total 2,568,000 VND. The customer says the bill was \"noticeably more than 1.2kg at the price per kg.\" This is a weight/price dispute (category: 가격/중량). According to policy, this is a critical/high severity issue (billing/weight dispute). The customer is asking for investigation and recalculation. This is a financial dispute, so I need to escalate to manager via notify_manager with issue_type \"weight_dispute\" or \"weight_shortage\"? The customer says the bill was higher than 1.2kg at price per kg. That could be weight_dispute (dispute over weight) or weight_shortage (if they got less weight). But they claim they saw 1.2kg on scale, but bill shows more. Could be extra charges not explained. The policy §9 likely has compensation rules for weight_dispute. I'll use issue_type \"weight_dispute\". Also need to search policy for weight dispute handling. Let's search policy first.",
+      "elapsed": 0.82,
+      "result": {
+        "query": "중량 분쟁 가격 분쟁 테이블 저울 확인 절차 환불 보상",
+        "model": "nvidia/nemotron-3-embed-1b",
+        "hits": [
+          {
+            "title": "4. 살아있는 해산물 선택 및 중량 표기",
+            "text": "수족관의 랍스터, 킹크랩, 타이거새우는 고객이 직접 선택한 개체를 저울에 올려\n중량을 확인시켜 드린 뒤 조리합니다. 중량 오차 분쟁 발생 시 매장 내 공인 저울로 재측정하며,\n표기 중량보다 실제가 적을 경우 차액의 2배를 환불합니다.\n시가(時價) 메뉴는 주문 전 kg당 단가를 반드시 구두로 안내하며, QR 주문 화면에도 동일 단가가 표시됩니다.\n\n**테이블 계량 절차**: 고객이 개체를 지목하면 직원이 이동식 저울을 테이블로 가져가\n고객이 보는 앞에서 중량을 표시하고, 표시된 숫자를 함께 확인한 뒤 조리에 들어갑니다.\n이 절차를 거친 주문은 시스템에 `weighed_at_table` 로 기록됩니다.\n중량 이견이 제기되면 **고객의 착오를 지적하지 않고**, 위 절차가 존재한다는 사실과\n재확인 방법만 안내합니다.\n\n**청구 금액 구성**: 품목 합계에 서비스 요금 5% 를 더한 뒤 부가세(VAT) 8% 를 적용합니다.\n메뉴판·QR 화면의 kg당 단가는 세전 금액이므로, 영수증 총액이 단가×중량보다 크게 보일 수 있습니다.\n금액 문의 시 이 계산 구조를 안내합니다.",
+            "score": 0.5022
+          },
+          {
+            "title": "9. 보상 규칙 (금액 산정 기준)",
+            "text": "아래 비율로 보상안을 **산정만** 합니다. 실제 환불·결제 실행은 매니저 승인 후 수기로 처리하며,\nAI 에이전트는 어떤 경우에도 금액을 고객에게 직접 약속하지 않습니다.\n\n- §9-1 **중량 이견**: 계량 절차가 기록된 주문이라도 고객이 이견을 제기하면\n  해당 품목 금액의 **30%** 를 다음 방문 바우처로 제안합니다.\n- §9-2 **중량 부족 확인**: 재측정 결과 실제 중량이 표기보다 적으면 §4에 따라 **차액의 2배** 환불.\n- §9-3 **서비스 미흡**: 해당 품목 금액의 **10%** 를 다음 방문 바우처로 제안합니다.\n- §9-4 **대기 지연**: 45분 초과 시 웰컴 드링크 1잔, 60분 초과 시 다음 방문 10% 할인 쿠폰(§3).\n- §9-5 **조리 오류**: 해당 품목 전액 환불 또는 재조리(§1).\n- §9-6 **위생 사고**: 해당 테이블 총액 전액 환불을 기본으로 산정하되,\n  금액은 매니저가 개별 연락 시에만 안내합니다(§2 [내부 조치]).\n\n**보상은 카테고리를 가리지 않고 공개 답글 금지입니다.**\n금액·비율·환불·무료 제공·바우처·쿠폰·할인 중 어느 것도 공개 답글에 쓰지 않습니다.\n보상안은 매니저 알림(한국어)에만 기재하고, 고객에게는 개별 연락으로만 안내합니다.\n이 원칙은 위생·중량 분쟁뿐 아니라 조리 오류·대기 지연·서비스 미흡에도 동일하게 적용됩니다.",
+            "score": 0.4796
+          },
+          {
+            "title": "10. 공개 답글 승인 절차",
+            "text": "심각도에 따라 공개 답글의 게시 경로가 달라집니다.\n\n- **critical** — 위생·이물질·식중독, **청구 금액/중량 분쟁**, 법적 대응·언론 제보 예고.\n  → 자동 게시 금지. 초안을 저장하고 매니저 승인 대기 상태로 둡니다.\n- **high** — 반복 클레임, 직원의 부적절한 언행, 안전 관련 지적.\n  → 자동 게시 금지. 승인 대기.\n- **medium / low** — 대기 시간, 맛·간 등 기호 차이, 일반 칭찬.\n  → 자동 게시 가능.\n\n\"금액 분쟁\"은 **청구 금액·중량·단가가 잘못되었다는 주장**을 뜻합니다.\n단순 환불 요청(조리 오류로 환불을 원함)은 금액 분쟁이 아니며 §1로 처리합니다.",
+            "score": 0.3332
+          }
+        ],
+        "citation": "4. 살아있는 해산물 선택 및 중량 표기 / 9. 보상 규칙 (금액 산정 기준) / 10. 공개 답글 승인 절차"
+      },
+      "n": 3
+    },
+    {
+      "actor": "agent",
+      "type": "tool_call",
+      "tool": "notify_manager",
+      "args": {
+        "severity": "critical",
+        "review_excerpt": "Выбрали лобстера, на весах у стола показали 1,2 кг... в счёте сумма оказалась заметно больше, чем 1,2 кг по цене за килограмм. Прошу разобраться и пересчитать счёт.",
+        "issue_type": "weight_dispute",
+        "summary": "러시아어 리뷰: 2026-09-22 저녁 랍스터 1.2kg 테이블 계량 확인했으나 청구 금액이 단가×중량보다 높다며 재계산 요청. 주문 HD-20260922-05(weighed_at_table=true) 고신뢰도 매칭.",
+        "item_hint": "лобстер",
+        "order_id": "HD-20260922-05"
+      },
+      "reasoning": "The review is about a weight/price dispute for lobster on September 22, 2026. The customer claims they saw 1.2kg on the table scale but the bill was significantly higher than 1.2kg × price per kg. They're asking for investigation and recalculation.\n\nFrom the order candidates, there's a high-confidence match: order HD-20260922-05 with lobster (tôm hùm) at 1.2kg, price per kg 1,850,000 VND, line total 2,220,000 VND. The order shows `weighed_at_table: true`. The total bill was 2,568,000 VND including a coconut drink (45,000 VND) plus service charge 5% and VAT 8%.\n\nAccording to policy §4, the table weighing procedure exists and is recorded as `weighed_at_table`. The policy says not to point out customer error but to inform about the procedure and re-verification method. Also, the bill includes service charge 5% and VAT 8% on top of the item total, which could explain the higher amount.\n\nPolicy §9-1 says for weight disputes, even if weighing procedure recorded, if customer raises objection, propose 30% of item amount as voucher for next visit. But this is for manager notification only, not for public reply.\n\nPolicy §10 says \"청구 금액/중량 분쟁\" (billing amount/weight dispute) is critical severity → must use hold_for_approval, not submit_reply. Must call notify_manager first.\n\nThe customer is explicitly asking for investigation and recalculation, which is a billing/weight dispute. They're not explicitly demanding refund, but they're disputing the amount. According to policy, this is critical severity. Need to notify_manager with issue_type \"weight_dispute\" and order_id \"HD-20260922-05\". Then hold_for_approval.\n\nThe reply should be in Russian (same language as review). Should be short, neutral, not admitting or denying, not promising compensation. Should mention that manager will contact directly. Provide contact info: manager@haidang-danang.example / +84 236 555 0147.\n\nLet me craft the Russian reply. Need to follow the reply rules: gratitude → acknowledge specific concern → policy-based action → invite return. But since it's critical, we don't promise specific action, just say manager will contact.\n\nRussian reply draft:\n\"Уважаемый гость, спасибо за обращение в Hải Đăng Seafood. Мы с уважением относимся к вашему замечанию о расчете стоимости лобстера 22 сентября. Наш менеджер свяжется с вами напрямую для детальной проверки и разъяснения счета. Контакты: manager@haidang-danang.example или +84 236 555 0147. Будем рады видеть вас снова.\"\n\nThat's 4 sentences. No compensation mentioned. No internal details. Good.\n\nNow call notify_manager with summary, severity critical, review_excerpt, order_id, issue_type weight_dispute, item_hint \"лобстер\". Then hold_for_approval with alert_id from notify_manager.",
+      "elapsed": 0.0,
+      "result": {
+        "status": "logged",
+        "alert_id": "AL-4E6A0AEE",
+        "severity": "critical",
+        "compensation": {
+          "applicable": true,
+          "issue_type": "weight_dispute",
+          "policy_basis": "§9-1 중량 이견",
+          "form": "다음 방문 바우처",
+          "base_label": "Tôm hùm nướng phô mai (Grilled lobster with cheese)",
+          "base_vnd": 2220000,
+          "rate": 0.3,
+          "proposed_amount_vnd": 666000,
+          "display": "666,000₫ (다음 방문 바우처, 기준 Tôm hùm nướng phô mai (Grilled lobster with cheese) 2,220,000₫ × 30%)",
+          "disclaimer": "제안 금액이며 실제 환불·결제는 실행되지 않았다. 매니저 승인 후 수기 처리."
+        },
+        "path": "logs/alerts.jsonl",
+        "note": "보상안은 매니저 알림에만 기록했다. 공개 답글에는 금액·비율·바우처를 쓰지 마라."
+      },
+      "n": 4
+    },
+    {
+      "actor": "guardrail",
+      "type": "verify",
+      "tool": "check_safety",
+      "args": {
+        "kind": "draft_reply"
+      },
+      "elapsed": 0.53,
+      "result": {
+        "kind": "draft_reply",
+        "verdict": "safe",
+        "raw": "User Safety: safe\nResponse Safety: safe",
+        "model": "nvidia/nemotron-3.5-content-safety",
+        "note": "답글 초안 게시 가능."
+      },
+      "n": 5
+    },
+    {
+      "actor": "agent",
+      "type": "final",
+      "tool": "hold_for_approval",
+      "args": {
+        "severity": "critical",
+        "manager_note": "주문 HD-20260922-05(랍스터 1.2kg, 2,220,000₫) 테이블 계량 기록 있음. 청구 총액 2,568,000₫(서비스 5% + VAT 8% 포함) 구조 안내 필요. 정책 §9-1 기준 666,000₫ 바우처 산정됨. 매니저 승인 후 개별 연락으로 안내 요망.",
+        "sentiment": "negative",
+        "category": "가격/중량",
+        "language": "ru",
+        "draft_reply": "Уважаемый гость, спасибо за подробный отзыв. Мы с уважением относимся к вашему замечанию о расхождении суммы в чеке относительно веса лобстера, подтверждённого на столе. В Hải Đăng Seafood процедура взвешивания у стола в присутствии гостя зафиксирована, и мы готны перепроверить расчёт. Пожалуйста, свяжитесь с менеджером напрямую по manager@haidang-danang.example или +84 236 555 0147 — мы разберёмся и всё исправим. Будем рады видеть вас снова.",
+        "rationale": "리뷰는 2026-09-22 저녁 랍스터 1.2kg 테이블 계량 후 청구 금액이 단가×중량보다 높다는 중량/금액 분쟁. find_order_candidates verdict=high로 HD-20260922-05(weighed_at_table=true) 매칭. 정책 §4 테이블 계량 절차 존재, §9-1 중량 이견 30% 바우처 산정, §10 critical 등급으로 자동 게시 금지. notify_manager(AL-4E6A0AEE) 완료. 공개 답글에 금액·보상 약속 없이 개별 연락 유도만 포함.",
+        "alert_id": "AL-4E6A0AEE"
+      },
+      "reasoning": "The user is asking for a recalculation of the bill due to a weight/price discrepancy. According to the policy, this is a \"weight dispute\" (청구 금액/중량 분쟁) which is classified as critical severity. I've already notified the manager and got an alert_id. Now I need to create a draft reply in Russian (the review language) and use hold_for_approval since it's critical severity.\n\nThe draft reply should:\n- Be in Russian\n- Thank the customer\n- Acknowledge the concern about the bill discrepancy\n- Mention that table weighing procedure exists (per policy §4)\n- Not promise any compensation or refund\n- Direct to private contact channels\n- Be 3-6 sentences\n- Not mention order numbers, amounts, or internal details\n\nLet me craft the Russian reply.",
+      "elapsed": 22.45,
+      "result": {
+        "accepted": true,
+        "status": "pending_approval",
+        "approval_id": "AP-9A447D23",
+        "path": "logs/pending_approvals.jsonl",
+        "note": "초안을 저장했다. 매니저가 승인하기 전까지 공개 게시되지 않는다."
+      },
+      "n": 6
+    }
+  ],
+  "tools_used": {
+    "check_safety": 1,
+    "find_order_candidates": 1,
+    "search_policy": 1,
+    "notify_manager": 1,
+    "hold_for_approval": 1
+  },
+  "elapsed": 63.34,
+  "usage": {
+    "prompt_tokens": 28081,
+    "completion_tokens": 2529,
+    "total_tokens": 30610,
+    "calls": 8
+  },
+  "retries": []
+}

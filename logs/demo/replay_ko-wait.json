@@ -1,0 +1,118 @@
+{
+  "sample_id": "ko-wait",
+  "label": "🇰🇷 한국어 · 칭찬 + 대기 불만",
+  "stage": 1,
+  "recorded_at": "2026-09-27 03:09:21",
+  "review": "가족들이랑 다녀왔는데 타이거새우 구이랑 모닝글로리 볶음 진짜 맛있었어요! 사장님도 친절하시고요. 다만 저녁 7시쯤 갔더니 자리 날 때까지 50분 넘게 기다렸습니다. 대기 순서 안내가 전혀 없어서 그냥 서서 기다렸네요. 대기 관리는 좀 아쉽습니다.",
+  "rejected": false,
+  "final": {
+    "language": "ko",
+    "severity": "medium",
+    "reply_text": "타이거새우 구이와 모닝글로리 볶음을 맛있게 드셨다니 감사합니다. 사장님 친절 말씀도 큰 힘이 됩니다. 다만 저녁 피크 시간대에 50분 넘게 대기하시면서 순서 안내가 부족했던 점, 진심으로 죄송합니다. 대기 관리 시스템을 개선해 다음 방문 때는 더 쾌적하게 모시겠습니다. 자세한 말씀은 매니저(manager@haidang-danang.example / +84 236 555 0147)에게 전해 주시면 바로 확인하겠습니다. 다시 찾아주실 날을 기다리겠습니다.",
+    "rationale": "리뷰는 음식 칭찬과 사장님 친절 칭찬, 그리고 50분 대기 중 순서 안내 부재 불만이 혼재된 내용입니다. 안전 판정 safe, 심각도는 medium(대기시간 불만, 보상 요구 없음)으로 판단했습니다. 정책 §3에 따라 대기 45분 초과 시 웰컴 드링크, 60분 초과 시 10% 쿠폰이 현장 제공되나 공개 답글에서는 약속하지 않습니다. 답글은 감사 → 불만 인정 → 개선 의지 → 개별 연락 안내 → 재방문 유도 순서로 작성했습니다.",
+    "sentiment": "negative",
+    "category": "대기시간",
+    "status": "자동 게시",
+    "reply_safety": "safe"
+  },
+  "steps": [
+    {
+      "actor": "agent",
+      "type": "tool_call",
+      "tool": "check_safety",
+      "args": {
+        "kind": "review",
+        "text": "가족들이랑 다녀왔는데 타이거새우 구이랑 모닝글로리 볶음 진짜 맛있었어요! 사장님도 친절하시고요. 다만 저녁 7시쯤 갔더니 자리 날 때까지 50분 넘게 기다렸습니다. 대기 순서 안내가 전혀 없어서 그냥 서서 기다렸네요. 대기 관리는 좀 아쉽습니다."
+      },
+      "reasoning": "The user has provided a customer review in Korean. I need to process this review according to the established procedure. Let me start by checking the safety of the review.",
+      "elapsed": 0.41,
+      "result": {
+        "kind": "review",
+        "verdict": "safe",
+        "raw": "User Safety: safe",
+        "model": "nvidia/nemotron-3.5-content-safety",
+        "note": "일반 리뷰로 처리 가능."
+      },
+      "n": 1
+    },
+    {
+      "actor": "agent",
+      "type": "tool_call",
+      "tool": "search_policy",
+      "args": {
+        "query": "대기 시간 불만 응대 정책",
+        "top_k": 2
+      },
+      "reasoning": "The review is safe. It's a mixed review - positive about food and owner, negative about wait time (50+ minutes) and lack of queue management. This is a wait time complaint, which falls under \"대기시간\" category. According to the rules, wait time complaints are medium severity and can be handled with submit_reply (no escalation needed unless it's over 45/60 minutes with specific policy triggers). The customer mentions 50 minutes wait, which is over 45 minutes. However, the policy §9 mentions compensation for wait_over_45 and wait_over_60. But the customer is not explicitly demanding compensation - just complaining about wait management. The rules say: \"단순 불만(대기 시간이 길었다 등)은 알림 없이 답글만 달면 된다.\" So I should just reply without notify_manager. However, I should check policy for wait time handling to ensure proper response. Let me search policy.",
+      "elapsed": 0.65,
+      "result": {
+        "query": "대기 시간 불만 응대 정책",
+        "model": "nvidia/nemotron-3-embed-1b",
+        "hits": [
+          {
+            "title": "3. 대기 시간 정책",
+            "text": "피크 타임(18:00–20:30) 평균 대기 시간은 25분이며, 매장 입구 QR로 원격 대기 등록이 가능합니다.\n대기 45분을 초과한 고객에게는 웰컴 드링크(비아 사이공 또는 코코넛 주스) 1잔을 무료 제공합니다.\n대기 60분을 초과한 경우 다음 방문에 사용 가능한 10% 할인 쿠폰을 발급합니다.\n단, 위 웰컴 드링크·할인 쿠폰은 **현장에서 제공하는 것이며 공개 답글에서 약속하지 않습니다**(§9).\n답글에는 대기 관리 개선 의지와 개별 연락 안내까지만 씁니다.\n사전 예약 고객은 예약 시간 기준 10분까지 테이블을 보관하며, 10분 초과 시 대기 순번으로 전환됩니다.",
+            "score": 0.5211
+          },
+          {
+            "title": "9. 보상 규칙 (금액 산정 기준)",
+            "text": "아래 비율로 보상안을 **산정만** 합니다. 실제 환불·결제 실행은 매니저 승인 후 수기로 처리하며,\nAI 에이전트는 어떤 경우에도 금액을 고객에게 직접 약속하지 않습니다.\n\n- §9-1 **중량 이견**: 계량 절차가 기록된 주문이라도 고객이 이견을 제기하면\n  해당 품목 금액의 **30%** 를 다음 방문 바우처로 제안합니다.\n- §9-2 **중량 부족 확인**: 재측정 결과 실제 중량이 표기보다 적으면 §4에 따라 **차액의 2배** 환불.\n- §9-3 **서비스 미흡**: 해당 품목 금액의 **10%** 를 다음 방문 바우처로 제안합니다.\n- §9-4 **대기 지연**: 45분 초과 시 웰컴 드링크 1잔, 60분 초과 시 다음 방문 10% 할인 쿠폰(§3).\n- §9-5 **조리 오류**: 해당 품목 전액 환불 또는 재조리(§1).\n- §9-6 **위생 사고**: 해당 테이블 총액 전액 환불을 기본으로 산정하되,\n  금액은 매니저가 개별 연락 시에만 안내합니다(§2 [내부 조치]).\n\n**보상은 카테고리를 가리지 않고 공개 답글 금지입니다.**\n금액·비율·환불·무료 제공·바우처·쿠폰·할인 중 어느 것도 공개 답글에 쓰지 않습니다.\n보상안은 매니저 알림(한국어)에만 기재하고, 고객에게는 개별 연락으로만 안내합니다.\n이 원칙은 위생·중량 분쟁뿐 아니라 조리 오류·대기 지연·서비스 미흡에도 동일하게 적용됩니다.",
+            "score": 0.2943
+          }
+        ],
+        "citation": "3. 대기 시간 정책 / 9. 보상 규칙 (금액 산정 기준)"
+      },
+      "n": 2
+    },
+    {
+      "actor": "guardrail",
+      "type": "verify",
+      "tool": "check_safety",
+      "args": {
+        "kind": "draft_reply"
+      },
+      "elapsed": 0.48,
+      "result": {
+        "kind": "draft_reply",
+        "verdict": "safe",
+        "raw": "User Safety: safe\nResponse Safety: safe",
+        "model": "nvidia/nemotron-3.5-content-safety",
+        "note": "답글 초안 게시 가능."
+      },
+      "n": 3
+    },
+    {
+      "actor": "agent",
+      "type": "final",
+      "tool": "submit_reply",
+      "args": {
+        "language": "ko",
+        "severity": "medium",
+        "reply_text": "타이거새우 구이와 모닝글로리 볶음을 맛있게 드셨다니 감사합니다. 사장님 친절 말씀도 큰 힘이 됩니다. 다만 저녁 피크 시간대에 50분 넘게 대기하시면서 순서 안내가 부족했던 점, 진심으로 죄송합니다. 대기 관리 시스템을 개선해 다음 방문 때는 더 쾌적하게 모시겠습니다. 자세한 말씀은 매니저(manager@haidang-danang.example / +84 236 555 0147)에게 전해 주시면 바로 확인하겠습니다. 다시 찾아주실 날을 기다리겠습니다.",
+        "rationale": "리뷰는 음식 칭찬과 사장님 친절 칭찬, 그리고 50분 대기 중 순서 안내 부재 불만이 혼재된 내용입니다. 안전 판정 safe, 심각도는 medium(대기시간 불만, 보상 요구 없음)으로 판단했습니다. 정책 §3에 따라 대기 45분 초과 시 웰컴 드링크, 60분 초과 시 10% 쿠폰이 현장 제공되나 공개 답글에서는 약속하지 않습니다. 답글은 감사 → 불만 인정 → 개선 의지 → 개별 연락 안내 → 재방문 유도 순서로 작성했습니다.",
+        "sentiment": "negative",
+        "category": "대기시간"
+      },
+      "reasoning": "The review is safe. It's a mixed review - positive about food and owner, negative about 50+ minute wait with no queue management. This is a wait time complaint (50 minutes, which exceeds 45 minutes). According to policy §3, wait over 45 minutes gets a welcome drink, over 60 minutes gets 10% discount coupon. But the policy says these are provided on-site and NOT promised in public replies. The reply should only mention willingness to improve wait management and guide to individual contact.\n\nSeverity: This is a wait time complaint, not a critical/high severity issue. It's medium or low. Since it's a complaint about service (wait management), but not hygiene, weight dispute, legal threat, etc. It's a \"대기시간\" category, sentiment negative, severity medium (or low). The policy says for medium/low severity, use submit_reply. No need for notify_manager or hold_for_approval because the customer didn't explicitly demand compensation. They just complained about wait management.\n\nI need to write a reply in Korean (same language as review). 3-6 sentences. Thank them for the praise, acknowledge the wait issue, mention we're improving wait management, invite them to contact manager for further discussion. No compensation promises.\n\nLet me draft the reply.",
+      "elapsed": 13.1,
+      "result": {
+        "accepted": true,
+        "status": "자동 게시"
+      },
+      "n": 4
+    }
+  ],
+  "tools_used": {
+    "check_safety": 1,
+    "search_policy": 1,
+    "submit_reply": 1
+  },
+  "elapsed": 38.68,
+  "usage": {
+    "prompt_tokens": 14668,
+    "completion_tokens": 1038,
+    "total_tokens": 15706,
+    "calls": 6
+  },
+  "retries": []
+}

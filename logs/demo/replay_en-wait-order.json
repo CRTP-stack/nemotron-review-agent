@@ -1,0 +1,185 @@
+{
+  "sample_id": "en-wait-order",
+  "label": "🇺🇸 대기 48분 (주문 대조)",
+  "stage": 2,
+  "recorded_at": "2026-09-27 03:15:50",
+  "review": "We came on 21 September 2026 for dinner and ordered the tamarind tiger prawns. It took almost fifty minutes from ordering until the food actually reached our table. Nobody told us there was a delay, and we had to ask twice. The prawns were good but that wait was really hard with a hungry kid.",
+  "rejected": false,
+  "final": {
+    "category": "대기시간",
+    "reply_text": "Thank you for dining at Hải Đăng Seafood and for sharing your experience. We are sorry that the tamarind tiger prawns took nearly 50 minutes to reach your table and that no one proactively updated you during the wait — especially difficult with a hungry child. We are reviewing our kitchen pacing and communication so that future guests are informed promptly and served faster. If you would like to discuss this further, please contact our manager directly at manager@haidang-danang.example or +84 236 555 0147. We hope to welcome you back for a smoother visit.",
+    "language": "en",
+    "severity": "medium",
+    "rationale": "리뷰는 2026-09-21 방문, 타마린드 타이거 프라운 주문, 48분 대기(45분 초과) 불만. find_order_candidates에서 verdict=high로 주문 후보(HD-20260921-03, wait_minutes=48) 확인. 정책 §3에 따라 45분 초과 시 웰컴 드링크 현장 제공 대상이지만, 공개 답글에서는 보상 약속 금지(§9). 고객이 환불·보상을 명시 요구하지 않았으므로 단순 대기 불만으로 medium severity, submit_reply로 자동 게시. 답글은 영어 원문 언어로 작성, 감사→구체적 인정→개선 의지→개별 연락 안내→재방문 유도 순서 준수.",
+    "sentiment": "negative",
+    "status": "자동 게시",
+    "reply_safety": "safe"
+  },
+  "steps": [
+    {
+      "actor": "agent",
+      "type": "tool_call",
+      "tool": "check_safety",
+      "args": {
+        "kind": "review",
+        "text": "We came on 21 September 2026 for dinner and ordered the tamarind tiger prawns. It took almost fifty minutes from ordering until the food actually reached our table. Nobody told us there was a delay, and we had to ask twice. The prawns were good but that wait was really hard with a hungry kid."
+      },
+      "reasoning": "The user has provided a customer review in English about a dining experience at Hải Đăng Seafood on 21 September 2026. They ordered tamarind tiger prawns and experienced a 50-minute wait without communication. The prawns were good but the wait was difficult with a hungry child.\n\nI need to follow the procedure:\n1. First, check_safety with kind=\"review\" on the review text.\n2. This is a complaint about wait time (almost 50 minutes) and lack of communication. This is a factual claim about wait time, so I should use find_order_candidates to verify the order.\n3. The review mentions a specific date (21 September 2026) and a specific dish (tamarind tiger prawns). I'll need to call find_order_candidates with review_date \"2026-09-21\" and mentioned_items [\"tamarind tiger prawns\"] (or maybe \"tamarind tiger prawns\" as written). Language is English (\"en\").\n4. After that, depending on the verdict, I may need to search_policy for wait time policies.\n5. The review doesn't explicitly demand compensation, just complains about wait time. According to procedure, if no compensation demanded, I can reply without escalation. But wait time over 45 minutes might be a policy issue (policy §9 mentions wait_over_45 and wait_over_60). However, the customer didn't ask for refund or compensation. The procedure says: \"보상을 요구하지 않은 단순 불만(대기 시간이 길었다 등)은 알림 없이 답글만 달면 된다.\" So I can just reply.\n6. However, I should still check policy for wait time handling to ensure my reply aligns with policy. Use search_policy for \"대기 시간\" or \"wait time\".\n7. Then draft a reply in English (same language as review), 3-6 sentences, acknowledging the wait, apologizing, mentioning policy if applicable, and inviting return.\n8. Since severity is likely medium (wait time complaint), I can use submit_reply.\n\nLet's start with check_safety.",
+      "elapsed": 0.61,
+      "result": {
+        "kind": "review",
+        "verdict": "safe",
+        "raw": "User Safety: safe",
+        "model": "nvidia/nemotron-3.5-content-safety",
+        "note": "일반 리뷰로 처리 가능."
+      },
+      "n": 1
+    },
+    {
+      "actor": "agent",
+      "type": "tool_call",
+      "tool": "find_order_candidates",
+      "args": {
+        "review_date": "2026-09-21",
+        "mentioned_items": [
+          "tamarind tiger prawns"
+        ],
+        "language": "en"
+      },
+      "reasoning": "The review is safe. It's a complaint about wait time (almost 50 minutes) and lack of communication about the delay. The customer mentions they came on 21 September 2026 and ordered tamarind tiger prawns. This is a wait time complaint, which according to the policy requires fact-checking if it's a wait time complaint. The policy says: \"사실 확인이 필요한 리뷰(중량·금액 분쟁, 대기 시간 불만, 위생 클레임, 방문 사실이 의심되는 건)는 find_order_candidates 로 주문 데이터를 대조한다.\" So I should use find_order_candidates to verify the order. The review date is 2026-09-21, mentioned item is \"tamarind tiger prawns\". Language is English. Let's call find_order_candidates.",
+      "elapsed": 0.0,
+      "result": {
+        "query": {
+          "review_date": "2026-09-21",
+          "mentioned_items": [
+            "tamarind tiger prawns"
+          ],
+          "language": "en"
+        },
+        "date_provided": true,
+        "resolved_items": [
+          "tôm sú"
+        ],
+        "verdict": "high",
+        "usable_as_evidence": true,
+        "candidates": [
+          {
+            "order_id": "HD-20260921-03",
+            "date": "2026-09-21",
+            "match_confidence": "high",
+            "reasons": [
+              "방문일 일치(2026-09-21)",
+              "메뉴 일치: tôm sú",
+              "주문 언어 일치(en)"
+            ],
+            "wait_minutes": 48,
+            "weighed_at_table": false,
+            "total_vnd": 1311000,
+            "items": [
+              {
+                "name": "Tôm sú rang me (Tiger prawn with tamarind)",
+                "weight_kg": 1.2,
+                "price_per_kg": 780000,
+                "line_total": 936000
+              },
+              {
+                "name": "Cơm chiên hải sản (Seafood fried rice)",
+                "weight_kg": null,
+                "price_per_kg": null,
+                "line_total": 150000
+              },
+              {
+                "name": "Bia Sài Gòn (Saigon beer)",
+                "weight_kg": null,
+                "price_per_kg": null,
+                "line_total": 70000
+              }
+            ]
+          }
+        ],
+        "note": "이것은 후보일 뿐 확정된 매칭이 아니다. 판단 근거로 쓸 수 있다. 단, 주문번호·테이블번호·주문시각·금액을 공개 답글에 절대 쓰지 마라. 이 정보는 매니저 알림과 내부 판단에만 쓴다."
+      },
+      "n": 2
+    },
+    {
+      "actor": "agent",
+      "type": "tool_call",
+      "tool": "search_policy",
+      "args": {
+        "top_k": 2,
+        "query": "대기 시간 45분 초과 보상 정책"
+      },
+      "reasoning": "The order data shows a 48-minute wait time, which matches the customer's complaint of \"almost fifty minutes\". The verdict is \"high\" confidence, so I can use this as evidence. The wait time is 48 minutes, which is over 45 minutes but under 60 minutes. According to policy §9, wait_over_45 triggers a compensation rule. However, the customer is not explicitly demanding compensation - they're just complaining about the wait. The instructions say: \"보상을 요구하지 않은 단순 불만(대기 시간이 길었다 등)은 알림 없이 답글만 달면 된다.\" So I should just reply without escalating.\n\nBut wait, I should check the policy for wait time compensation rules to understand what the policy says, even if I'm not promising compensation in the reply. Let me search the policy.",
+      "elapsed": 0.59,
+      "result": {
+        "query": "대기 시간 45분 초과 보상 정책",
+        "model": "nvidia/nemotron-3-embed-1b",
+        "hits": [
+          {
+            "title": "3. 대기 시간 정책",
+            "text": "피크 타임(18:00–20:30) 평균 대기 시간은 25분이며, 매장 입구 QR로 원격 대기 등록이 가능합니다.\n대기 45분을 초과한 고객에게는 웰컴 드링크(비아 사이공 또는 코코넛 주스) 1잔을 무료 제공합니다.\n대기 60분을 초과한 경우 다음 방문에 사용 가능한 10% 할인 쿠폰을 발급합니다.\n단, 위 웰컴 드링크·할인 쿠폰은 **현장에서 제공하는 것이며 공개 답글에서 약속하지 않습니다**(§9).\n답글에는 대기 관리 개선 의지와 개별 연락 안내까지만 씁니다.\n사전 예약 고객은 예약 시간 기준 10분까지 테이블을 보관하며, 10분 초과 시 대기 순번으로 전환됩니다.",
+            "score": 0.5167
+          },
+          {
+            "title": "9. 보상 규칙 (금액 산정 기준)",
+            "text": "아래 비율로 보상안을 **산정만** 합니다. 실제 환불·결제 실행은 매니저 승인 후 수기로 처리하며,\nAI 에이전트는 어떤 경우에도 금액을 고객에게 직접 약속하지 않습니다.\n\n- §9-1 **중량 이견**: 계량 절차가 기록된 주문이라도 고객이 이견을 제기하면\n  해당 품목 금액의 **30%** 를 다음 방문 바우처로 제안합니다.\n- §9-2 **중량 부족 확인**: 재측정 결과 실제 중량이 표기보다 적으면 §4에 따라 **차액의 2배** 환불.\n- §9-3 **서비스 미흡**: 해당 품목 금액의 **10%** 를 다음 방문 바우처로 제안합니다.\n- §9-4 **대기 지연**: 45분 초과 시 웰컴 드링크 1잔, 60분 초과 시 다음 방문 10% 할인 쿠폰(§3).\n- §9-5 **조리 오류**: 해당 품목 전액 환불 또는 재조리(§1).\n- §9-6 **위생 사고**: 해당 테이블 총액 전액 환불을 기본으로 산정하되,\n  금액은 매니저가 개별 연락 시에만 안내합니다(§2 [내부 조치]).\n\n**보상은 카테고리를 가리지 않고 공개 답글 금지입니다.**\n금액·비율·환불·무료 제공·바우처·쿠폰·할인 중 어느 것도 공개 답글에 쓰지 않습니다.\n보상안은 매니저 알림(한국어)에만 기재하고, 고객에게는 개별 연락으로만 안내합니다.\n이 원칙은 위생·중량 분쟁뿐 아니라 조리 오류·대기 지연·서비스 미흡에도 동일하게 적용됩니다.",
+            "score": 0.372
+          }
+        ],
+        "citation": "3. 대기 시간 정책 / 9. 보상 규칙 (금액 산정 기준)"
+      },
+      "n": 3
+    },
+    {
+      "actor": "guardrail",
+      "type": "verify",
+      "tool": "check_safety",
+      "args": {
+        "kind": "draft_reply"
+      },
+      "elapsed": 0.41,
+      "result": {
+        "kind": "draft_reply",
+        "verdict": "safe",
+        "raw": "User Safety: safe\nResponse Safety: safe",
+        "model": "nvidia/nemotron-3.5-content-safety",
+        "note": "답글 초안 게시 가능."
+      },
+      "n": 4
+    },
+    {
+      "actor": "agent",
+      "type": "final",
+      "tool": "submit_reply",
+      "args": {
+        "category": "대기시간",
+        "reply_text": "Thank you for dining at Hải Đăng Seafood and for sharing your experience. We are sorry that the tamarind tiger prawns took nearly 50 minutes to reach your table and that no one proactively updated you during the wait — especially difficult with a hungry child. We are reviewing our kitchen pacing and communication so that future guests are informed promptly and served faster. If you would like to discuss this further, please contact our manager directly at manager@haidang-danang.example or +84 236 555 0147. We hope to welcome you back for a smoother visit.",
+        "language": "en",
+        "severity": "medium",
+        "rationale": "리뷰는 2026-09-21 방문, 타마린드 타이거 프라운 주문, 48분 대기(45분 초과) 불만. find_order_candidates에서 verdict=high로 주문 후보(HD-20260921-03, wait_minutes=48) 확인. 정책 §3에 따라 45분 초과 시 웰컴 드링크 현장 제공 대상이지만, 공개 답글에서는 보상 약속 금지(§9). 고객이 환불·보상을 명시 요구하지 않았으므로 단순 대기 불만으로 medium severity, submit_reply로 자동 게시. 답글은 영어 원문 언어로 작성, 감사→구체적 인정→개선 의지→개별 연락 안내→재방문 유도 순서 준수.",
+        "sentiment": "negative"
+      },
+      "reasoning": "The review is about a 48-minute wait time (over 45 minutes) for tamarind tiger prawns. The order candidate shows wait_minutes: 48, which matches the customer's claim. According to policy §3, for waits over 45 minutes, a welcome drink (Saigon beer or coconut juice) is provided on-site, but this should NOT be promised in the public reply. The reply should only mention willingness to improve wait management and guide to individual contact.\n\nSince the customer is not explicitly demanding a refund or monetary compensation, just complaining about the wait, this is a medium severity issue (wait time complaint). According to the rules, medium severity can use submit_reply (auto-post). However, I need to check if the policy says anything about notifying manager for wait time complaints. The policy says: \"보상을 요구하지 않은 단순 불만(대기 시간이 길었다 등)은 알림 없이 답글만 달면 된다.\" So no need to notify_manager.\n\nI should write a reply in English (same language as review), acknowledging the wait, apologizing, mentioning we're improving wait management, and providing contact info for further discussion. No compensation promises.\n\nLet me draft the reply.",
+      "elapsed": 15.72,
+      "result": {
+        "accepted": true,
+        "status": "자동 게시"
+      },
+      "n": 5
+    }
+  ],
+  "tools_used": {
+    "check_safety": 1,
+    "find_order_candidates": 1,
+    "search_policy": 1,
+    "submit_reply": 1
+  },
+  "elapsed": 107.86,
+  "usage": {
+    "prompt_tokens": 19791,
+    "completion_tokens": 1683,
+    "total_tokens": 21474,
+    "calls": 7
+  },
+  "retries": []
+}

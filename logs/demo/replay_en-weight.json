@@ -1,0 +1,195 @@
+{
+  "sample_id": "en-weight",
+  "label": "🇺🇸 English · 중량/가격 분쟁",
+  "stage": 1,
+  "recorded_at": "2026-09-27 03:09:59",
+  "review": "We picked a lobster from the tank and the staff told us it was about 1.2kg, but the final bill charged us for 1.6kg. When I asked them to weigh it again, nobody would help and they just kept saying it's the market price. The food itself was decent but I left feeling ripped off.",
+  "rejected": false,
+  "final": {
+    "draft_reply": "Thank you for sharing your experience at Hải Đăng Seafood. We are sorry to hear about the confusion regarding the lobster weight and the difficulty you faced when requesting a re‑weigh. Our standard practice is to weigh each live seafood item at the table in front of the guest so the weight is confirmed together before cooking. To look into this properly, please contact our manager directly at manager@haidang-danang.example or +84 236 555 0147. We appreciate your feedback and hope to have the chance to make things right.",
+    "manager_note": "주문 특정 불가(no_match). 고객 주장 중량(1.2kg vs 1.6kg)과 재측정 거부 사실 확인 필요. 매니저가 개별 연락 시 §9-1(중량 이견 30% 바우처) 또는 §9-2(중량 부족 시 차액 2배) 적용 여부 판단.",
+    "rationale": "리뷰는 랍스터 중량 분쟁(1.2kg 안내 vs 1.6kg 청구)과 재측정 거부 클레임으로, 정책 §10에 따라 critical 등급(청구 금액/중량 분쟁)이다. find_order_candidates 결과 no_match로 주문 특정 불가. 정책 §4의 테이블 계량 절차 존재 사실만 안내하고, 보상 약속 없이 개인 연락 채널로 유도. notify_manager(AL-ADA4A275)로 에스컬레이션 완료. 공개 답글에 금액·바우처·환불 언급 금지 준수.",
+    "sentiment": "negative",
+    "language": "en",
+    "category": "가격/중량",
+    "severity": "critical",
+    "alert_id": "AL-ADA4A275",
+    "reply_text": "Thank you for sharing your experience at Hải Đăng Seafood. We are sorry to hear about the confusion regarding the lobster weight and the difficulty you faced when requesting a re‑weigh. Our standard practice is to weigh each live seafood item at the table in front of the guest so the weight is confirmed together before cooking. To look into this properly, please contact our manager directly at manager@haidang-danang.example or +84 236 555 0147. We appreciate your feedback and hope to have the chance to make things right.",
+    "status": "승인 대기",
+    "approval_id": "AP-945DC286",
+    "reply_safety": "safe"
+  },
+  "steps": [
+    {
+      "actor": "agent",
+      "type": "tool_call",
+      "tool": "check_safety",
+      "args": {
+        "text": "We picked a lobster from the tank and the staff told us it was about 1.2kg, but the final bill charged us for 1.6kg. When I asked them to weigh it again, nobody would help and they just kept saying it's the market price. The food itself was decent but I left feeling ripped off.",
+        "kind": "review"
+      },
+      "reasoning": "The user has provided a customer review in English about a lobster weight dispute at the restaurant. The customer claims they picked a lobster that staff said was 1.2kg but were charged for 1.6kg, and when they asked for a re-weigh, staff refused and said it's market price. This is a weight/price dispute which falls under \"가격/중량\" category and likely high severity since it involves billing dispute.\n\nI need to follow the procedure:\n1. First, check_safety with kind=\"review\"\n2. Since this is a factual dispute (weight/billing), I should use find_order_candidates to check order data\n3. Search policy for relevant policies on weight disputes\n4. Notify manager since this involves a billing/weight dispute and potential compensation\n5. Then hold_for_approval since severity is likely high (billing dispute)\n\nLet me start with check_safety.",
+      "elapsed": 0.41,
+      "result": {
+        "kind": "review",
+        "verdict": "safe",
+        "raw": "User Safety: safe",
+        "model": "nvidia/nemotron-3.5-content-safety",
+        "note": "일반 리뷰로 처리 가능."
+      },
+      "n": 1
+    },
+    {
+      "actor": "agent",
+      "type": "tool_call",
+      "tool": "find_order_candidates",
+      "args": {
+        "review_date": "",
+        "mentioned_items": [
+          "lobster"
+        ],
+        "language": "en"
+      },
+      "reasoning": "The review is safe. Now I need to check if this requires order verification. The customer is claiming a weight discrepancy - they were told 1.2kg but charged for 1.6kg. This is a weight/price dispute, which according to the instructions requires fact-checking with find_order_candidates. The review doesn't mention a specific date, but I should still try to find matching orders. The mentioned item is \"lobster\". The language is English. Let me call find_order_candidates. Since no date is mentioned, I'll use an empty string for review_date.",
+      "elapsed": 0.01,
+      "result": {
+        "query": {
+          "review_date": "",
+          "mentioned_items": [
+            "lobster"
+          ],
+          "language": "en"
+        },
+        "date_provided": false,
+        "resolved_items": [
+          "tôm hùm"
+        ],
+        "verdict": "no_match",
+        "usable_as_evidence": false,
+        "candidates": [],
+        "note": "리뷰에 방문일이 없어 주문을 특정할 수 없다. 방문 사실 자체를 다투는 건이 아니라면 주문 대조 없이 일반 정책으로 처리하라. 주문 정보를 추측해서 답글에 쓰지 마라."
+      },
+      "n": 2
+    },
+    {
+      "actor": "agent",
+      "type": "tool_call",
+      "tool": "search_policy",
+      "args": {
+        "top_k": 3,
+        "query": "중량 분쟁 처리 정책 랍스터 저울 확인 절차"
+      },
+      "reasoning": "The review mentions a weight dispute (1.2kg vs 1.6kg) and staff refusing to re-weigh. This is a weight/price dispute. According to the rules, weight disputes are critical severity and require hold_for_approval with notify_manager first. The customer is explicitly complaining about being charged for more weight than quoted, which is a billing/weight dispute. Even though find_order_candidates returned no_match (no visit date), the review itself describes a weight dispute. The policy says: \"청구 금액/중량/단가 분쟁\" is critical. Also, \"고객이 환불이나 금전적 보상을 명시적으로 요구한 리뷰는 심각도가 낮더라도 반드시 notify_manager 를 호출해 보상안을 산정시킨다\". The customer says \"I left feeling ripped off\" which implies a demand for compensation. So I need to call notify_manager with issue_type \"weight_dispute\" and severity \"critical\". Then hold_for_approval.\n\nBut first, I should search policy for weight dispute handling to know what to reference in the reply (though I cannot promise compensation in public reply). Let me search policy.",
+      "elapsed": 0.6,
+      "result": {
+        "query": "중량 분쟁 처리 정책 랍스터 저울 확인 절차",
+        "model": "nvidia/nemotron-3-embed-1b",
+        "hits": [
+          {
+            "title": "4. 살아있는 해산물 선택 및 중량 표기",
+            "text": "수족관의 랍스터, 킹크랩, 타이거새우는 고객이 직접 선택한 개체를 저울에 올려\n중량을 확인시켜 드린 뒤 조리합니다. 중량 오차 분쟁 발생 시 매장 내 공인 저울로 재측정하며,\n표기 중량보다 실제가 적을 경우 차액의 2배를 환불합니다.\n시가(時價) 메뉴는 주문 전 kg당 단가를 반드시 구두로 안내하며, QR 주문 화면에도 동일 단가가 표시됩니다.\n\n**테이블 계량 절차**: 고객이 개체를 지목하면 직원이 이동식 저울을 테이블로 가져가\n고객이 보는 앞에서 중량을 표시하고, 표시된 숫자를 함께 확인한 뒤 조리에 들어갑니다.\n이 절차를 거친 주문은 시스템에 `weighed_at_table` 로 기록됩니다.\n중량 이견이 제기되면 **고객의 착오를 지적하지 않고**, 위 절차가 존재한다는 사실과\n재확인 방법만 안내합니다.\n\n**청구 금액 구성**: 품목 합계에 서비스 요금 5% 를 더한 뒤 부가세(VAT) 8% 를 적용합니다.\n메뉴판·QR 화면의 kg당 단가는 세전 금액이므로, 영수증 총액이 단가×중량보다 크게 보일 수 있습니다.\n금액 문의 시 이 계산 구조를 안내합니다.",
+            "score": 0.4277
+          },
+          {
+            "title": "10. 공개 답글 승인 절차",
+            "text": "심각도에 따라 공개 답글의 게시 경로가 달라집니다.\n\n- **critical** — 위생·이물질·식중독, **청구 금액/중량 분쟁**, 법적 대응·언론 제보 예고.\n  → 자동 게시 금지. 초안을 저장하고 매니저 승인 대기 상태로 둡니다.\n- **high** — 반복 클레임, 직원의 부적절한 언행, 안전 관련 지적.\n  → 자동 게시 금지. 승인 대기.\n- **medium / low** — 대기 시간, 맛·간 등 기호 차이, 일반 칭찬.\n  → 자동 게시 가능.\n\n\"금액 분쟁\"은 **청구 금액·중량·단가가 잘못되었다는 주장**을 뜻합니다.\n단순 환불 요청(조리 오류로 환불을 원함)은 금액 분쟁이 아니며 §1로 처리합니다.",
+            "score": 0.2662
+          },
+          {
+            "title": "9. 보상 규칙 (금액 산정 기준)",
+            "text": "아래 비율로 보상안을 **산정만** 합니다. 실제 환불·결제 실행은 매니저 승인 후 수기로 처리하며,\nAI 에이전트는 어떤 경우에도 금액을 고객에게 직접 약속하지 않습니다.\n\n- §9-1 **중량 이견**: 계량 절차가 기록된 주문이라도 고객이 이견을 제기하면\n  해당 품목 금액의 **30%** 를 다음 방문 바우처로 제안합니다.\n- §9-2 **중량 부족 확인**: 재측정 결과 실제 중량이 표기보다 적으면 §4에 따라 **차액의 2배** 환불.\n- §9-3 **서비스 미흡**: 해당 품목 금액의 **10%** 를 다음 방문 바우처로 제안합니다.\n- §9-4 **대기 지연**: 45분 초과 시 웰컴 드링크 1잔, 60분 초과 시 다음 방문 10% 할인 쿠폰(§3).\n- §9-5 **조리 오류**: 해당 품목 전액 환불 또는 재조리(§1).\n- §9-6 **위생 사고**: 해당 테이블 총액 전액 환불을 기본으로 산정하되,\n  금액은 매니저가 개별 연락 시에만 안내합니다(§2 [내부 조치]).\n\n**보상은 카테고리를 가리지 않고 공개 답글 금지입니다.**\n금액·비율·환불·무료 제공·바우처·쿠폰·할인 중 어느 것도 공개 답글에 쓰지 않습니다.\n보상안은 매니저 알림(한국어)에만 기재하고, 고객에게는 개별 연락으로만 안내합니다.\n이 원칙은 위생·중량 분쟁뿐 아니라 조리 오류·대기 지연·서비스 미흡에도 동일하게 적용됩니다.",
+            "score": 0.2384
+          }
+        ],
+        "citation": "4. 살아있는 해산물 선택 및 중량 표기 / 10. 공개 답글 승인 절차 / 9. 보상 규칙 (금액 산정 기준)"
+      },
+      "n": 3
+    },
+    {
+      "actor": "agent",
+      "type": "tool_call",
+      "tool": "notify_manager",
+      "args": {
+        "severity": "critical",
+        "issue_type": "weight_dispute",
+        "item_hint": "lobster",
+        "summary": "고객이 랍스터 중량 분쟁을 제기함: 수족관에서 1.2kg 안내받았으나 청구서엔 1.6kg로 청구됨. 재측정 요청했으나 직원이 응하지 않고 '시가'라고만 답함.",
+        "review_excerpt": "We picked a lobster from the tank and the staff told us it was about 1.2kg, but the final bill charged us for 1.6kg. When I asked them to weigh it again, nobody would help and they just kept saying it's the market price."
+      },
+      "reasoning": "The review is about a weight dispute (lobster charged at 1.6kg vs 1.2kg quoted). According to policy §10, \"청구 금액/중량 분쟁\" is critical severity, which means automatic posting is forbidden and must go to manager approval via hold_for_approval. Also, I need to notify_manager first with issue_type \"weight_dispute\" (since it's a weight dispute claim). The review doesn't have a visit date, so find_order_candidates returned no_match. That's fine - we still treat it as a weight dispute claim. Since the customer is claiming they were charged for wrong weight, this is a \"weight_dispute\" issue_type. I should call notify_manager with severity \"critical\", issue_type \"weight_dispute\", and item_hint \"lobster\". Then hold_for_approval with the draft reply.\n\nBut wait: the policy says for critical severity, we must use hold_for_approval and NOT submit_reply. Also, we must call notify_manager before hold_for_approval. The draft reply should be in English (same language as review). The reply should not mention any compensation, refund, or specific amounts. It should apologize, acknowledge the concern, mention the table weighing procedure exists, and ask them to contact manager directly. Also mention the restaurant name \"Hải Đăng Seafood\". No English words like \"escalation\", \"critical\", \"refund\", \"manager\" in the reply - but the reply is in English, so those are English words anyway. The rule says \"escalation / critical / refund / manager 같은 영어 단어를 베트남어·러시아어·한국어 답글에 그대로 쓰지 말고, 반드시 해당 언어 표현으로 번역해서 써라\". Since the reply is in English, it's fine to use English words. But we should still avoid promising compensation.\n\nLet me craft a draft reply in English, 3-6 sentences. Then call notify_manager, then hold_for_approval.",
+      "elapsed": 0.0,
+      "result": {
+        "status": "logged",
+        "alert_id": "AL-ADA4A275",
+        "severity": "critical",
+        "compensation": {
+          "applicable": false,
+          "issue_type": "weight_dispute",
+          "policy_basis": "§9-1 중량 이견",
+          "form": "다음 방문 바우처",
+          "reason": "주문을 특정하지 못해 금액 산정 불가 → 매니저가 수기 확인 필요"
+        },
+        "path": "logs/alerts.jsonl",
+        "note": "보상안은 매니저 알림에만 기록했다. 공개 답글에는 금액·비율·바우처를 쓰지 마라."
+      },
+      "n": 4
+    },
+    {
+      "actor": "guardrail",
+      "type": "verify",
+      "tool": "check_safety",
+      "args": {
+        "kind": "draft_reply"
+      },
+      "elapsed": 0.52,
+      "result": {
+        "kind": "draft_reply",
+        "verdict": "safe",
+        "raw": "User Safety: safe\nResponse Safety: safe",
+        "model": "nvidia/nemotron-3.5-content-safety",
+        "note": "답글 초안 게시 가능."
+      },
+      "n": 5
+    },
+    {
+      "actor": "agent",
+      "type": "final",
+      "tool": "hold_for_approval",
+      "args": {
+        "draft_reply": "Thank you for sharing your experience at Hải Đăng Seafood. We are sorry to hear about the confusion regarding the lobster weight and the difficulty you faced when requesting a re‑weigh. Our standard practice is to weigh each live seafood item at the table in front of the guest so the weight is confirmed together before cooking. To look into this properly, please contact our manager directly at manager@haidang-danang.example or +84 236 555 0147. We appreciate your feedback and hope to have the chance to make things right.",
+        "manager_note": "주문 특정 불가(no_match). 고객 주장 중량(1.2kg vs 1.6kg)과 재측정 거부 사실 확인 필요. 매니저가 개별 연락 시 §9-1(중량 이견 30% 바우처) 또는 §9-2(중량 부족 시 차액 2배) 적용 여부 판단.",
+        "rationale": "리뷰는 랍스터 중량 분쟁(1.2kg 안내 vs 1.6kg 청구)과 재측정 거부 클레임으로, 정책 §10에 따라 critical 등급(청구 금액/중량 분쟁)이다. find_order_candidates 결과 no_match로 주문 특정 불가. 정책 §4의 테이블 계량 절차 존재 사실만 안내하고, 보상 약속 없이 개인 연락 채널로 유도. notify_manager(AL-ADA4A275)로 에스컬레이션 완료. 공개 답글에 금액·바우처·환불 언급 금지 준수.",
+        "sentiment": "negative",
+        "language": "en",
+        "category": "가격/중량",
+        "severity": "critical",
+        "alert_id": "AL-ADA4A275"
+      },
+      "reasoning": "The review is a weight dispute (critical severity) with no matching order found. According to policy, critical severity requires hold_for_approval. I need to draft a reply in English (same language as review) that:\n- Thanks the customer\n- Acknowledges the weight dispute concern\n- Mentions the table weighing procedure exists\n- Does NOT promise any compensation\n- Directs to private contact channels\n- Is 3-6 sentences\n\nLet me draft the reply and then call hold_for_approval.",
+      "elapsed": 8.87,
+      "result": {
+        "accepted": true,
+        "status": "pending_approval",
+        "approval_id": "AP-945DC286",
+        "path": "logs/pending_approvals.jsonl",
+        "note": "초안을 저장했다. 매니저가 승인하기 전까지 공개 게시되지 않는다."
+      },
+      "n": 6
+    }
+  ],
+  "tools_used": {
+    "check_safety": 1,
+    "find_order_candidates": 1,
+    "search_policy": 1,
+    "notify_manager": 1,
+    "hold_for_approval": 1
+  },
+  "elapsed": 37.43,
+  "usage": {
+    "prompt_tokens": 25551,
+    "completion_tokens": 1921,
+    "total_tokens": 27472,
+    "calls": 8
+  },
+  "retries": []
+}

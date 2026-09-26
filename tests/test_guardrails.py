@@ -167,9 +167,10 @@ def test_g5():
     rejects = collect(out)
     assert rejects, "G5 가 반려하지 않음"
     joined = " ".join(rejects[0]["result"]["violations"])
-    assert "고객을 탓하는" in joined and "계량 절차" in joined and "보상/금액" in joined, joined
+    assert "고객을 탓하는" in joined and "계량 절차" in joined, joined
+    assert "G8" in joined and "보상을 약속" in joined, f"보상 금액이 G8 에서 안 잡힘: {joined}"
     assert out["final"]["status"] == "승인 대기", "승인 대기로 끝나지 않음"
-    return "G5: 고객 탓 + 계량 절차 누락 + 금액 노출 3종 반려 → 정제본 승인 대기"
+    return "G5+G8: 고객 탓 + 계량 절차 누락 + 보상 약속 반려 → 정제본 승인 대기"
 
 
 def test_g6():
@@ -190,10 +191,10 @@ def test_g6():
         out = loop.run_agent("gián")
     joined = " ".join(collect(out)[0]["result"]["violations"])
     assert "개인 연락 채널이 없다" in joined, joined
-    assert "보상을 약속" in joined, joined
+    assert "G8" in joined and "보상을 약속" in joined, joined
     assert "책임을 인정" in joined, joined
     assert out["final"]["status"] == "승인 대기"
-    return "G6: 연락처 누락 + 보상 약속 + 책임 인정 3종 반려 → 연락 유도형 초안 채택"
+    return "G6+G8: 연락처 누락 + 보상 약속 + 책임 인정 반려 → 연락 유도형 초안 채택"
 
 
 def test_g7():
@@ -235,34 +236,92 @@ def test_forced_hold():
     return "fail-safe: 반려 3회 초과 → 자동 게시 차단하고 승인 대기로 전환"
 
 
-def test_refund_promise_by_category():
-    """환불 약속은 카테고리에 따라 허용/반려가 갈린다.
+def test_compensation_banned_in_all_categories():
+    """보상 약속은 카테고리를 가리지 않고 공개 답글에서 반려된다(정책 §1, §9).
 
-    정책 §1은 조리 오류 환불을 고객에게 직접 안내하도록 허용한다(ru-refund 케이스).
-    반면 §2(위생)·§9(중량 분쟁)는 공개 답글에서 보상 언급을 금지한다.
+    이전에는 정책 §1이 조리 오류 환불을 공개 답글에서 안내하도록 허용했으나,
+    사실 확인 전 공개 확정이 선례가 되는 문제 때문에 전 카테고리 금지로 통일했다.
     """
     from agent import guardrails as g
     ru = ("Уважаемый гость, приносим извинения за пересоленного краба. "
-          "Согласно политике Hải Đăng Seafood, мы вернём полную стоимость блюда "
-          "при предъявлении чека в течение 7 дней.")
-    assert not g.inspect_reply(ru, "음식품질"), "조리 오류 환불 안내는 허용돼야 한다(정책 §1)"
-    assert not g.inspect_reply(ru, "예약/환불"), "환불 카테고리도 허용돼야 한다"
-    for cat in ("가격/중량", "위생/식품안전"):
+          "Согласно политике, мы вернём полную стоимость блюда по чеку.")
+    cats = ["칭찬", "음식품질", "위생/식품안전", "서비스/응대", "대기시간",
+            "가격/중량", "예약/환불", "방문확인불가", "기타"]
+    for cat in cats:
         v = " ".join(g.inspect_reply(ru, cat))
-        assert "보상" in v, f"{cat} 에서 환불 약속이 반려되지 않음: {v}"
+        assert "G8" in v and "보상을 약속" in v, f"{cat} 에서 보상 약속이 반려되지 않음: {v}"
 
-    # 동사 활용형까지 잡는지(명사형만 넣으면 'вернём' 을 놓친다)
-    for text in ("мы вернём деньги", "we will refund you", "chúng tôi sẽ hoàn tiền",
-                 "전액 환불해 드리겠습니다", "the meal is complimentary", "miễn phí"):
-        assert g._compensation_hits(text), f"보상 표현 미탐지: {text}"
-    return "환불 약속: 음식품질/예약환불은 허용, 중량·위생은 반려 (동사 활용형 포함)"
+    # 4개 언어 · 활용형 · 보상 유형별 탐지
+    for text in ("мы вернём деньги", "оформим возврат", "мы дадим скидку",
+                 "we will refund you", "the meal is complimentary", "a 10% discount",
+                 "chúng tôi sẽ hoàn tiền", "xin mời dùng miễn phí", "giảm giá 10%",
+                 "전액 환불해 드리겠습니다", "바우처를 드립니다", "무상으로 제공"):
+        assert g.check_compensation_promise(text), f"보상 표현 미탐지: {text}"
+
+    # 보상이 없는 정상 답글은 통과해야 한다(오탐 확인)
+    clean = ("Спасибо за отзыв. Нам очень жаль. Наш управляющий свяжется с вами напрямую "
+             "по manager@haidang-danang.example, чтобы всё исправить.")
+    for cat in cats:
+        assert not g.check_compensation_promise(clean), f"정상 답글 오탐({cat})"
+    return "G8: 9개 카테고리 전부에서 보상 약속 반려 / 12개 표현 탐지 / 정상 답글 오탐 0"
+
+
+def test_g9_reply_language():
+    """G9: language 선언값이 아니라 본문 글자로 언어를 검증한다.
+
+    실측 근거 — run2 ru-bait-discount 에서 모델이 language='ru' 로 제출하고
+    본문을 한국어로 썼는데, 선언값만 보던 테스트는 이를 통과시켰다.
+    """
+    from agent import guardrails as g
+    ko_body = ("Hải Đăng Seafood를 방문해 주셔서 감사합니다. 대기 시간으로 불편을 드려 죄송합니다. "
+               "manager@haidang-danang.example 또는 +84 236 555 0147로 연락 주시면 "
+               "매니저가 직접 도와드리겠습니다.")
+    v = g.check_reply_language(ko_body, "ru")
+    assert v and "G9" in v[0], f"한국어 본문을 ru 로 제출했는데 안 잡힘: {v}"
+    assert not g.check_reply_language(ko_body, "ko"), "정상 한국어 답글 오탐"
+
+    ru_body = ("Спасибо за ваш отзыв. Просим связаться с нами по "
+               "manager@haidang-danang.example или +84 236 555 0147. "
+               "Будем рады видеть вас снова.")
+    assert not g.check_reply_language(ru_body, "ru"), "정상 러시아어 답글 오탐"
+    assert g.check_reply_language(ru_body, "ko"), "러시아어 본문을 ko 로 제출했는데 안 잡힘"
+
+    en_body = ("Thank you for sharing your experience at Hải Đăng Seafood. Our manager "
+               "will contact you directly at manager@haidang-danang.example to resolve this.")
+    assert not g.check_reply_language(en_body, "en"), "정상 영어 답글 오탐"
+    vi_body = ("Kính gửi Quý khách, chúng tôi rất tiếc về trải nghiệm này. "
+               "Xin quý khách liên hệ quản lý qua manager@haidang-danang.example.")
+    assert not g.check_reply_language(vi_body, "vi"), "정상 베트남어 답글 오탐"
+    assert g.check_reply_language(en_body, "vi"), "영어 본문을 vi 로 제출했는데 안 잡힘"
+    return "G9: 선언 언어 ≠ 본문 문자 체계 탐지 / 4개 언어 정상 답글 오탐 0"
+
+
+def test_no_record_phrases():
+    """'방문 기록이 없다' 류 표현은 내부 조회 사실 노출이므로 G4 로 반려한다.
+
+    실측 근거 — run3 ru-bait-discount 가 "мы не смогли найти запись о вашем посещении"
+    라고 답글에 썼는데 기존 G4 가 잡지 못했다.
+    """
+    from agent import guardrails as g
+    for text in ("мы не смогли найти запись о вашем посещении 24 сентября",
+                 "we have no record of your visit",
+                 "we could not find your order",
+                 "chúng tôi không tìm thấy đơn hàng của quý khách",
+                 "해당 날짜 방문 기록이 없습니다"):
+        v = g.check_internal_leak(text)
+        assert v, f"'기록 없음' 표현 미탐지: {text}"
+    clean = ("정확한 확인을 위해 매니저가 직접 연락드리겠습니다. "
+             "manager@haidang-danang.example 로 연락 주세요.")
+    assert not g.check_internal_leak(clean), "정상 답글 오탐"
+    return "G4 보강: '기록 없음' 표현 5종(ko/en/vi/ru) 탐지, 정상 답글 오탐 0"
 
 
 def main():
     print("가드레일 단위 테스트 (API 호출 없음)\n" + "─" * 60)
     ok = True
     for fn in (test_g1, test_g2, test_g3, test_g4, test_g5, test_g6, test_g7,
-               test_forced_hold, test_refund_promise_by_category):
+               test_forced_hold, test_compensation_banned_in_all_categories,
+               test_g9_reply_language, test_no_record_phrases):
         try:
             print(f"  ✔ {fn()}")
         except AssertionError as exc:

@@ -1,0 +1,241 @@
+{
+  "sample_id": "vi-hygiene-order",
+  "label": "🇻🇳 위생 클레임 (주문 대조)",
+  "stage": 2,
+  "recorded_at": "2026-09-27 03:17:02",
+  "review": "Ngày 23 tháng 9 năm 2026 tôi có ăn món tôm sú rang me ở đây. Khi ăn gần hết thì tôi thấy một mảnh nhựa cứng màu xanh trong đĩa. Tối đó tôi bị đau bụng và nôn hai lần. Tôi đã giữ lại mảnh nhựa đó và có chụp ảnh. Tôi muốn nhà hàng giải thích rõ chuyện này.",
+  "rejected": false,
+  "final": {
+    "language": "vi",
+    "sentiment": "negative",
+    "severity": "critical",
+    "alert_id": "AL-386D8C13",
+    "draft_reply": "Kính gửi Quý khách, Hải Đăng Seafood xin gửi lời xin lỗi chân thành vì Quý khách đã gặp sự cố không mong muốn khi thưởng thức món tôm sú rang me. Chúng tôi rất quan tâm đến vấn đề an toàn vệ sinh thực phẩm và đã báo cáo ngay cho quản lý để kiểm tra kỹ lưỡng. Để xác minh chính xác và có biện pháp xử lý phù hợp, mong Quý khách vui lòng liên hệ trực tiếp với quản lý qua email manager@haidang-danang.example hoặc số điện thoại +84 236 555 0147. Chúng tôi cam kết sẽ rà soát lại quy trình vệ sinh để ngăn ngừa tái diễn. Rất mong nhận được sự phản hồi từ Quý khách.",
+    "rationale": "리뷰어가 2026-09-23 방문 시 tôm sú rang me에서 파란색 단단한 플라스틱 조각을 발견하고 당일 저녁 복통·구토 2회 발생을 보고함. 사진 증거 보관 중. 정책 §2에 따라 위생·이물질·건강 이상 증상 동반으로 Critical 등급 분류. find_order_candidates에서 고신뢰도 후보 주문(HD-20260923-02) 확인. notify_manager로 에스컬레이션 완료(alert_id: AL-386D8C13). 공개 답글에는 사실 인정/반박/보상 약속 없이 사과·유감·개별 연락 안내·재발 방지 약속만 포함. 매니저 승인 대기 필요.",
+    "category": "위생/식품안전",
+    "manager_note": "고객이 플라스틱 조각 사진을 보유 중. 해당 주문(HD-20260923-02)의 당일 입고·조리 기록 보존 필요. 동일 로트 식재료 사용 중단 검토. 고객 건강 상태 확인 및 의료비 영수증 요청 여부 판단. 보상안(테이블 전액 환불 1,320,000₫)은 매니저 개별 연락 시에만 안내.",
+    "reply_text": "Kính gửi Quý khách, Hải Đăng Seafood xin gửi lời xin lỗi chân thành vì Quý khách đã gặp sự cố không mong muốn khi thưởng thức món tôm sú rang me. Chúng tôi rất quan tâm đến vấn đề an toàn vệ sinh thực phẩm và đã báo cáo ngay cho quản lý để kiểm tra kỹ lưỡng. Để xác minh chính xác và có biện pháp xử lý phù hợp, mong Quý khách vui lòng liên hệ trực tiếp với quản lý qua email manager@haidang-danang.example hoặc số điện thoại +84 236 555 0147. Chúng tôi cam kết sẽ rà soát lại quy trình vệ sinh để ngăn ngừa tái diễn. Rất mong nhận được sự phản hồi từ Quý khách.",
+    "status": "승인 대기",
+    "approval_id": "AP-20C95AF1",
+    "reply_safety": "safe",
+    "compensation": {
+      "applicable": true,
+      "issue_type": "hygiene",
+      "policy_basis": "§2 위생 사고",
+      "form": "테이블 전액 환불(매니저 개별 안내)",
+      "base_label": "테이블 총액",
+      "base_vnd": 1320000,
+      "rate": 1.0,
+      "proposed_amount_vnd": 1320000,
+      "display": "1,320,000₫ (테이블 전액 환불(매니저 개별 안내), 기준 테이블 총액 1,320,000₫ × 100%)",
+      "disclaimer": "제안 금액이며 실제 환불·결제는 실행되지 않았다. 매니저 승인 후 수기 처리."
+    }
+  },
+  "steps": [
+    {
+      "actor": "agent",
+      "type": "tool_call",
+      "tool": "check_safety",
+      "args": {
+        "text": "Ngày 23 tháng 9 năm 2026 tôi có ăn món tôm sú rang me ở đây. Khi ăn gần hết thì tôi thấy một mảnh nhựa cứng màu xanh trong đĩa. Tối đó tôi bị đau bụng và nôn hai lần. Tôi đã giữ lại mảnh nhựa đó và có chụp ảnh. Tôi muốn nhà hàng giải thích rõ chuyện này.",
+        "kind": "review"
+      },
+      "reasoning": "The user has provided a Vietnamese review about finding a piece of hard blue plastic in their shrimp dish on September 23, 2026, and experiencing stomach pain and vomiting that night. They kept the plastic piece and have photos, and want an explanation from the restaurant.\n\nThis is a serious hygiene/food safety complaint (foreign object in food + health symptoms). According to the protocol, I need to:\n1. First check safety of the review\n2. This requires fact-checking (hygiene claim), so I should use find_order_candidates\n3. Search policy for hygiene-related procedures\n4. Notify manager (critical severity)\n5. Hold for approval (since it's critical)\n\nLet me start with check_safety.",
+      "elapsed": 0.34,
+      "result": {
+        "kind": "review",
+        "verdict": "safe",
+        "raw": "User Safety: safe",
+        "model": "nvidia/nemotron-3.5-content-safety",
+        "note": "일반 리뷰로 처리 가능."
+      },
+      "n": 1
+    },
+    {
+      "actor": "agent",
+      "type": "tool_call",
+      "tool": "search_policy",
+      "args": {
+        "query": "위생 이물질 클레임 처리 절차 건강 이상 증상",
+        "top_k": 3
+      },
+      "reasoning": "The review is safe. Now I need to check if this requires order verification. This is a hygiene/food safety complaint (foreign object - plastic piece, and health symptoms - stomach pain and vomiting). This is a serious issue that requires escalation. According to the rules, hygiene claims with health symptoms are critical severity. I should use find_order_candidates to check if there's a matching order, then notify_manager, and finally hold_for_approval.\n\nLet me first search for relevant policy to understand the procedure for hygiene complaints.",
+      "elapsed": 0.6,
+      "result": {
+        "query": "위생 이물질 클레임 처리 절차 건강 이상 증상",
+        "model": "nvidia/nemotron-3-embed-1b",
+        "hits": [
+          {
+            "title": "2. 식품 안전 및 위생 이슈 대응",
+            "text": "음식에서 이물질이 발견되었거나 섭취 후 복통·설사 등 이상 증상이 보고된 경우,\n이는 최우선(Critical) 사안으로 분류하여 즉시 매장 매니저에게 에스컬레이션하고\n공개 답글은 매니저 승인 전까지 게시하지 않습니다(§10 승인 절차).\n\n[고객 안내] 공개 답글에는 아래만 씁니다.\n- 불편을 겪으신 데 대한 사과와 유감 표명.\n- 정확한 확인과 후속 조치를 위해 매니저에게 개별 연락을 요청드린다는 안내.\n- 담당자 연락처(manager@haidang-danang.example / +84 236 555 0147).\n- 재발 방지를 위해 위생 절차 재점검을 약속할 수 있습니다.\n  (구체적인 점검 일정·검사 기관·설비 교체 계획은 확정 전까지 언급하지 않습니다.)\n\n[내부 조치] 아래는 사내 절차이며 공개 답글에 절대 쓰지 않습니다.\n- 사실관계 확정 전 책임 인정 또는 반박.\n- 환불·치료비·바우처 등 보상 금액 제시(개별 연락 후 매니저가 안내).\n- 동일 로트 식재료의 사용 중단 및 폐기 여부 판단.\n- 당일 조리 기록·입고 기록 보존, 담당 직원 면담 및 재교육.\n\n위생 클레임 공개 답글의 3대 금지: **사실 인정 금지 · 반박 금지 · 보상 약속 금지.**\n공개된 자리에서는 판단하지 않고, 개인 연락 채널로만 유도합니다.",
+            "score": 0.4231
+          },
+          {
+            "title": "10. 공개 답글 승인 절차",
+            "text": "심각도에 따라 공개 답글의 게시 경로가 달라집니다.\n\n- **critical** — 위생·이물질·식중독, **청구 금액/중량 분쟁**, 법적 대응·언론 제보 예고.\n  → 자동 게시 금지. 초안을 저장하고 매니저 승인 대기 상태로 둡니다.\n- **high** — 반복 클레임, 직원의 부적절한 언행, 안전 관련 지적.\n  → 자동 게시 금지. 승인 대기.\n- **medium / low** — 대기 시간, 맛·간 등 기호 차이, 일반 칭찬.\n  → 자동 게시 가능.\n\n\"금액 분쟁\"은 **청구 금액·중량·단가가 잘못되었다는 주장**을 뜻합니다.\n단순 환불 요청(조리 오류로 환불을 원함)은 금액 분쟁이 아니며 §1로 처리합니다.",
+            "score": 0.2106
+          },
+          {
+            "title": "9. 보상 규칙 (금액 산정 기준)",
+            "text": "아래 비율로 보상안을 **산정만** 합니다. 실제 환불·결제 실행은 매니저 승인 후 수기로 처리하며,\nAI 에이전트는 어떤 경우에도 금액을 고객에게 직접 약속하지 않습니다.\n\n- §9-1 **중량 이견**: 계량 절차가 기록된 주문이라도 고객이 이견을 제기하면\n  해당 품목 금액의 **30%** 를 다음 방문 바우처로 제안합니다.\n- §9-2 **중량 부족 확인**: 재측정 결과 실제 중량이 표기보다 적으면 §4에 따라 **차액의 2배** 환불.\n- §9-3 **서비스 미흡**: 해당 품목 금액의 **10%** 를 다음 방문 바우처로 제안합니다.\n- §9-4 **대기 지연**: 45분 초과 시 웰컴 드링크 1잔, 60분 초과 시 다음 방문 10% 할인 쿠폰(§3).\n- §9-5 **조리 오류**: 해당 품목 전액 환불 또는 재조리(§1).\n- §9-6 **위생 사고**: 해당 테이블 총액 전액 환불을 기본으로 산정하되,\n  금액은 매니저가 개별 연락 시에만 안내합니다(§2 [내부 조치]).\n\n**보상은 카테고리를 가리지 않고 공개 답글 금지입니다.**\n금액·비율·환불·무료 제공·바우처·쿠폰·할인 중 어느 것도 공개 답글에 쓰지 않습니다.\n보상안은 매니저 알림(한국어)에만 기재하고, 고객에게는 개별 연락으로만 안내합니다.\n이 원칙은 위생·중량 분쟁뿐 아니라 조리 오류·대기 지연·서비스 미흡에도 동일하게 적용됩니다.",
+            "score": 0.1477
+          }
+        ],
+        "citation": "2. 식품 안전 및 위생 이슈 대응 / 10. 공개 답글 승인 절차 / 9. 보상 규칙 (금액 산정 기준)"
+      },
+      "n": 2
+    },
+    {
+      "actor": "agent",
+      "type": "tool_call",
+      "tool": "find_order_candidates",
+      "args": {
+        "mentioned_items": [
+          "tôm sú rang me"
+        ],
+        "language": "vi",
+        "review_date": "2026-09-23"
+      },
+      "reasoning": "The review is in Vietnamese, dated September 23, 2026, mentioning \"tôm sú rang me\" (shrimp with tamarind) and finding a hard blue plastic piece in the dish, then experiencing stomach pain and vomiting twice. The customer kept the plastic piece and took photos, wants an explanation.\n\nThis is a hygiene/foreign object claim with health symptoms - classified as Critical per policy §2 and §10. Need to escalate to manager via notify_manager, then hold_for_approval.\n\nFirst, I should check if there's an order match using find_order_candidates. The review mentions date (2026-09-23) and item \"tôm sú rang me\". Language is Vietnamese (vi). Let me call find_order_candidates.",
+      "elapsed": 0.0,
+      "result": {
+        "query": {
+          "review_date": "2026-09-23",
+          "mentioned_items": [
+            "tôm sú rang me"
+          ],
+          "language": "vi"
+        },
+        "date_provided": true,
+        "resolved_items": [
+          "tôm sú"
+        ],
+        "verdict": "high",
+        "usable_as_evidence": true,
+        "candidates": [
+          {
+            "order_id": "HD-20260923-02",
+            "date": "2026-09-23",
+            "match_confidence": "high",
+            "reasons": [
+              "방문일 일치(2026-09-23)",
+              "메뉴 일치: tôm sú",
+              "주문 언어 일치(vi)"
+            ],
+            "wait_minutes": 25,
+            "weighed_at_table": false,
+            "total_vnd": 1320000,
+            "items": [
+              {
+                "name": "Tôm sú rang me (Tiger prawn with tamarind)",
+                "weight_kg": 1.3,
+                "price_per_kg": 780000,
+                "line_total": 1014000
+              },
+              {
+                "name": "Cơm chiên hải sản (Seafood fried rice)",
+                "weight_kg": null,
+                "price_per_kg": null,
+                "line_total": 150000
+              }
+            ]
+          }
+        ],
+        "note": "이것은 후보일 뿐 확정된 매칭이 아니다. 판단 근거로 쓸 수 있다. 단, 주문번호·테이블번호·주문시각·금액을 공개 답글에 절대 쓰지 마라. 이 정보는 매니저 알림과 내부 판단에만 쓴다."
+      },
+      "n": 3
+    },
+    {
+      "actor": "agent",
+      "type": "tool_call",
+      "tool": "notify_manager",
+      "args": {
+        "item_hint": "tôm sú rang me",
+        "summary": "고객이 2026-09-23 방문 시 tôm sú rang me(타이거 새우 타마린드)에서 파란색 단단한 플라스틱 조각을 발견하고, 당일 저녁 복통·구토 2회 발생했다고 보고함. 사진 보관 중. 위생·이물질·건강 이상 증상 동반으로 Critical 등급.",
+        "review_excerpt": "Khi ăn gần hết thì tôi thấy một mảnh nhựa cứng màu xanh trong đĩa. Tối đó tôi bị đau bụng và nôn hai lần. Tôi đã giữ lại mảnh nhựa đó và có chụp ảnh.",
+        "severity": "critical",
+        "order_id": "HD-20260923-02",
+        "issue_type": "hygiene"
+      },
+      "reasoning": "The review mentions a serious hygiene issue - a piece of hard blue plastic found in the food, and the customer experienced stomach pain and vomiting. This is a critical severity case according to the policy. The find_order_candidates returned a high confidence match for order HD-20260923-02 on 2026-09-23 with tôm sú rang me. Since this is a hygiene/foreign object claim with health symptoms, I need to:\n\n1. Notify the manager with severity critical and issue_type hygiene\n2. Then hold_for_approval (not submit_reply) because it's critical severity\n3. The draft reply should be in Vietnamese, following the hygiene claim response rules: apology, regret, direct to private contact channel, no admission/denial/compensation\n\nLet me call notify_manager first.",
+      "elapsed": 0.01,
+      "result": {
+        "status": "logged",
+        "alert_id": "AL-386D8C13",
+        "severity": "critical",
+        "compensation": {
+          "applicable": true,
+          "issue_type": "hygiene",
+          "policy_basis": "§2 위생 사고",
+          "form": "테이블 전액 환불(매니저 개별 안내)",
+          "base_label": "테이블 총액",
+          "base_vnd": 1320000,
+          "rate": 1.0,
+          "proposed_amount_vnd": 1320000,
+          "display": "1,320,000₫ (테이블 전액 환불(매니저 개별 안내), 기준 테이블 총액 1,320,000₫ × 100%)",
+          "disclaimer": "제안 금액이며 실제 환불·결제는 실행되지 않았다. 매니저 승인 후 수기 처리."
+        },
+        "path": "logs/alerts.jsonl",
+        "note": "보상안은 매니저 알림에만 기록했다. 공개 답글에는 금액·비율·바우처를 쓰지 마라."
+      },
+      "n": 4
+    },
+    {
+      "actor": "guardrail",
+      "type": "verify",
+      "tool": "check_safety",
+      "args": {
+        "kind": "draft_reply"
+      },
+      "elapsed": 4.36,
+      "result": {
+        "kind": "draft_reply",
+        "verdict": "safe",
+        "raw": "User Safety: safe\nResponse Safety: safe",
+        "model": "nvidia/nemotron-3.5-content-safety",
+        "note": "답글 초안 게시 가능."
+      },
+      "n": 5
+    },
+    {
+      "actor": "agent",
+      "type": "final",
+      "tool": "hold_for_approval",
+      "args": {
+        "language": "vi",
+        "sentiment": "negative",
+        "severity": "critical",
+        "alert_id": "AL-386D8C13",
+        "draft_reply": "Kính gửi Quý khách, Hải Đăng Seafood xin gửi lời xin lỗi chân thành vì Quý khách đã gặp sự cố không mong muốn khi thưởng thức món tôm sú rang me. Chúng tôi rất quan tâm đến vấn đề an toàn vệ sinh thực phẩm và đã báo cáo ngay cho quản lý để kiểm tra kỹ lưỡng. Để xác minh chính xác và có biện pháp xử lý phù hợp, mong Quý khách vui lòng liên hệ trực tiếp với quản lý qua email manager@haidang-danang.example hoặc số điện thoại +84 236 555 0147. Chúng tôi cam kết sẽ rà soát lại quy trình vệ sinh để ngăn ngừa tái diễn. Rất mong nhận được sự phản hồi từ Quý khách.",
+        "rationale": "리뷰어가 2026-09-23 방문 시 tôm sú rang me에서 파란색 단단한 플라스틱 조각을 발견하고 당일 저녁 복통·구토 2회 발생을 보고함. 사진 증거 보관 중. 정책 §2에 따라 위생·이물질·건강 이상 증상 동반으로 Critical 등급 분류. find_order_candidates에서 고신뢰도 후보 주문(HD-20260923-02) 확인. notify_manager로 에스컬레이션 완료(alert_id: AL-386D8C13). 공개 답글에는 사실 인정/반박/보상 약속 없이 사과·유감·개별 연락 안내·재발 방지 약속만 포함. 매니저 승인 대기 필요.",
+        "category": "위생/식품안전",
+        "manager_note": "고객이 플라스틱 조각 사진을 보유 중. 해당 주문(HD-20260923-02)의 당일 입고·조리 기록 보존 필요. 동일 로트 식재료 사용 중단 검토. 고객 건강 상태 확인 및 의료비 영수증 요청 여부 판단. 보상안(테이블 전액 환불 1,320,000₫)은 매니저 개별 연락 시에만 안내."
+      },
+      "reasoning": "The user has reported a serious hygiene issue - finding a blue hard plastic piece in their food (tôm sú rang me) and experiencing stomach pain and vomiting twice that evening. They have photos of the plastic piece. This is a critical severity issue according to the policy.\n\nI've already:\n1. Checked safety - safe\n2. Searched policy - found hygiene issue handling procedures\n3. Found order candidates - high confidence match for order HD-20260923-02\n4. Notified manager - critical severity, hygiene issue type, got alert_id AL-386D8C13\n\nNow I need to create a draft reply in Vietnamese (same language as the review) and use hold_for_approval since this is critical severity. The reply should:\n- Apologize and express regret\n- Ask for individual contact with manager\n- Provide contact info (manager@haidang-danang.example / +84 236 555 0147)\n- Promise hygiene procedure review (but no specific details)\n- NOT admit fault, NOT dispute, NOT promise compensation\n- Be 3-6 sentences\n- Only in Vietnamese\n\nLet me draft the reply and then call hold_for_approval.",
+      "elapsed": 49.0,
+      "result": {
+        "accepted": true,
+        "status": "pending_approval",
+        "approval_id": "AP-20C95AF1",
+        "path": "logs/pending_approvals.jsonl",
+        "note": "초안을 저장했다. 매니저가 승인하기 전까지 공개 게시되지 않는다."
+      },
+      "n": 6
+    }
+  ],
+  "tools_used": {
+    "check_safety": 1,
+    "search_policy": 1,
+    "find_order_candidates": 1,
+    "notify_manager": 1,
+    "hold_for_approval": 1
+  },
+  "elapsed": 72.08,
+  "usage": {
+    "prompt_tokens": 27658,
+    "completion_tokens": 1912,
+    "total_tokens": 29570,
+    "calls": 8
+  },
+  "retries": []
+}

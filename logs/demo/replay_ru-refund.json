@@ -1,0 +1,279 @@
+{
+  "sample_id": "ru-refund",
+  "label": "🇷🇺 Русский · 환불 요청",
+  "stage": 1,
+  "recorded_at": "2026-09-27 03:12:59",
+  "review": "Заказали краба и морского окуня на гриле. Краб оказался настолько пересоленным, что есть было невозможно. Позвали официанта, но он только пожал плечами. Мы были там позавчера, чек у меня сохранился. Хотелось бы вернуть деньги хотя бы за краба.",
+  "rejected": true,
+  "final": {
+    "category": "음식품질",
+    "severity": "medium",
+    "sentiment": "negative",
+    "reply_text": "Уважаемый гость, спасибо за обратную связь. Приносим искренние извинения за то, что краб оказался пересоленным, а реакция официанта не соответствовала нашим стандартам сервиса. В Hải Đăng Seafood мы считаем качество приготовления и заботу о гостях приоритетами, и ваш случай будет передан менеджеру для детальной проверки. Менеджер свяжется с вами по адресу manager@haidang-danang.example или по телефону +84 236 555 0147, чтобы обсудить ситуацию. Будем рады видеть вас снова.",
+    "rationale": "리뷰는 조리 오류(과도한 간)와 직원 무대응을 지적하며 환불을 요청함. 주문 데이터(HD-20260923-15)와 메뉴(황제크랩 찜)가 고신뢰도로 매칭됨. 정책 §1(조리 오류 환불) 및 §9-5(해당 품목 전액 환불) 근거로 매니저 알림 완료(AL-7F4B7C9A). 공개 답글에는 보상 약속 없이 사과·인정·개별 연락 안내만 포함. 'вернуть' 단어를 완전히 제거하고 'Будем рады видеть вас снова'로 마무리. 심각도 medium이므로 자동 게시(submit_reply) 처리.",
+    "language": "ru",
+    "status": "자동 게시",
+    "reply_safety": "safe",
+    "compensation": {
+      "applicable": true,
+      "issue_type": "cooking_error",
+      "policy_basis": "§1 조리 오류",
+      "form": "해당 품목 전액 환불",
+      "base_label": "Cua hoàng đế hấp (Steamed king crab)",
+      "base_vnd": 3900000,
+      "rate": 1.0,
+      "proposed_amount_vnd": 3900000,
+      "display": "3,900,000₫ (해당 품목 전액 환불, 기준 Cua hoàng đế hấp (Steamed king crab) 3,900,000₫ × 100%)",
+      "disclaimer": "제안 금액이며 실제 환불·결제는 실행되지 않았다. 매니저 승인 후 수기 처리."
+    },
+    "alert_id": "AL-7F4B7C9A"
+  },
+  "steps": [
+    {
+      "actor": "agent",
+      "type": "tool_call",
+      "tool": "check_safety",
+      "args": {
+        "kind": "review",
+        "text": "Заказали краба и морского окуня на гриле. Краб оказался настолько пересоленным, что есть было невозможно. Позвали официанта, но он только пожал плечами. Мы были там позавчера, чек у меня сохранился. Хотелось бы вернуть деньги хотя бы за краба."
+      },
+      "reasoning": "The user has provided a Russian review about ordering crab and grilled sea bass. The crab was too salty to eat, the waiter shrugged, they visited \"the day before yesterday\" (which would be 2026-09-23), they have a receipt, and they want a refund for the crab.\n\nI need to follow the procedure:\n1. First, check_safety with kind=\"review\"\n2. This is a complaint about food quality (over-salted crab) and service (waiter shrugged), plus a refund request. This requires fact-checking - I should use find_order_candidates with the review date (2026-09-23) and mentioned items (краб, морской окунь на гриле).\n3. The customer explicitly requests a refund (\"Хотелось бы вернуть деньги хотя бы за краба\"), so per the rules, I must call notify_manager to calculate compensation even if severity isn't high.\n4. Then I need to check policies for refund/compensation rules.\n5. Write a reply in Russian (same language as review).\n6. Since this involves a refund request and food quality complaint, severity might be medium or high. The customer wants money back for the crab. This is a cooking error complaint with refund request. According to rules: \"고객이 환불이나 금전적 보상을 명시적으로 요구한 리뷰는 심각도가 낮더라도 반드시 notify_manager 를 호출해 보상안을 산정시킨다\". So I must call notify_manager.\n7. Since notify_manager is called, and this is a cooking error with refund request, I should use hold_for_approval (since notify_manager was called, and it's a refund request). Actually, the rules say: \"severity 가 critical 또는 high → hold_for_approval\". But also \"고객이 환불이나 금전적 보상을 명시적으로 요구한 리뷰는 심각도가 낮더라도 반드시 notify_manager 를 호출해 보상안을 산정시킨다\". It doesn't explicitly say to use hold_for_approval for all refund requests, but since notify_manager is called and it's a compensation issue, likely hold_for_approval is appropriate. However, the severity classification: \"조리 오류 환불 요청\" is listed under medium/low for submit_reply. But the rule says if customer explicitly requests refund, must call notify_manager. And notify_manager with issue_type \"cooking_error\" will calculate compensation. Then I should use hold_for_approval because notify_manager was called? The procedure says: \"hold_for_approval 전에 notify_manager 를 반드시 먼저 부른다.\" And \"severity 가 critical 또는 high → hold_for_approval\". But what if severity is medium but notify_manager was called? The rule says \"고객이 환불이나 금전적 보상을 명시적으로 요구한 리뷰는 심각도가 낮더라도 반드시 notify_manager 를 호출해 보상안을 산정시킨다\". It doesn't say to change severity. The severity is based on the issue: cooking error refund request is medium. But since we called notify_manager, we should use hold_for_approval? Let's check: \"severity 가 critical 또는 high → hold_for_approval (공개 게시하지 않고 매니저 승인 대기) ... hold_for_approval 전에 notify_manager 를 반드시 먼저 부른다.\" It doesn't say medium severity with notify_manager must use hold_for_approval. However, the refund request is explicit, and the policy says not to promise compensation in public reply. The notify_manager will calculate compensation for manager only. The reply should not mention compensation. Since we need manager approval for the compensation amount (even if not public), maybe hold_for_approval is safer. But the rules say submit_reply for medium/low. However, the rule also says \"보상안은 notify_manager 가 매니저 알림에만 기록한다.\" So the manager gets the compensation calculation via notify_manager. The public reply can be submitted via submit_reply without mentioning compensation. But the procedure says for refund requests, must call notify_manager. It doesn't mandate hold_for_approval. I think I should use submit_reply for medium severity, but after calling notify_manager. However, the hold_for_approval is for critical/high. Let's see the severity classification: \"조리 오류 환불 요청\" is under medium/low for submit_reply. So I can use submit_reply. But the rule \"고객이 환불이나 금전적 보상을 명시적으로 요구한 리뷰는 심각도가 낮더라도 반드시 notify_manager 를 호출해 보상안을 산정시킨다\" suggests that even for medium, we call notify_manager. Then we can still submit_reply. However, the notify_manager returns an alert_id. The hold_for_approval requires alert_id. submit_reply does not. So if I use submit_reply, I don't need alert_id. But the manager has been notified via notify_manager. That seems okay.\n\nBut wait: the rule says \"보상안은 notify_manager 가 매니저 알림에만 기록한다.\" So the manager knows the compensation amount. The public reply should not mention it. I can write a reply acknowledging the issue, apologizing, and saying manager will contact them. That's fine for submit_reply.\n\nHowever, the review also mentions \"чек у меня сохранился\" (I have the receipt) and \"позавчера\" (day before yesterday). This is a specific visit date. I should verify with find_order_candidates.\n\nLet's start with check_safety.",
+      "elapsed": 0.41,
+      "result": {
+        "kind": "review",
+        "verdict": "safe",
+        "raw": "User Safety: safe",
+        "model": "nvidia/nemotron-3.5-content-safety",
+        "note": "일반 리뷰로 처리 가능."
+      },
+      "n": 1
+    },
+    {
+      "actor": "agent",
+      "type": "tool_call",
+      "tool": "find_order_candidates",
+      "args": {
+        "mentioned_items": [
+          "краб",
+          "морской окунь",
+          "гриль"
+        ],
+        "language": "ru",
+        "review_date": "2026-09-23"
+      },
+      "reasoning": "The review is safe. Now I need to analyze it. The customer is complaining about:\n1. Crab being too salty to eat\n2. Waiter shrugged shoulders when called\n3. They visited \"позавчера\" (day before yesterday) - which would be 2026-09-23\n4. They have the receipt\n5. They want a refund for the crab\n\nThis is a food quality complaint with a refund request. According to the rules:\n- This is a cooking error (over-salted crab) - issue_type \"cooking_error\"\n- Customer explicitly requests refund (\"Хотелось бы вернуть деньги хотя бы за краба\")\n- Since they request refund, I must call notify_manager even if severity is not high\n- Need to check order candidates since they mention specific date and items\n- Need to search policy for cooking error refund rules\n\nLet me first find order candidates. The review date is \"позавчера\" = day before yesterday = 2026-09-23. Items mentioned: \"краба\" (crab) and \"морского окуня на гриле\" (grilled sea bass). Language is Russian (ru).",
+      "elapsed": 0.0,
+      "result": {
+        "query": {
+          "review_date": "2026-09-23",
+          "mentioned_items": [
+            "краб",
+            "морской окунь",
+            "гриль"
+          ],
+          "language": "ru"
+        },
+        "date_provided": true,
+        "resolved_items": [
+          "cua hoàng đế",
+          "cá mú"
+        ],
+        "verdict": "high",
+        "usable_as_evidence": true,
+        "candidates": [
+          {
+            "order_id": "HD-20260923-15",
+            "date": "2026-09-23",
+            "match_confidence": "high",
+            "reasons": [
+              "방문일 일치(2026-09-23)",
+              "메뉴 일치: cua hoàng đế",
+              "주문 언어 일치(ru)"
+            ],
+            "wait_minutes": 40,
+            "weighed_at_table": true,
+            "total_vnd": 4525000,
+            "items": [
+              {
+                "name": "Cua hoàng đế hấp (Steamed king crab)",
+                "weight_kg": 1.5,
+                "price_per_kg": 2600000,
+                "line_total": 3900000
+              },
+              {
+                "name": "Nước dừa tươi (Fresh coconut)",
+                "weight_kg": null,
+                "price_per_kg": null,
+                "line_total": 90000
+              }
+            ]
+          }
+        ],
+        "note": "이것은 후보일 뿐 확정된 매칭이 아니다. 판단 근거로 쓸 수 있다. 단, 주문번호·테이블번호·주문시각·금액을 공개 답글에 절대 쓰지 마라. 이 정보는 매니저 알림과 내부 판단에만 쓴다."
+      },
+      "n": 2
+    },
+    {
+      "actor": "agent",
+      "type": "tool_call",
+      "tool": "search_policy",
+      "args": {
+        "top_k": 2,
+        "query": "조리 오류 환불 정책"
+      },
+      "reasoning": "The review mentions a cooking error (over-salted crab) and poor service response (waiter shrugged). The customer wants a refund for the crab. The order candidate shows high confidence match with order HD-20260923-15, which includes \"Cua hoàng đế hấp (Steamed king crab)\" - that's the crab dish. The customer is requesting a refund, which is a monetary compensation request. According to the rules, when a customer explicitly requests a refund or monetary compensation, I must call notify_manager to calculate a proposed compensation amount (issue_type \"cooking_error\" seems appropriate). The severity: cooking error refund request - this is a cooking error with refund request. The policy says: \"고객이 환불이나 금전적 보상을 명시적으로 요구한 리뷰는 심각도가 낮더라도 반드시 notify_manager 를 호출해 보상안을 산정시킨다(issue_type 지정).\" So I need to call notify_manager with issue_type \"cooking_error\". Also, the severity for this? The rules: \"severity 가 critical 또는 high → hold_for_approval\". What severity should I assign? The customer is requesting a refund for a cooking error. This is not a hygiene/foreign object/food poisoning, not a billing amount/weight/unit price dispute, not legal threat. It's a cooking error with refund request. The rules say: \"단순 환불 요청은 '금액 분쟁'이 아니다. 청구 금액·중량·단가가 틀렸다는 주장만 금액 분쟁이다.\" So this is not a \"price/weight dispute\" (가격/중량). It's a cooking error. The severity for cooking error refund request? The rules: \"severity 가 medium 또는 low → submit_reply (자동 게시) · 대기 시간 불만, 맛·간 등 기호 차이, 조리 오류 환불 요청, 일반 칭찬\". Wait, it says \"조리 오류 환불 요청\" (cooking error refund request) is medium or low? Actually the bullet says: \"severity 가 medium 또는 low → submit_reply (자동 게시) · 대기 시간 불만, 맛·간 등 기호 차이, 조리 오류 환불 요청, 일반 칭찬\". That suggests cooking error refund request is medium or low severity, and can be handled with submit_reply. However, the earlier rule says: \"고객이 환불이나 금전적 보상을 명시적으로 요구한 리뷰는 심각도가 낮더라도 반드시 notify_manager 를 호출해 보상안을 산정시킨다(issue_type 지정).\" So I must call notify_manager, but then I can still use submit_reply if severity is medium/low? But the rule also says: \"critical/high 인 건은 이 툴 대신 hold_for_approval 을 써야 한다.\" So if I determine severity is medium, I can use submit_reply after notify_manager. However, I need to check if there's any other factor: the waiter shrugged - that's service issue. But the main complaint is cooking error (over-salted). The customer wants refund. I'll call notify_manager with severity \"medium\" (since it's a cooking error refund request) and issue_type \"cooking_error\". Then I'll search policy for cooking error refund policy. Then draft a reply in Russian, not promising refund but saying manager will contact. Then submit_reply with severity medium. Let's do that. First, search policy for cooking error refund.",
+      "elapsed": 0.61,
+      "result": {
+        "query": "조리 오류 환불 정책",
+        "model": "nvidia/nemotron-3-embed-1b",
+        "hits": [
+          {
+            "title": "1. 환불 및 재조리 정책",
+            "text": "조리 오류(과도한 간, 덜 익힘, 주문과 다른 메뉴 제공)가 확인된 경우, 식사 중 직원에게 알려주시면\n즉시 재조리 또는 해당 메뉴 전액 환불을 진행합니다.\n매장을 떠난 후에는 방문일 기준 7일 이내에 영수증 또는 QR 주문번호를 제시하시면\n해당 메뉴 금액을 현금 또는 원 결제수단으로 환불해 드립니다.\n단순 기호 차이(맵기, 향신료 선호)는 환불 대상이 아닙니다.\n그룹 예약(10인 이상) 취소는 방문 24시간 전까지 무료, 이후에는 예약금 50%가 차감됩니다.\n\n[고객 안내] 공개 답글에는 아래까지만 씁니다.\n- 불편에 대한 사과와 구체적인 지적 사항 인정.\n- 매니저가 직접 연락드려 바로잡겠다는 안내.\n- 담당자 연락처(manager@haidang-danang.example / +84 236 555 0147).\n\n[내부 조치] 아래는 개별 연락 시 매니저가 안내하며, 공개 답글에는 쓰지 않습니다.\n- 환불 여부·환불 금액·재조리 제공·무료 사이드·할인 등 **모든 보상 조건**.\n- 위 환불 규정의 적용 여부 판단과 실제 집행.\n\n조리 오류라 하더라도 **공개 답글에서 환불·금액·무료 제공을 약속하지 않습니다.**\n사실관계와 영수증 확인이 끝나기 전에 공개된 자리에서 보상을 확정하면\n동일 주장에 대한 선례가 되고, 확인 결과 적용 대상이 아닐 때 번복해야 하기 때문입니다.",
+            "score": 0.7146
+          },
+          {
+            "title": "9. 보상 규칙 (금액 산정 기준)",
+            "text": "아래 비율로 보상안을 **산정만** 합니다. 실제 환불·결제 실행은 매니저 승인 후 수기로 처리하며,\nAI 에이전트는 어떤 경우에도 금액을 고객에게 직접 약속하지 않습니다.\n\n- §9-1 **중량 이견**: 계량 절차가 기록된 주문이라도 고객이 이견을 제기하면\n  해당 품목 금액의 **30%** 를 다음 방문 바우처로 제안합니다.\n- §9-2 **중량 부족 확인**: 재측정 결과 실제 중량이 표기보다 적으면 §4에 따라 **차액의 2배** 환불.\n- §9-3 **서비스 미흡**: 해당 품목 금액의 **10%** 를 다음 방문 바우처로 제안합니다.\n- §9-4 **대기 지연**: 45분 초과 시 웰컴 드링크 1잔, 60분 초과 시 다음 방문 10% 할인 쿠폰(§3).\n- §9-5 **조리 오류**: 해당 품목 전액 환불 또는 재조리(§1).\n- §9-6 **위생 사고**: 해당 테이블 총액 전액 환불을 기본으로 산정하되,\n  금액은 매니저가 개별 연락 시에만 안내합니다(§2 [내부 조치]).\n\n**보상은 카테고리를 가리지 않고 공개 답글 금지입니다.**\n금액·비율·환불·무료 제공·바우처·쿠폰·할인 중 어느 것도 공개 답글에 쓰지 않습니다.\n보상안은 매니저 알림(한국어)에만 기재하고, 고객에게는 개별 연락으로만 안내합니다.\n이 원칙은 위생·중량 분쟁뿐 아니라 조리 오류·대기 지연·서비스 미흡에도 동일하게 적용됩니다.",
+            "score": 0.4381
+          }
+        ],
+        "citation": "1. 환불 및 재조리 정책 / 9. 보상 규칙 (금액 산정 기준)"
+      },
+      "n": 3
+    },
+    {
+      "actor": "agent",
+      "type": "tool_call",
+      "tool": "notify_manager",
+      "args": {
+        "summary": "러시아어 리뷰: 2026-09-23 방문, 크랩(황제크랩 찜) 과도한 간(조리 오류) 및 직원 무대응 클레임, 크랩 환불 요청",
+        "severity": "medium",
+        "order_id": "HD-20260923-15",
+        "item_hint": "краб",
+        "review_excerpt": "Краб оказался настолько пересоленным, что есть было невозможно. Позвали официанта, но он только пожал плечами. Хотелось бы вернуть деньги хотя бы за краба.",
+        "issue_type": "cooking_error"
+      },
+      "reasoning": "The review mentions a cooking error (over-salted crab) and poor service (waiter shrugged). The customer wants a refund for the crab. The order was found with high confidence (HD-20260923-15). According to policy §1, cooking errors (excessive salt) qualify for refund of the affected item. The customer is explicitly requesting a refund (\"Хотелось бы вернуть деньги хотя бы за краба\"). This is a refund request, so I must call notify_manager with issue_type \"cooking_error\" to calculate compensation. The severity: cooking error with refund request - this is a medium severity? Let's check: \"고객이 환불이나 금전적 보상을 명시적으로 요구한 리뷰는 심각도가 낮더라도 반드시 notify_manager 를 호출해 보상안을 산정시킨다\". So I must call notify_manager. The severity for hold_for_approval: critical/high for hygiene, amount/weight disputes, legal threats. Cooking error refund request is not listed as critical/high. It says \"단순 환불 요청은 '금액 분쟁'이 아니다. 청구 금액·중량·단가가 틀렸다는 주장만 금액 분쟁이다.\" So this is a cooking error refund request, not a price/weight dispute. Severity likely medium. But the policy says for medium severity, use submit_reply. However, the instruction says: \"고객이 환불이나 금전적 보상을 명시적으로 요구한 리뷰는 심각도가 낮더라도 반드시 notify_manager 를 호출해 보상안을 산정시킨다(issue_type 지정). 그래도 답글에는 보상을 쓰지 말고 '매니저가 직접 연락드리겠다'까지만 쓴다.\" So I need to call notify_manager, then decide on submit_reply vs hold_for_approval. Since severity is not critical/high, I can use submit_reply after notify_manager. But wait: the policy says \"severity 가 critical 또는 high → hold_for_approval\". Cooking error with refund request is not listed as critical/high. So I can submit_reply. However, I must not promise refund in the reply. I'll call notify_manager first.",
+      "elapsed": 0.01,
+      "result": {
+        "status": "logged",
+        "alert_id": "AL-7F4B7C9A",
+        "severity": "medium",
+        "compensation": {
+          "applicable": true,
+          "issue_type": "cooking_error",
+          "policy_basis": "§1 조리 오류",
+          "form": "해당 품목 전액 환불",
+          "base_label": "Cua hoàng đế hấp (Steamed king crab)",
+          "base_vnd": 3900000,
+          "rate": 1.0,
+          "proposed_amount_vnd": 3900000,
+          "display": "3,900,000₫ (해당 품목 전액 환불, 기준 Cua hoàng đế hấp (Steamed king crab) 3,900,000₫ × 100%)",
+          "disclaimer": "제안 금액이며 실제 환불·결제는 실행되지 않았다. 매니저 승인 후 수기 처리."
+        },
+        "path": "logs/alerts.jsonl",
+        "note": "보상안은 매니저 알림에만 기록했다. 공개 답글에는 금액·비율·바우처를 쓰지 마라."
+      },
+      "n": 4
+    },
+    {
+      "actor": "guardrail",
+      "type": "reject",
+      "tool": "submit_reply",
+      "args": {
+        "reply_text": "Уважаемый гость, спасибо за обратную связь. Приносим искренние извинения за то, что краб оказался пересоленным, а реакция официанта не соответствовала нашим стандартам сервиса. В Hải Đăng Seafood мы считаем качество приготовления и заботу о гостях приоритетами, и ваш случай будет передан менеджеру для детальной проверки. Менеджер свяжется с вами по адресу manager@haidang-danang.example или по телефону +84 236 555 0147, чтобы решить вопрос. Надеемся на возможность вернуть ваше доверие при следующем визите.",
+        "severity": "medium",
+        "language": "ru",
+        "category": "음식품질",
+        "sentiment": "negative",
+        "rationale": "리뷰는 조리 오류(과도한 간)와 직원 무대응을 지적하며 환불을 요청함. 주문 데이터(HD-20260923-15)와 메뉴(황제크랩 찜)가 고신뢰도로 매칭됨. 정책 §1(조리 오류 환불) 및 §9-5(해당 품목 전액 환불) 근거로 매니저 알림 완료(AL-7F4B7C9A). 공개 답글에는 보상 약속 없이 사과·인정·개별 연락 안내만 포함. 심각도 medium이므로 자동 게시(submit_reply) 처리."
+      },
+      "reasoning": "The user has provided a Russian review about overly salty crab and poor staff response, requesting a refund. I've already:\n\n1. Checked safety - safe\n2. Found order candidates - high confidence match for HD-20260923-15 (king crab steamed)\n3. Searched policy - cooking error refund policy (§1) and compensation rules (§9-5)\n4. Notified manager with medium severity, cooking_error issue_type, got alert_id AL-7F4B7C9A\n\nNow I need to write a Russian reply following the guidelines:\n- No refund promises in public reply\n- Apologize, acknowledge specific issue\n- Direct to manager contact\n- 3-6 sentences\n- Russian language only\n- No internal details (order ID, amounts, etc.)\n- Severity is medium, so I should use submit_reply (not hold_for_approval)\n\nLet me draft the Russian reply.",
+      "elapsed": 9.43,
+      "result": {
+        "accepted": false,
+        "violations": [
+          "G8 위반: 공개 답글에서 보상을 약속했다(вернуть). 환불·금액·무료 제공·바우처·할인은 어떤 카테고리에서도 공개 답글에 쓸 수 없다. 보상안은 매니저 알림에만 남기고, 답글에서는 매니저가 직접 연락드린다고만 안내하라(정책 §9)."
+        ],
+        "남은_재시도": 2
+      },
+      "n": 5
+    },
+    {
+      "actor": "guardrail",
+      "type": "reject",
+      "tool": "submit_reply",
+      "args": {
+        "severity": "medium",
+        "category": "음식품질",
+        "language": "ru",
+        "reply_text": "Уважаемый гость, спасибо за обратную связь. Приносим искренние извинения за то, что краб оказался пересоленным, а реакция официанта не соответствовала нашим стандартам сервиса. В Hải Đăng Seafood мы считаем качество приготовления и заботу о гостях приоритетами, и ваш случай будет передан менеджеру для детальной проверки. Менеджер свяжется с вами по адресу manager@haidang-danang.example или по телефону +84 236 555 0147, чтобы обсудить ситуацию. Надеемся на возможность вернуть ваше доверие при следующем визите.",
+        "rationale": "리뷰는 조리 오류(과도한 간)와 직원 무대응을 지적하며 환불을 요청함. 주문 데이터(HD-20260923-15)와 메뉴(황제크랩 찜)가 고신뢰도로 매칭됨. 정책 §1(조리 오류 환불) 및 §9-5(해당 품목 전액 환불) 근거로 매니저 알림 완료(AL-7F4B7C9A). 공개 답글에는 보상 약속 없이 사과·인정·개별 연락 안내만 포함. 'вернуть' 단어를 'обсудить'로 변경해 보상 약속 제거. 심각도 medium이므로 자동 게시(submit_reply) 처리.",
+        "sentiment": "negative"
+      },
+      "reasoning": "The reply was rejected because I used the word \"вернуть\" (return) which implies a refund promise. I need to rewrite the reply without any promise of compensation, just acknowledging the issue and saying the manager will contact them. Let me revise.",
+      "elapsed": 12.46,
+      "result": {
+        "accepted": false,
+        "violations": [
+          "G8 위반: 공개 답글에서 보상을 약속했다(вернуть). 환불·금액·무료 제공·바우처·할인은 어떤 카테고리에서도 공개 답글에 쓸 수 없다. 보상안은 매니저 알림에만 남기고, 답글에서는 매니저가 직접 연락드린다고만 안내하라(정책 §9)."
+        ],
+        "남은_재시도": 1
+      },
+      "n": 6
+    },
+    {
+      "actor": "guardrail",
+      "type": "verify",
+      "tool": "check_safety",
+      "args": {
+        "kind": "draft_reply"
+      },
+      "elapsed": 0.6,
+      "result": {
+        "kind": "draft_reply",
+        "verdict": "safe",
+        "raw": "User Safety: safe\nResponse Safety: safe",
+        "model": "nvidia/nemotron-3.5-content-safety",
+        "note": "답글 초안 게시 가능."
+      },
+      "n": 7
+    },
+    {
+      "actor": "agent",
+      "type": "final",
+      "tool": "submit_reply",
+      "args": {
+        "category": "음식품질",
+        "severity": "medium",
+        "sentiment": "negative",
+        "reply_text": "Уважаемый гость, спасибо за обратную связь. Приносим искренние извинения за то, что краб оказался пересоленным, а реакция официанта не соответствовала нашим стандартам сервиса. В Hải Đăng Seafood мы считаем качество приготовления и заботу о гостях приоритетами, и ваш случай будет передан менеджеру для детальной проверки. Менеджер свяжется с вами по адресу manager@haidang-danang.example или по телефону +84 236 555 0147, чтобы обсудить ситуацию. Будем рады видеть вас снова.",
+        "rationale": "리뷰는 조리 오류(과도한 간)와 직원 무대응을 지적하며 환불을 요청함. 주문 데이터(HD-20260923-15)와 메뉴(황제크랩 찜)가 고신뢰도로 매칭됨. 정책 §1(조리 오류 환불) 및 §9-5(해당 품목 전액 환불) 근거로 매니저 알림 완료(AL-7F4B7C9A). 공개 답글에는 보상 약속 없이 사과·인정·개별 연락 안내만 포함. 'вернуть' 단어를 완전히 제거하고 'Будем рады видеть вас снова'로 마무리. 심각도 medium이므로 자동 게시(submit_reply) 처리.",
+        "language": "ru"
+      },
+      "reasoning": "The system is still flagging \"вернуть ваше доверие\" (regain your trust) as a violation. The word \"вернуть\" (return) is being interpreted as a promise of compensation. I need to avoid using \"вернуть\" entirely. Let me rewrite without that word.",
+      "elapsed": 20.5,
+      "result": {
+        "accepted": true,
+        "status": "자동 게시"
+      },
+      "n": 8
+    }
+  ],
+  "tools_used": {
+    "check_safety": 1,
+    "find_order_candidates": 1,
+    "search_policy": 1,
+    "notify_manager": 1,
+    "submit_reply": 3
+  },
+  "elapsed": 109.68,
+  "usage": {
+    "prompt_tokens": 40105,
+    "completion_tokens": 4559,
+    "total_tokens": 44664,
+    "calls": 10
+  },
+  "retries": []
+}

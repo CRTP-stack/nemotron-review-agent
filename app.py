@@ -5,11 +5,36 @@
 from __future__ import annotations
 
 import json
+import time
+from pathlib import Path
 
 import streamlit as st
 
 from agent import config, loop, samples
 from agent import tools as agent_tools
+
+REPLAY_DIR = config.ROOT / "logs" / "demo"
+# 녹화 순서: 쉬운 것 → 복잡한 것 → 유도 샘플
+REPLAY_ORDER = ["ko-praise", "ru-weight-order", "vi-hygiene-order",
+                "en-bait-table", "ru-bait-discount", "en-unverified"]
+
+
+def load_replays():
+    """logs/demo/replay_*.json 을 녹화 순서대로 돌려준다."""
+    found = {}
+    for f in sorted(REPLAY_DIR.glob("replay_*.json")):
+        try:
+            d = json.loads(f.read_text(encoding="utf-8"))
+        except Exception:  # noqa: BLE001
+            continue
+        found.setdefault(d.get("sample_id", f.stem), []).append((f, d))
+    ordered = []
+    for sid in REPLAY_ORDER:
+        for f, d in found.pop(sid, []):
+            ordered.append((f, d))
+    for rest in found.values():
+        ordered.extend(rest)
+    return ordered
 
 st.set_page_config(page_title="Nemotron 리뷰 응대 에이전트", page_icon="🦐", layout="wide")
 
@@ -24,8 +49,109 @@ STEP_STYLE = {
 SEV_COLOR = {"low": "#76b900", "medium": "#ffd60a", "high": "#ff9f0a", "critical": "#ff453a"}
 
 
+def render_step(step):
+    """타임라인 한 단계를 그린다. 실시간·재생 양쪽에서 쓴다."""
+    icon, color = STEP_STYLE.get(step["type"], ("•", "#888"))
+    actor = "에이전트 스스로 결정" if step["actor"] == "agent" else "코드 가드레일"
+    st.markdown(
+        f"<div style='border-left:3px solid {color};padding:2px 0 2px 10px;"
+        f"margin:6px 0;'>{icon} <b>step {step['n']}</b> · "
+        f"<code>{step['tool']}</code> "
+        f"<span style='color:#888;font-size:0.85em'>({actor} · {step['elapsed']}s)"
+        f"</span></div>",
+        unsafe_allow_html=True,
+    )
+    if step.get("reasoning"):
+        st.markdown(
+            f"<div style='color:#8a8a8a;font-size:0.85em;padding-left:14px'>"
+            f"💭 <i>왜 불렀나</i>: {step['reasoning'][:400]}</div>",
+            unsafe_allow_html=True,
+        )
+    if step["tool"] == "search_policy" and step.get("result", {}).get("hits"):
+        for h in step["result"]["hits"]:
+            st.markdown(
+                f"<div style='font-size:0.85em;padding-left:14px'>"
+                f"📄 <b>{h['title']}</b> (유사도 {h['score']})</div>",
+                unsafe_allow_html=True,
+            )
+            with st.expander(f"본문 — {h['title']}", expanded=False):
+                st.text(h["text"])
+    elif step["tool"] == "check_safety" and step.get("result"):
+        r = step["result"]
+        tag = "review 원문" if r.get("kind") == "review" else "답글 초안(게시 전)"
+        ok = r.get("verdict") == "safe"
+        st.markdown(
+            f"<div style='font-size:0.85em;padding-left:14px'>"
+            f"{'🟢' if ok else '🔴'} {tag} → <b>{r.get('verdict')}</b> "
+            f"<span style='color:#888'>· {r.get('note','')}</span></div>",
+            unsafe_allow_html=True,
+        )
+    elif step["tool"] == "find_order_candidates" and step.get("result"):
+        r = step["result"]
+        if r.get("verdict") == "no_match":
+            st.markdown(
+                "<div style='font-size:0.85em;padding-left:14px;color:#ff9f0a'>"
+                "🔍 <b>일치하는 주문 없음</b> — 방문 사실 확인 불가. "
+                "고객을 반박하지 않고 개별 연락으로 유도</div>",
+                unsafe_allow_html=True,
+            )
+        for c in r.get("candidates", []):
+            badge = {"high": "#76b900", "medium": "#ffd60a", "low": "#888"}.get(
+                c["match_confidence"], "#888")
+            st.markdown(
+                f"<div style='font-size:0.85em;padding-left:14px'>"
+                f"🧾 <code>{c['order_id']}</code> "
+                f"<span style='color:{badge}'>●{c['match_confidence']}</span> "
+                f"<span style='color:#888'>{' / '.join(c['reasons'])}</span></div>",
+                unsafe_allow_html=True,
+            )
+    elif step["tool"] == "notify_manager" and step.get("result"):
+        r = step["result"]
+        st.markdown(
+            f"<div style='font-size:0.85em;padding-left:14px'>"
+            f"🔔 <b>{r.get('alert_id')}</b> ({r.get('severity')}) "
+            f"→ <code>{r.get('path')}</code></div>",
+            unsafe_allow_html=True,
+        )
+        comp = (r.get("compensation") or {})
+        if comp.get("applicable"):
+            st.markdown(
+                f"<div style='font-size:0.85em;padding-left:14px;color:#76b900'>"
+                f"💰 보상 제안 <b>{comp['display']}</b><br/>"
+                f"<span style='color:#888'>근거 {comp['policy_basis']} · "
+                f"매니저 알림에만 기록, 공개 답글 금지</span></div>",
+                unsafe_allow_html=True,
+            )
+    elif step["type"] == "forced_hold":
+        st.markdown(
+            "<div style='font-size:0.85em;padding-left:14px;color:#ff453a'>"
+            "🚧 가드레일 반려 한도 초과 → 자동 게시 차단, 사람 검토로 전환</div>",
+            unsafe_allow_html=True,
+        )
+    elif step["type"] == "reject":
+        for v in step.get("result", {}).get("violations", []):
+            st.markdown(
+                f"<div style='font-size:0.85em;padding-left:14px;color:#ff453a'>"
+                f"⛔ {v}</div>",
+                unsafe_allow_html=True,
+            )
+
+
+
+
 # ------------------------------------------------------------------ 사이드바
 with st.sidebar:
+    st.markdown("### 🎬 데모 모드")
+    demo_mode = st.toggle(
+        "기록된 실행 재생",
+        value=False,
+        help="실시간 API 호출 없이 logs/demo/ 에 저장된 과거 실행을 그대로 재생합니다. "
+             "엔드포인트 5xx 로 라이브 시연이 실패할 때를 대비한 백업입니다.",
+    )
+    if demo_mode:
+        st.caption("⚠️ 재생 중에는 NVIDIA API 를 호출하지 않습니다.")
+    st.divider()
+
     st.markdown("### ⚙️ 구성")
     st.caption("NVIDIA NIM · OpenAI 호환 엔드포인트")
     for role, model, note in [
@@ -99,28 +225,85 @@ if "review_text" not in st.session_state:
 if "result" not in st.session_state:
     st.session_state.result = None
 
-st.markdown("##### 샘플 리뷰")
-st.caption("1단계 — 다국어 응대 · 안전 필터 · 정책 검색")
-for col, smp in zip(st.columns(4), samples.by_stage(1)):
-    with col:
-        if st.button(smp["label"], use_container_width=True, key=f"btn-{smp['id']}"):
-            st.session_state.review_text = smp["text"]
-            st.session_state.result = None
-            st.rerun()
-st.caption("2단계 — 주문 데이터 대조 · 보상안 산정 · 승인 대기")
-for col, smp in zip(st.columns(5), samples.by_stage(2)):
-    with col:
-        if st.button(smp["label"], use_container_width=True, key=f"btn-{smp['id']}"):
-            st.session_state.review_text = smp["text"]
-            st.session_state.result = None
-            st.rerun()
+if demo_mode:
+    # ---------------- 기록된 실행 재생 ----------------
+    st.markdown(
+        "<div style='background:#3a1a1a;border:1px solid #ff453a;border-radius:8px;"
+        "padding:10px 14px;margin:6px 0 14px 0'>"
+        "🎬 <b>기록된 실행 재생 모드</b> "
+        "<span style='color:#ff9f9f'>— 아래 타임라인은 저장된 과거 실행이며, "
+        "지금 NVIDIA API 를 호출하고 있지 않습니다.</span></div>",
+        unsafe_allow_html=True,
+    )
+    replays = load_replays()
+    if not replays:
+        st.warning("logs/demo/replay_*.json 이 없습니다. "
+                   "`.venv/bin/python tests/run_samples.py` 로 먼저 기록을 만들어 주세요.")
+        st.stop()
+    labels = [f"{d.get('label','?')}  ·  {d['final'].get('status','?')}"
+              f"  ·  {d.get('recorded_at','')}" for _, d in replays]
+    idx = st.selectbox("재생할 실행", range(len(replays)),
+                       format_func=lambda i: labels[i])
+    speed = st.select_slider("재생 속도", ["빠르게(0.3초)", "보통(0.8초)", "느리게(1.5초)"],
+                             value="보통(0.8초)")
+    play = st.button("▶︎ 재생", type="primary")
+    _, snap = replays[idx]
+    st.text_area("리뷰 원문 (기록됨)", value=snap["review"], height=130, disabled=True)
+else:
+    st.markdown("##### 샘플 리뷰")
+    st.caption("① 기본 — 칭찬 · 주문 대조 · 위생 클레임 (녹화 순서)")
+    demo_ids = ["ko-praise", "ru-weight-order", "vi-hygiene-order", "en-unverified"]
+    row1 = [samples.by_id(i) for i in demo_ids]
+    for col, smp in zip(st.columns(len(row1)), row1):
+        with col:
+            if st.button(smp["label"], use_container_width=True, key=f"btn-{smp['id']}"):
+                st.session_state.review_text = smp["text"]
+                st.session_state.result = None
+                st.rerun()
+    st.caption("② 가드레일 유도 — 리뷰가 답글 내용을 직접 요구하는 경우")
+    for col, smp in zip(st.columns(4), samples.by_stage(3)):
+        with col:
+            if st.button(smp["label"], use_container_width=True, key=f"btn-{smp['id']}"):
+                st.session_state.review_text = smp["text"]
+                st.session_state.result = None
+                st.rerun()
+    st.caption("③ 그 외 샘플")
+    rest = [x for x in samples.SAMPLES
+            if x["id"] not in demo_ids and x["stage"] != 3]
+    for col, smp in zip(st.columns(len(rest)), rest):
+        with col:
+            if st.button(smp["label"], use_container_width=True, key=f"btn-{smp['id']}"):
+                st.session_state.review_text = smp["text"]
+                st.session_state.result = None
+                st.rerun()
 
-review = st.text_area("리뷰 원문", key="review_text", height=150)
-run = st.button("▶︎ 에이전트 실행", type="primary")
+if not demo_mode:
+    review = st.text_area("리뷰 원문", key="review_text", height=150)
+    run = st.button("▶︎ 에이전트 실행", type="primary")
+else:
+    review, run = snap["review"], False
 
 left, right = st.columns([1.15, 1])
 
-# ------------------------------------------------------------------ 실행
+# ------------------------------------------------------------------ 기록 재생
+if demo_mode and play:
+    delay = {"빠르게(0.3초)": 0.3, "보통(0.8초)": 0.8, "느리게(1.5초)": 1.5}[speed]
+    with left:
+        st.markdown("#### 🧠 에이전트 실행 타임라인 "
+                    "<span style='color:#ff453a;font-size:0.7em'>[기록 재생]</span>",
+                    unsafe_allow_html=True)
+        holder = st.container()
+        for step in snap["steps"]:
+            with holder:
+                render_step(step)
+            time.sleep(delay)
+        st.caption(f"기록 시각 {snap.get('recorded_at','?')} · "
+                   f"당시 소요 {snap.get('elapsed','?')}초 · "
+                   f"{snap.get('usage',{}).get('calls','?')} API 콜")
+    st.session_state.result = snap
+    st.session_state.replayed = True
+
+# ------------------------------------------------------------------ 실시간 실행
 if run:
     if not review.strip():
         st.warning("리뷰를 입력해주세요.")
@@ -136,94 +319,12 @@ if run:
         status.update(label="에이전트 루프 실행 중…")
 
         def on_step(step):
-            icon, color = STEP_STYLE.get(step["type"], ("•", "#888"))
-            actor = "에이전트 스스로 결정" if step["actor"] == "agent" else "코드 가드레일"
             with timeline:
-                st.markdown(
-                    f"<div style='border-left:3px solid {color};padding:2px 0 2px 10px;"
-                    f"margin:6px 0;'>{icon} <b>step {step['n']}</b> · "
-                    f"<code>{step['tool']}</code> "
-                    f"<span style='color:#888;font-size:0.85em'>({actor} · {step['elapsed']}s)"
-                    f"</span></div>",
-                    unsafe_allow_html=True,
-                )
-                if step.get("reasoning"):
-                    st.markdown(
-                        f"<div style='color:#8a8a8a;font-size:0.85em;padding-left:14px'>"
-                        f"💭 <i>왜 불렀나</i>: {step['reasoning'][:400]}</div>",
-                        unsafe_allow_html=True,
-                    )
-                if step["tool"] == "search_policy" and step.get("result", {}).get("hits"):
-                    for h in step["result"]["hits"]:
-                        st.markdown(
-                            f"<div style='font-size:0.85em;padding-left:14px'>"
-                            f"📄 <b>{h['title']}</b> (유사도 {h['score']})</div>",
-                            unsafe_allow_html=True,
-                        )
-                        with st.expander(f"본문 — {h['title']}", expanded=False):
-                            st.text(h["text"])
-                elif step["tool"] == "check_safety" and step.get("result"):
-                    r = step["result"]
-                    tag = "review 원문" if r.get("kind") == "review" else "답글 초안(게시 전)"
-                    ok = r.get("verdict") == "safe"
-                    st.markdown(
-                        f"<div style='font-size:0.85em;padding-left:14px'>"
-                        f"{'🟢' if ok else '🔴'} {tag} → <b>{r.get('verdict')}</b> "
-                        f"<span style='color:#888'>· {r.get('note','')}</span></div>",
-                        unsafe_allow_html=True,
-                    )
-                elif step["tool"] == "find_order_candidates" and step.get("result"):
-                    r = step["result"]
-                    if r.get("verdict") == "no_match":
-                        st.markdown(
-                            "<div style='font-size:0.85em;padding-left:14px;color:#ff9f0a'>"
-                            "🔍 <b>일치하는 주문 없음</b> — 방문 사실 확인 불가. "
-                            "고객을 반박하지 않고 개별 연락으로 유도</div>",
-                            unsafe_allow_html=True,
-                        )
-                    for c in r.get("candidates", []):
-                        badge = {"high": "#76b900", "medium": "#ffd60a", "low": "#888"}.get(
-                            c["match_confidence"], "#888")
-                        st.markdown(
-                            f"<div style='font-size:0.85em;padding-left:14px'>"
-                            f"🧾 <code>{c['order_id']}</code> "
-                            f"<span style='color:{badge}'>●{c['match_confidence']}</span> "
-                            f"<span style='color:#888'>{' / '.join(c['reasons'])}</span></div>",
-                            unsafe_allow_html=True,
-                        )
-                elif step["tool"] == "notify_manager" and step.get("result"):
-                    r = step["result"]
-                    st.markdown(
-                        f"<div style='font-size:0.85em;padding-left:14px'>"
-                        f"🔔 <b>{r.get('alert_id')}</b> ({r.get('severity')}) "
-                        f"→ <code>{r.get('path')}</code></div>",
-                        unsafe_allow_html=True,
-                    )
-                    comp = (r.get("compensation") or {})
-                    if comp.get("applicable"):
-                        st.markdown(
-                            f"<div style='font-size:0.85em;padding-left:14px;color:#76b900'>"
-                            f"💰 보상 제안 <b>{comp['display']}</b><br/>"
-                            f"<span style='color:#888'>근거 {comp['policy_basis']} · "
-                            f"매니저 알림에만 기록, 공개 답글 금지</span></div>",
-                            unsafe_allow_html=True,
-                        )
-                elif step["type"] == "forced_hold":
-                    st.markdown(
-                        "<div style='font-size:0.85em;padding-left:14px;color:#ff453a'>"
-                        "🚧 가드레일 반려 한도 초과 → 자동 게시 차단, 사람 검토로 전환</div>",
-                        unsafe_allow_html=True,
-                    )
-                elif step["type"] == "reject":
-                    for v in step.get("result", {}).get("violations", []):
-                        st.markdown(
-                            f"<div style='font-size:0.85em;padding-left:14px;color:#ff453a'>"
-                            f"⛔ {v}</div>",
-                            unsafe_allow_html=True,
-                        )
+                render_step(step)
 
         result = loop.run_agent(review, on_step=on_step)
         st.session_state.result = result
+        st.session_state.replayed = False
         status.update(label=f"완료 · {result['elapsed']}s", state="complete", expanded=False)
     except Exception as exc:  # noqa: BLE001
         status.update(label="실패", state="error")
@@ -235,6 +336,13 @@ result = st.session_state.result
 if result:
     f = result["final"]
     with right:
+        if st.session_state.get("replayed") and demo_mode:
+            st.markdown(
+                "<div style='background:#3a1a1a;border:1px solid #ff453a;border-radius:6px;"
+                "padding:6px 12px;margin-bottom:8px;font-size:0.9em'>"
+                "🎬 <b>기록된 실행 재생</b> — 실시간 호출 아님</div>",
+                unsafe_allow_html=True,
+            )
         st.markdown("#### 📬 최종 결과")
         c1, c2, c3 = st.columns(3)
         c1.metric("언어", f.get("language", "-"))
