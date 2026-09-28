@@ -323,10 +323,10 @@ def main():
                test_forced_hold, test_compensation_banned_in_all_categories,
                test_g9_reply_language, test_no_record_phrases):
         try:
-            print(f"  ✔ {fn()}")
+            print(f"  OK {fn()}")
         except AssertionError as exc:
             ok = False
-            print(f"  ✘ {fn.__name__}: {exc}")
+            print(f"  NG {fn.__name__}: {exc}")
     print("─" * 60)
     print("  PASS" if ok else "  FAIL")
     return 0 if ok else 1

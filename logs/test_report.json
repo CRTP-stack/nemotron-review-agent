@@ -1185,7 +1185,7 @@
           "type": "tool_call",
           "tool": "check_safety",
           "args": {
-            "text": "9월 22일 저녁에 방문했어요. 타이거새우 타마린드 볶음이랑 모닝글로리, 해산물 볶음밥 시켰는데 전부 다 맛있었습니다! 음식도 금방 나왔고 직원분들도 웃으면서 응대해 주셔서 기분 좋았어요. 다낭 오면 또 올게요. 별 다섯 개 드립니다 ⭐️⭐️⭐️⭐️⭐️",
+            "text": "9월 22일 저녁에 방문했어요. 타이거새우 타마린드 볶음이랑 모닝글로리, 해산물 볶음밥 시켰는데 전부 다 맛있었습니다! 음식도 금방 나왔고 직원분들도 웃으면서 응대해 주셔서 기분 좋았어요. 다낭 오면 또 올게요. 별 다섯 개 드립니다 ★★★★★",
             "kind": "review"
           },
           "reasoning": "The user has provided a customer review in Korean. This is a positive review praising the food, service, and speed. The review mentions specific dishes: 타이거새우 타마린드 볶음 (tiger shrimp tamarind stir-fry), 모닝글로리 (morning glory), 해산물 볶음밥 (seafood fried rice). The visit date is September 22 (2026-09-22). The review is in Korean, so I need to respond in Korean.\n\nFirst, I need to follow the procedure:\n1. Check safety with check_safety(kind=\"review\")\n2. Since this is a simple positive review with no complaints, no fact-checking needed (no weight/amount disputes, wait time complaints, hygiene claims, or suspicious visits). So I don't need to call find_order_candidates.\n3. No need for search_policy since no compensation or policy references needed.\n4. No need for notify_manager since it's not a serious issue.\n5. Write a reply in Korean, 3-6 sentences, natural honorifics.\n6. Since severity is low (positive review), use submit_reply.\n\nLet me start with check_safety.",

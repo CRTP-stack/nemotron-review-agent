@@ -34,7 +34,7 @@ def test_confidence_rules():
         r = orders.find_candidates(d, items, lang)
         got_v, got_u = r["verdict"], r["usable_as_evidence"]
         ok = (got_v == exp_v and got_u == exp_u)
-        print(f"  {'✔' if ok else '✘'} {desc:<30} → {got_v:<8} 근거사용={got_u}"
+        print(f"  {'OK' if ok else 'NG'} {desc:<30} → {got_v:<8} 근거사용={got_u}"
               + ("" if ok else f"   (기대 {exp_v}/{exp_u})"))
         if not ok:
             bad.append(desc)
@@ -86,7 +86,7 @@ def main():
             print(f"  ▸ {fn()}")
         except AssertionError as exc:
             ok = False
-            print(f"  ✘ {fn.__name__}: {exc}")
+            print(f"  NG {fn.__name__}: {exc}")
     print("─" * 66)
     print("  PASS" if ok else "  FAIL")
     return 0 if ok else 1

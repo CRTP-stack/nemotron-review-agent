@@ -1,28 +1,28 @@
 ──────────────────────────────────────────────────────────────────────
-▶ [2단계] 🇻🇳 위생 클레임 (주문 대조)  (vi-hygiene-order)
+▶ [2단계] [VI] 위생 클레임 (주문 대조)  (vi-hygiene-order)
 ──────────────────────────────────────────────────────────────────────────────
 리뷰: Ngày 23 tháng 9 năm 2026 tôi có ăn món tôm sú rang me ở đây. Khi ăn gần hết thì tôi thấy một mảnh nhựa cứng mà…
 
-  🔧 step1 [에이전트 결정] check_safety (0.34s)
+  step1 [에이전트 결정] check_safety (0.34s)
       why: The user has provided a Vietnamese review about finding a piece of hard blue plastic in their shrimp dish on September 23, 2026, and experie
       args: {"text": "Ngày 23 tháng 9 năm 2026 tôi có ăn món tôm sú rang me ở đây. Khi ăn gần hết thì tôi thấy một mảnh nhựa cứng màu xanh tr…
       → {"kind": "review", "verdict": "safe", "raw": "User Safety: safe", "model": "nvidia/nemotron-3.5-content-safety", "note": "일반 리뷰로 처리 가능."}
-  🔧 step2 [에이전트 결정] search_policy (0.6s)
+  step2 [에이전트 결정] search_policy (0.6s)
       why: The review is safe. Now I need to check if this requires order verification. This is a hygiene/food safety complaint (foreign object - plast
       args: {"query": "위생 이물질 클레임 처리 절차 건강 이상 증상", "top_k": 3}
       → {"query": "위생 이물질 클레임 처리 절차 건강 이상 증상", "model": "nvidia/nemotron-3-embed-1b", "hits": [{"title": "2. 식품 안전 및 위생 이슈 대응", "text": "음식에서 이물질이 발견되었거나 섭취 후 복통·설사 등 이상 증상이 보고된…
-  🔧 step3 [에이전트 결정] find_order_candidates (0.0s)
+  step3 [에이전트 결정] find_order_candidates (0.0s)
       why: The review is in Vietnamese, dated September 23, 2026, mentioning "tôm sú rang me" (shrimp with tamarind) and finding a hard blue plastic pi
       args: {"mentioned_items": ["tôm sú rang me"], "language": "vi", "review_date": "2026-09-23"}
       → {"query": {"review_date": "2026-09-23", "mentioned_items": ["tôm sú rang me"], "language": "vi"}, "date_provided": true, "resolved_items": ["tôm sú"], "verdict": "high",…
-  🔧 step4 [에이전트 결정] notify_manager (0.01s)
+  step4 [에이전트 결정] notify_manager (0.01s)
       why: The review mentions a serious hygiene issue - a piece of hard blue plastic found in the food, and the customer experienced stomach pain and 
       args: {"item_hint": "tôm sú rang me", "summary": "고객이 2026-09-23 방문 시 tôm sú rang me(타이거 새우 타마린드)에서 파란색 단단한 플라스틱 조각을 발견하고, 당일 저녁 복통·구토 …
       → {"status": "logged", "alert_id": "AL-386D8C13", "severity": "critical", "compensation": {"applicable": true, "issue_type": "hygiene", "policy_basis": "§2 위생 사고", "form":…
-  🛡️ step5 [가드레일] check_safety (4.36s)
+  step5 [가드레일] check_safety (4.36s)
       args: {"kind": "draft_reply"}
       → {"kind": "draft_reply", "verdict": "safe", "raw": "User Safety: safe\nResponse Safety: safe", "model": "nvidia/nemotron-3.5-content-safety", "note": "답글 초안 게시 가능."}
-  ✅ step6 [에이전트 결정] hold_for_approval (49.0s)
+  step6 [에이전트 결정] hold_for_approval (49.0s)
       why: The user has reported a serious hygiene issue - finding a blue hard plastic piece in their food (tôm sú rang me) and experiencing stomach pa
       → {"accepted": true, "status": "pending_approval", "approval_id": "AP-20C95AF1", "path": "logs/pending_approvals.jsonl", "note": "초안을 저장했다. 매니저가 승인하기 전까지 공개 게시되지 않는다."}
 
@@ -34,16 +34,16 @@
 
   사용 툴: {'check_safety': 1, 'search_policy': 1, 'find_order_candidates': 1, 'notify_manager': 1, 'hold_for_approval': 1} | 72.08s | 8콜 29570토큰
 
-  ✔ 리뷰 안전검사 수행
-  ✔ 답글 언어 선언 일치
-  ✔ 답글 본문 문자 체계 일치
-  ✔ 답글 비어있지 않음
-  ✔ 게시 상태 = 승인 대기
-  ✔ 심각 건 매니저 알림
-  ✔ 주문 대조 툴 호출
-  ✔ 답글에 내부 데이터 없음
-  ✔ 답글에 보상 약속 없음
-  ✔ 보상 금액이 답글에 없음
-  ✔ degraded 아님
+  OK 리뷰 안전검사 수행
+  OK 답글 언어 선언 일치
+  OK 답글 본문 문자 체계 일치
+  OK 답글 비어있지 않음
+  OK 게시 상태 = 승인 대기
+  OK 심각 건 매니저 알림
+  OK 주문 대조 툴 호출
+  OK 답글에 내부 데이터 없음
+  OK 답글에 보상 약속 없음
+  OK 보상 금액이 답글에 없음
+  OK degraded 아님
 
   결과: PASS  (72.1s)

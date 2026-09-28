@@ -20,8 +20,8 @@ from agent import config, guardrails, loop, samples  # noqa: E402
 from agent import tools as agent_tools  # noqa: E402
 
 BAR = "─" * 78
-ICON = {"tool_call": "🔧", "final": "✅", "verify": "🛡️", "reject": "⛔",
-        "nudge": "↩️", "forced_hold": "🚧"}
+ICON = {"tool_call": "[TOOL]", "final": "[DONE]", "verify": "[CHECK]", "reject": "[REJECT]",
+        "nudge": "[RETRY]", "forced_hold": "[HOLD]"}
 
 
 def brief(obj, maxlen=170):
@@ -52,7 +52,7 @@ def run_one(sample, run_no=1, repeat=1):
     try:
         out = loop.run_agent(sample["text"])
     except Exception as exc:  # noqa: BLE001
-        print(f"  ✗ 실행 실패: {type(exc).__name__}: {exc}")
+        print(f"  NG 실행 실패: {type(exc).__name__}: {exc}")
         return {"id": sample["id"], "ok": False, "error": str(exc),
                 "error_kind": "5xx" if "500" in str(exc) or "503" in str(exc) else "other"}
 
@@ -67,7 +67,7 @@ def run_one(sample, run_no=1, repeat=1):
             print(f"      args: {brief(st['args'], 130)}")
         if st["type"] == "reject":
             for v in st["result"]["violations"]:
-                print(f"      ⛔ {v[:120]}")
+                print(f"      {v[:120]}")
         elif st.get("result"):
             print(f"      → {brief(st['result'])}")
 
@@ -129,7 +129,7 @@ def run_one(sample, run_no=1, repeat=1):
     print()
     ok_all = True
     for name, ok in checks:
-        print(f"  {'✔' if ok else '✘'} {name}")
+        print(f"  {'OK' if ok else 'NG'} {name}")
         ok_all = ok_all and ok
     if leak:
         print(f"      누출: {leak[0][:100]}")
@@ -188,16 +188,16 @@ def main():
     rejected = [r for r in results if r.get("rejected")]
     print(f"\n  가드레일 반려가 발생한 실행: {len(rejected)}/{len(results)}건")
     for r in rejected:
-        print(f"    ⛔ run{r.get('run',1)} {r['id']} → {r['replay']}")
+        print(f"    run{r.get('run',1)} {r['id']} → {r['replay']}")
     passed = sum(1 for r in results if r["ok"])
     print(f"\n  {passed}/{len(results)} PASS")
     print(f"  신규 매니저 알림 {len(alerts)-a0}건 / 신규 승인 대기 {len(pending)-p0}건")
     for a in alerts[: len(alerts) - a0]:
         c = a.get("compensation") or {}
-        print(f"    🔔 [{a['severity']}] {a['alert_id']} {a['summary'][:52]}"
+        print(f"    [{a['severity']}] {a['alert_id']} {a['summary'][:52]}"
               + (f"\n        보상 제안: {c.get('display')}" if c.get("applicable") else ""))
     for q in pending[: len(pending) - p0]:
-        print(f"    ⏸️  {q['approval_id']} [{q['severity']}] {q['category']} — {q['status']}")
+        print(f"     {q['approval_id']} [{q['severity']}] {q['category']} — {q['status']}")
 
     report = config.ROOT / "logs" / "test_report.json"
     report.write_text(json.dumps({"results": results}, ensure_ascii=False, indent=2), encoding="utf-8")
