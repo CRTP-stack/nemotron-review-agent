@@ -1,38 +1,38 @@
 ──────────────────────────────────────────────────────────────────────
-▶ [1단계] [RU] Русский · 환불 요청  (ru-refund)
+▶ [1단계] 🇷🇺 Русский · 환불 요청  (ru-refund)
 ──────────────────────────────────────────────────────────────────────────────
 리뷰: Заказали краба и морского окуня на гриле. Краб оказался настолько пересоленным, что есть было невозможно. Позв…
 
-  step1 [에이전트 결정] check_safety (0.41s)
+  🔧 step1 [에이전트 결정] check_safety (0.41s)
       why: The user has provided a Russian review about ordering crab and grilled sea bass. The crab was too salty to eat, the waiter shrugged, they vi
       args: {"kind": "review", "text": "Заказали краба и морского окуня на гриле. Краб оказался настолько пересоленным, что есть было невозмо…
       → {"kind": "review", "verdict": "safe", "raw": "User Safety: safe", "model": "nvidia/nemotron-3.5-content-safety", "note": "일반 리뷰로 처리 가능."}
-  step2 [에이전트 결정] find_order_candidates (0.0s)
+  🔧 step2 [에이전트 결정] find_order_candidates (0.0s)
       why: The review is safe. Now I need to analyze it. The customer is complaining about:
 1. Crab being too salty to eat
 2. Waiter shrugged shoulders
       args: {"mentioned_items": ["краб", "морской окунь", "гриль"], "language": "ru", "review_date": "2026-09-23"}
       → {"query": {"review_date": "2026-09-23", "mentioned_items": ["краб", "морской окунь", "гриль"], "language": "ru"}, "date_provided": true, "resolved_items": ["cua hoàng đế…
-  step3 [에이전트 결정] search_policy (0.61s)
+  🔧 step3 [에이전트 결정] search_policy (0.61s)
       why: The review mentions a cooking error (over-salted crab) and poor service response (waiter shrugged). The customer wants a refund for the crab
       args: {"top_k": 2, "query": "조리 오류 환불 정책"}
       → {"query": "조리 오류 환불 정책", "model": "nvidia/nemotron-3-embed-1b", "hits": [{"title": "1. 환불 및 재조리 정책", "text": "조리 오류(과도한 간, 덜 익힘, 주문과 다른 메뉴 제공)가 확인된 경우, 식사 중 직원에게 알려주시면\n…
-  step4 [에이전트 결정] notify_manager (0.01s)
+  🔧 step4 [에이전트 결정] notify_manager (0.01s)
       why: The review mentions a cooking error (over-salted crab) and poor service (waiter shrugged). The customer wants a refund for the crab. The ord
       args: {"summary": "러시아어 리뷰: 2026-09-23 방문, 크랩(황제크랩 찜) 과도한 간(조리 오류) 및 직원 무대응 클레임, 크랩 환불 요청", "severity": "medium", "order_id": "HD-20260…
       → {"status": "logged", "alert_id": "AL-7F4B7C9A", "severity": "medium", "compensation": {"applicable": true, "issue_type": "cooking_error", "policy_basis": "§1 조리 오류", "fo…
-  step5 [가드레일] submit_reply (9.43s)
+  ⛔ step5 [가드레일] submit_reply (9.43s)
       why: The user has provided a Russian review about overly salty crab and poor staff response, requesting a refund. I've already:
 
 1. Checked safet
-      G8 위반: 공개 답글에서 보상을 약속했다(вернуть). 환불·금액·무료 제공·바우처·할인은 어떤 카테고리에서도 공개 답글에 쓸 수 없다. 보상안은 매니저 알림에만 남기고, 답글에서는 매니저가 직접 연락드린다고만
-  step6 [가드레일] submit_reply (12.46s)
+      ⛔ G8 위반: 공개 답글에서 보상을 약속했다(вернуть). 환불·금액·무료 제공·바우처·할인은 어떤 카테고리에서도 공개 답글에 쓸 수 없다. 보상안은 매니저 알림에만 남기고, 답글에서는 매니저가 직접 연락드린다고만
+  ⛔ step6 [가드레일] submit_reply (12.46s)
       why: The reply was rejected because I used the word "вернуть" (return) which implies a refund promise. I need to rewrite the reply without any pr
-      G8 위반: 공개 답글에서 보상을 약속했다(вернуть). 환불·금액·무료 제공·바우처·할인은 어떤 카테고리에서도 공개 답글에 쓸 수 없다. 보상안은 매니저 알림에만 남기고, 답글에서는 매니저가 직접 연락드린다고만
-  step7 [가드레일] check_safety (0.6s)
+      ⛔ G8 위반: 공개 답글에서 보상을 약속했다(вернуть). 환불·금액·무료 제공·바우처·할인은 어떤 카테고리에서도 공개 답글에 쓸 수 없다. 보상안은 매니저 알림에만 남기고, 답글에서는 매니저가 직접 연락드린다고만
+  🛡️ step7 [가드레일] check_safety (0.6s)
       args: {"kind": "draft_reply"}
       → {"kind": "draft_reply", "verdict": "safe", "raw": "User Safety: safe\nResponse Safety: safe", "model": "nvidia/nemotron-3.5-content-safety", "note": "답글 초안 게시 가능."}
-  step8 [에이전트 결정] submit_reply (20.5s)
+  ✅ step8 [에이전트 결정] submit_reply (20.5s)
       why: The system is still flagging "вернуть ваше доверие" (regain your trust) as a violation. The word "вернуть" (return) is being interpreted as 
       → {"accepted": true, "status": "자동 게시"}
 
@@ -43,16 +43,16 @@
 
   사용 툴: {'check_safety': 1, 'find_order_candidates': 1, 'search_policy': 1, 'notify_manager': 1, 'submit_reply': 3} | 109.68s | 10콜 44664토큰
 
-  OK 리뷰 안전검사 수행
-  OK 정책 검색 수행
-  OK 답글 언어 선언 일치
-  OK 답글 본문 문자 체계 일치
-  OK 답글 비어있지 않음
-  OK 게시 상태 = 자동 게시
-  OK 심각 건 매니저 알림
-  OK 답글에 내부 데이터 없음
-  OK 답글에 보상 약속 없음
-  OK 보상 금액이 답글에 없음
-  OK degraded 아님
+  ✔ 리뷰 안전검사 수행
+  ✔ 정책 검색 수행
+  ✔ 답글 언어 선언 일치
+  ✔ 답글 본문 문자 체계 일치
+  ✔ 답글 비어있지 않음
+  ✔ 게시 상태 = 자동 게시
+  ✔ 심각 건 매니저 알림
+  ✔ 답글에 내부 데이터 없음
+  ✔ 답글에 보상 약속 없음
+  ✔ 보상 금액이 답글에 없음
+  ✔ degraded 아님
 
   결과: PASS  (109.7s)

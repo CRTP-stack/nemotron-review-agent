@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import json
+import re
 import time
 from pathlib import Path
 
@@ -12,6 +13,71 @@ import streamlit as st
 
 from agent import config, loop, samples
 from agent import tools as agent_tools
+
+
+# ------------------------------------------------------------------ 표시 필터
+# 기록(logs/demo/*)은 실제 실행 그대로 보존한다. 화면에 뿌리기 직전에만 이모지를 거른다.
+FLAG_MAP = {
+    "\U0001F1F0\U0001F1F7": "[KO]",   # 대한민국
+    "\U0001F1FA\U0001F1F8": "[EN]",   # 미국
+    "\U0001F1FB\U0001F1F3": "[VI]",   # 베트남
+    "\U0001F1F7\U0001F1FA": "[RU]",   # 러시아
+}
+# 변형 선택자(VS16/VS15)는 먼저 떼어낸다. ⭐️ = U+2B50 + U+FE0F 처럼 붙어 있어서
+# 먼저 떼야 별 치환이 걸린다.
+_VS_RE = re.compile("[\uFE0E\uFE0F\u200D\u20E3]")
+STAR_MAP = {"\u2B50": "\u2605", "\U0001F31F": "\u2605"}   # 별 이모지 -> 검은 별 ★
+# 화살표(→ U+2192), 박스문자(─), 중점(·), 검은별(★ U+2605)은 남긴다.
+_EMOJI_RE = re.compile(
+    "[\u2600-\u2604\u2606-\u26FF"      # 기타 기호 (★ U+2605 만 제외)
+    "\u2700-\u27BF"                      # 딩뱃
+    "\u2B00-\u2BFF"                      # 별·굵은 화살표 기호
+    "\u23E9-\u23FA"                      # 재생/일시정지 기호 (⏸ ⏯ ⏭)
+    "\u21A9\u21AA\u2934\u2935"          # 이모지로 쓰이는 굽은 화살표 (↩ ↪)
+    "\U0001F000-\U0001FAFF]"             # 이모지 본체
+)
+# 줄 앞 들여쓰기는 건드리지 않도록 "글자 뒤" 공백만 줄인다.
+_MULTISPACE_RE = re.compile(r"(?<=\S)[ \t]{2,}")
+
+
+def strip_emoji(text):
+    """국기는 [KO]/[EN]/[VI]/[RU], 별은 ★ 로 바꾸고 나머지 이모지는 제거한다.
+
+    기록 파일(logs/demo/*)은 실제 실행 그대로 두고, 화면에 뿌리기 직전에만 적용한다.
+    """
+    if not isinstance(text, str):
+        return text
+    for k, v in FLAG_MAP.items():
+        text = text.replace(k, v)
+    text = _VS_RE.sub("", text)
+    for k, v in STAR_MAP.items():
+        text = text.replace(k, v)
+    out = _MULTISPACE_RE.sub(" ", _EMOJI_RE.sub("", text))
+    # 이모지가 지워진 자리의 앞 공백만 정리한다.
+    # 기록 로그의 원래 들여쓰기는 건드리지 않는다(원문이 공백으로 시작한 줄은 그대로).
+    src_lines, out_lines = text.split("\n"), out.split("\n")
+    if len(src_lines) == len(out_lines):
+        fixed = []
+        for src, o in zip(src_lines, out_lines):
+            if src and not src[0].isspace():
+                o = o.lstrip(" \t")
+            if src and not src[-1].isspace():
+                o = o.rstrip(" \t")
+            fixed.append(o)
+        out = "\n".join(fixed)
+    return out
+
+
+def sanitize(obj):
+    """기록에서 읽은 자료구조 전체(문자열/리스트/딕셔너리)에 표시 필터를 적용한다."""
+    if isinstance(obj, str):
+        return strip_emoji(obj)
+    if isinstance(obj, list):
+        return [sanitize(x) for x in obj]
+    if isinstance(obj, dict):
+        return {k: sanitize(v) for k, v in obj.items()}
+    return obj
+
 
 REPLAY_DIR = config.ROOT / "logs" / "demo"
 # 녹화 순서: 쉬운 것 → 복잡한 것 → 유도 샘플
@@ -27,7 +93,7 @@ def load_replays():
             d = json.loads(f.read_text(encoding="utf-8"))
         except Exception:  # noqa: BLE001
             continue
-        found.setdefault(d.get("sample_id", f.stem), []).append((f, d))
+        found.setdefault(d.get("sample_id", f.stem), []).append((f, sanitize(d)))
     ordered = []
     for sid in REPLAY_ORDER:
         for f, d in found.pop(sid, []):
@@ -51,6 +117,7 @@ SEV_COLOR = {"low": "#76b900", "medium": "#ffd60a", "high": "#ff9f0a", "critical
 
 def render_step(step):
     """타임라인 한 단계를 그린다. 실시간·재생 양쪽에서 쓴다."""
+    step = sanitize(step)
     icon, color = STEP_STYLE.get(step["type"], ("•", "#888"))
     actor = "에이전트 스스로 결정" if step["actor"] == "agent" else "코드 가드레일"
     st.markdown(
